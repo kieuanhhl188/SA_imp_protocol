@@ -330,6 +330,110 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 | 4 | `seed_everything` chỉ chạy ở process cha, `mp.spawn` không kế thừa RNG → seed lại trong con | `LongBench/pred.py` |
 | 5 | Thêm `--seed` (chuẩn bị mean±std ≥3 seed) | `LongBench/pred.py` |
 
+### 2026-08-16 — ĐO THẬT: chi phí clustering, và ước tính thời gian của tôi sai nặng
+
+Chạy `offline_clustering.py` trên RepoBench-P thật (LongChat, 5% centroid), dừng sau 2 sample.
+
+**Số đo**
+
+| Sample | K | S (token) | Dung lượng | Thời gian |
+|---|---|---|---|---|
+| 0 | 789 | ~15.900 | 517 MB | ~4 phút |
+| 1 | 1141 | ~22.900 | 748 MB | ~5 phút |
+
+*(S suy ra từ tên file: `K = 5% × (S − 100)`)*
+
+**Công thức đĩa đúng, ước tính thời gian sai 10-60 lần**
+
+- Đĩa: công thức 34 KB/token dự đoán 540 MB và 779 MB → thực tế 517 MB và 748 MB. **Khớp.**
+- Thời gian: tôi đoán 5-30 giây/sample → thực tế **~5 phút/sample**.
+
+Hai nguyên nhân. Một, tôi giả định RepoBench-P trung bình ~8K token dựa trên "Avg len 4206
+words" của LongBench, thực tế hai sample đầu là 15,9K và 22,9K — mà chi phí K-means scale
+**bậc hai** theo S nên sai độ dài 2 lần thành sai thời gian 4 lần. Hai, `run_global_threshold`
+lặp Python qua **K × num_layers** = 789-1141 × 32 ≈ 25.000-36.000 vòng mỗi sample, mỗi vòng
+thao tác trên tensor `[32, S, 100]`.
+
+**Tính lại cho gate đầy đủ**
+
+| | RepoBench-P | LCC (ước tính) | Tổng |
+|---|---|---|---|
+| Thời gian | ~37 giờ | ~2 giờ | **~39 giờ** |
+| Đĩa | ~325 GB | ~68 GB | **~393 GB** |
+| Tiền @ $1,60/h | $59 | $3 | **~$62** |
+
+So với ước tính ban đầu của tôi ($19-38, volume 200 GB): **gấp đôi cả tiền lẫn đĩa**.
+Volume 200 GB không đủ.
+
+**Quyết định: gate chỉ trên LCC** (~2 giờ, ~68 GB, ~$3).
+
+Gate tồn tại để trả lời đúng một câu hỏi — môi trường có tái lập được số của bài không.
+LCC trả lời được câu đó (mốc Sq-70% = 56,93) với 1/20 chi phí. Chạy thêm 37 giờ trên
+RepoBench-P chỉ để xác nhận lại điều LCC đã xác nhận là lãng phí. Bổ sung RepoBench-P sau,
+khi có lý do cụ thể.
+
+Hai đường thay thế nếu về sau cần RepoBench-P đầy đủ: chia shard cho nhiều GPU (trần 7 của
+SXM → ~5 giờ, cần thêm cờ `--shard i/N` vào `offline_clustering.py`), hoặc tối ưu vòng lặp
+Python trong `run_global_threshold`.
+
+### 2026-08-16 — Dựng môi trường trên pod: stack đã kiểm chứng
+
+Mất ~5 giờ pod (~$8) mới ra tổ hợp chạy được. **Ghi lại để không phải mò lại.**
+Bản đầy đủ: `/workspace/working_env.txt` trên pod, và [scripts/setup_pod.sh](scripts/setup_pod.sh)
+đã viết lại theo đúng luồng này.
+
+| Gói | Bản | Ghi chú |
+|---|---|---|
+| Python | **3.10** (venv riêng, dựng bằng `uv`) | image RunPod mặc định 3.12 — không dùng được |
+| torch / triton | 2.3.1+cu121 / **2.3.1** | |
+| flash-attn | 2.6.3 (wheel cp310) | |
+| cuML / cupy | 24.6.1 / 13.6.0 | |
+| numpy / pyarrow / datasets | 1.26.4 / 16.1.0 / 2.20.0 | |
+| transformers | 4.40.0.dev0 (fork, editable) | |
+
+**Sáu cái bẫy, mỗi cái mất từ 20 phút tới 2,5 giờ**
+
+1. **Python 3.12 của image làm hỏng ba thứ cùng lúc.** torch 2.3.1 khai báo
+   `triton==2.3.1 ; python_version < "3.12"` nên trên 3.12 nó *không* kéo triton, để nguyên
+   triton 3.4 của image — mà kernel dùng `tl.math.exp2` (API Triton 2.x). RAPIDS bản cp312
+   đòi `numpy>=2` còn torch 2.3 cần `numpy<2`. flash-attn không có wheel cp312 cho torch2.3.
+   → Dựng venv Python 3.10, cả ba tự tan.
+2. **`uv venv` không cài pip vào venv** → gõ `pip` rơi vào pip hệ thống, cài nhầm vào Python
+   3.12. Ba lần cài torch đầu tiên đều mất trắng vì lỗi này. → Dùng `python -m pip`.
+3. **pip 23.0.1 do `ensurepip` cấp có bug chuẩn hoá tên**: gặp `Jinja2` báo "inconsistent
+   Name: expected 'jinja2'", bỏ wheel, quay sang build sdist rồi chết vì thiếu `flit_core`.
+   → Nâng pip trước khi cài gì khác.
+4. **`pip install flash-attn` build từ nguồn 2,5 giờ** (~5 job song song trên 16 nhân, ~$4
+   tiền GPU). Wheel dựng sẵn chỉ có trên GitHub Releases, tên phải khớp *đồng thời* torch
+   minor + cxx11abi + python + cuda. → Cài thẳng URL wheel, 2 phút.
+5. **`datasets` đời mới kéo pyarrow≥21 → phá cudf 24.6** (`pyarrow.lib has no attribute
+   PyExtensionType`) → phá luôn cuML. → Ghim `datasets==2.20.0` + `pyarrow 16.1`.
+6. **`squeezedattention/kernels.py` dòng 3 có `import pytest`** (sót từ repo gốc), mà
+   `modeling_llama.py` import kernels ở top-level → thiếu `pytest` thì
+   `from transformers import LlamaForCausalLM` cũng chết.
+
+**Hai lỗi của tôi trong script, đã sửa**
+- `setup_pod.sh` bước kiểm transformers so `REPO_ROOT` (đường dẫn symlink `/workspace/sa`)
+  với `transformers.__file__` (đường dẫn đã giải symlink) → báo "SAI: không phải bản fork"
+  trong khi fork hoàn toàn đúng. Đã đổi sang `os.path.realpath` cả hai vế.
+- `requirements.txt` ghim `numpy<2` mà không lường RAPIDS 26.8 đòi `numpy>=2` — chính là
+  bẫy #1. Đã viết lại toàn bộ file kèm lý do từng ràng buộc.
+
+**Ba chi tiết vận hành**
+- `df -h /workspace` hiện dung lượng **cả cụm MooseFS** (404T), không phải hạn mức volume.
+  Phải xem trên dashboard RunPod.
+- `/workspace` là **network filesystem**, không phải ổ cục bộ — ghi 500 file × ~272 MB có
+  thể chậm hơn dự tính.
+- LongBench có custom loader, hỏi `[y/N]` khi load → job dài không người trông sẽ **treo**.
+  Đặt `HF_DATASETS_TRUST_REMOTE_CODE=1` (đã đưa vào `env.sh`).
+
+**Đã xác nhận chạy thật trên GPU**
+- `tl.math.exp2` biên dịch OK trên triton 2.3.1 — câu hỏi treo suốt buổi đã có đáp án
+- `run_clustering` chạy đúng shape trên đường cupy + cuML + dlpack + torch
+- 3 bộ test CPU: PASS
+- `prepare_code_data.py` trên RepoBench-P thật: **0/3 truncate, 0/3 lệch template,
+  0/3 lệch token id** — lần đầu code Phase 1.4 chạy trên dữ liệu thật
+
 ### 2026-08-15 — Phase 2: structure-aware clustering
 
 **File mới**

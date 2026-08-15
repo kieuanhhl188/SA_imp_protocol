@@ -1,38 +1,58 @@
-# Squeezed Attention — dependency đầy đủ để chạy pipeline offline clustering + online eval.
+# Squeezed Attention — phiên bản ĐÃ KIỂM CHỨNG chạy được trên RunPod A100 SXM, 16/8/2026.
 #
-# CẢNH BÁO: KHÔNG cài LongBench/requirements.txt. File đó ghim transformers==4.31.0
-# và sẽ ghi đè bản transformers fork (4.40.0.dev0) đã patch Squeezed Attention.
+# ĐỌC KỸ TRƯỚC KHI ĐỔI BẤT KỲ DÒNG NÀO. Mỗi con số dưới đây là kết quả gỡ một xung đột thật,
+# không phải phỏng đoán. File này KHÔNG dùng để `pip install -r` trực tiếp — dùng
+# `bash scripts/setup_pod.sh` vì thứ tự cài quan trọng hơn danh sách.
 #
-# Thứ tự cài:
-#   conda create -n sqa python=3.10 -y && conda activate sqa
-#   pip install torch --index-url https://download.pytorch.org/whl/cu121
-#   pip install -r requirements.txt
-#   pip install cuml-cu12 cupy-cuda12x --extra-index-url=https://pypi.nvidia.com
-#   cd transformers && pip install -e . && cd .. && pip install -e .
+# ============================================================================
+# RÀNG BUỘC GỐC: Python 3.10
+# ============================================================================
+# Image RunPod mặc định Python 3.12, và trên 3.12 thì KHÔNG dựng được stack này:
+#   - torch 2.3.1 khai báo `triton==2.3.1 ; python_version < "3.12"` -> trên 3.12 nó không
+#     kéo triton, để nguyên triton 3.x của image. Mà kernel dùng `tl.math.exp2` (API 2.x).
+#   - RAPIDS bản cp312 đòi numpy>=2, còn torch 2.3 cần numpy<2. Mâu thuẫn không gỡ được.
+#   - flash-attn không có wheel cp312 cho torch2.3 -> build từ nguồn 2,5 giờ (~$4 GPU).
+# Python 3.10 gỡ cả ba cùng lúc.
 #
-# cuml/cupy (RAPIDS) KHÔNG cài được qua PyPI thường -> phải dùng --extra-index-url ở trên.
-# Chọn hậu tố -cu12 / -cu11 theo CUDA runtime của máy.
-
-# --- core ---
-# GHIM torch 2.3.1: ràng buộc đến từ TRITON chứ không phải torch.
-# squeezedattention/kernels.py dùng `tl.math.exp2` — API Triton 2.x. Triton 3.x đã chuyển
-# tl.math.* sang tl.* và bỏ dần hàm cũ, kernel sẽ lỗi lúc biên dịch.
-#   torch 2.3.x -> Triton 2.3  (đúng)
-#   torch 2.8.x -> Triton 3.3+ (hỏng)
+# ============================================================================
+# CORE — ràng buộc thật đến từ TRITON, không phải torch
+# ============================================================================
+# squeezedattention/kernels.py dùng `tl.math.exp2` (9 chỗ) — API Triton 2.x.
+# torch 2.3.x -> triton 2.3.1 (đúng)   |   torch 2.8.x -> triton 3.3+ (hỏng kernel)
 # torch 2.3 cũng cùng thời với transformers 4.40.0.dev0 trong repo (đều khoảng 3-4/2024).
+# Cài kèm: --index-url https://download.pytorch.org/whl/cu121
 torch==2.3.1
-numpy<2
-scikit-learn
+triton==2.3.1          # torch tự kéo trên Python 3.10; ghi ra đây để đối chiếu
 
-# --- kernel Squeezed Attention (squeezedattention/kernels.py import top-level) ---
-# torch tự kéo triton đúng bản; ghim thêm để chặn nhầm
-triton>=2.2,<3
+# numpy PHẢI < 2: torch 2.3 build theo numpy 1.x, và RAPIDS 24.6 cũng dùng numpy 1.x
+numpy==1.26.4
+scikit-learn           # squeezedattention/clustering.py import sklearn.preprocessing
 
-# --- attention backend (config đặt _attn_implementation="flash_attention_2") ---
-flash-attn>=2.5.0
+# ============================================================================
+# RAPIDS — bản 24.6, KHÔNG dùng bản mới
+# ============================================================================
+# clustering.py import cupy + cuml ở TOP-LEVEL nên thiếu là crash ngay lúc import.
+# RAPIDS 24.6 cùng thời CUDA 12.1 nên không kéo đè nvidia-*-cu12 của torch (bản 26.x kéo
+# cu12.9 đè lên cu12.1, phá torch). Cài kèm: --extra-index-url=https://pypi.nvidia.com
+# cuml-cu12==24.6.*
+# cupy-cuda12x<14
 
-# --- dataset + eval LongBench ---
-datasets
+# ============================================================================
+# flash-attn — CÀI TỪ WHEEL, đừng để pip build
+# ============================================================================
+# `pip install flash-attn` mặc định build từ nguồn: 2,5 giờ với ~5 job song song.
+# Wheel dựng sẵn chỉ có trên GitHub Releases, tên phải khớp ĐỒNG THỜI 4 thứ:
+# torch minor, cxx11abi, python version, cuda.
+# https://github.com/Dao-AILab/flash-attention/releases/download/v2.6.3/
+#   flash_attn-2.6.3+cu123torch2.3cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+
+# ============================================================================
+# DATASET + EVAL — ghim đời 2024
+# ============================================================================
+# datasets đời mới kéo pyarrow>=21, phá cudf 24.6 với lỗi
+# `module 'pyarrow.lib' has no attribute 'PyExtensionType'`, kéo theo cuML chết.
+datasets==2.20.0
+pyarrow>=16.1,<16.2
 tqdm
 rouge
 jieba
@@ -42,13 +62,15 @@ einops
 sentencepiece
 protobuf
 accelerate
+hf_transfer            # image RunPod đặt HF_HUB_ENABLE_HF_TRANSFER=1; thiếu gói này là lỗi
+# pytest KHÔNG phải để chạy test: squeezedattention/kernels.py dòng 3 có `import pytest`
+# (sót từ repo gốc), mà modeling_llama.py import kernels ở top-level -> thiếu nó thì
+# `from transformers import LlamaForCausalLM` cũng chết.
+pytest
 
-# --- chat template cho longchat/vicuna (squeezedattention/utils.py -> build_chat) ---
-# Chỉ cần cho dataset NGOÀI {trec, triviaqa, samsum, lcc, repobench-p}.
-# Gate Phase 0 chạy lcc/repobench-p nên không bắt buộc.
-fschat
-
-# --- Phase 2 trở đi: AST parsing ---
+# ============================================================================
+# Phase 2 — AST parsing
+# ============================================================================
 # KHÔNG dùng tree-sitter-languages: gói đó không build được trên nhiều môi trường.
 # struct_clustering.py viết theo API tree_sitter mới + gói ngôn ngữ riêng từng thứ tiếng.
 tree-sitter>=0.22
@@ -56,10 +78,16 @@ tree-sitter-python
 tree-sitter-java
 tree-sitter-javascript
 
-# --- phân tích / plot ---
+# ============================================================================
+# Phân tích / plot
+# ============================================================================
 matplotlib
 pandas
 
-# --- KHÔNG cài qua file này (xem chú thích đầu file) ---
-# cuml-cu12
-# cupy-cuda12x
+# ============================================================================
+# TUYỆT ĐỐI KHÔNG
+# ============================================================================
+# pip install -r LongBench/requirements.txt
+#   -> file đó ghim transformers==4.31.0 và ghi đè bản fork đã patch Squeezed Attention.
+#      Model sẽ chạy như bản gốc, mọi cờ use_centroids biến mất, và số đo ra "gần đúng"
+#      một cách gây nhầm lẫn.

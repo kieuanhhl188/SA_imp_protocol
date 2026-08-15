@@ -1,13 +1,31 @@
 #!/bin/bash
 # ====================================================================
-# setup_pod.sh — dựng môi trường trên RunPod A100 80GB PCIe
-#
-# Chạy MỘT LẦN sau khi tạo pod. Idempotent: chạy lại không hỏng gì.
+# setup_pod.sh — dựng môi trường trên RunPod A100 80GB SXM
 #
 #   bash scripts/setup_pod.sh
 #
-# Thứ tự cài KHÔNG được đảo. flash-attn cần torch có sẵn lúc build; transformers fork
-# phải cài SAU cùng để không bị gói khác kéo bản PyPI đè lên.
+# Bản này viết lại sau khi dựng thật ngày 16/8/2026. Toàn bộ phiên bản dưới đây là tổ hợp
+# ĐÃ CHẠY ĐƯỢC, không phải phỏng đoán. Đừng đổi lung tung — mỗi con số đều có lý do.
+#
+# NĂM CÁI BẪY đã gặp, script này chặn sẵn cả năm:
+#
+#  1. Python của image quá mới (3.12). torch 2.3.1 khai báo `triton==2.3.1 ; python<3.12`
+#     nên trên 3.12 nó KHÔNG kéo triton, để nguyên triton 3.4 của image. Mà kernel dùng
+#     `tl.math.exp2` (API Triton 2.x). Thêm nữa RAPIDS bản cp312 đòi numpy>=2 còn torch 2.3
+#     cần numpy<2 — mâu thuẫn không gỡ được. => Dựng venv Python 3.10 riêng.
+#
+#  2. `uv venv` KHÔNG cài pip vào venv, nên gõ `pip` sẽ rơi vào pip hệ thống và cài nhầm
+#     vào Python 3.12. => Dùng `python -m pip` ở mọi nơi.
+#
+#  3. pip do `ensurepip` cấp là bản 23.0.1, có bug chuẩn hoá tên package: gặp `Jinja2` thì
+#     báo "inconsistent Name: expected 'jinja2'", bỏ wheel, quay sang build sdist rồi chết
+#     vì thiếu flit_core. => Nâng pip TRƯỚC khi cài gì khác.
+#
+#  4. `pip install flash-attn` mặc định BUILD TỪ NGUỒN — mất 2,5 giờ (~$4 tiền GPU) vì
+#     không có wheel khớp. Wheel dựng sẵn chỉ có trên GitHub Releases. => Cài thẳng URL wheel.
+#
+#  5. `datasets` đời mới kéo pyarrow>=21, phá cudf 24.6 (`pyarrow.lib has no attribute
+#     PyExtensionType`) và kéo theo cuML chết. => Ghim datasets 2.20 + pyarrow 16.1.
 # ====================================================================
 set -e
 
@@ -15,167 +33,183 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 WORKSPACE="${WORKSPACE:-/workspace}"
+VENV="${VENV:-$WORKSPACE/venv310}"
 PYVER="${PYVER:-3.10}"
+
+# Phiên bản đã kiểm chứng chạy được (16/8/2026)
+TORCH_VERSION="${TORCH_VERSION:-2.3.1}"
+FLASH_ATTN_WHL="${FLASH_ATTN_WHL:-https://github.com/Dao-AILab/flash-attention/releases/download/v2.6.3/flash_attn-2.6.3+cu123torch2.3cxx11abiFALSE-cp310-cp310-linux_x86_64.whl}"
 
 echo "=================================================================="
 echo "  Dựng môi trường Squeezed Attention"
 echo "  Repo:      $REPO_ROOT"
-echo "  Workspace: $WORKSPACE"
+echo "  Venv:      $VENV  (Python $PYVER)"
 echo "=================================================================="
 
-# ---------- 0. Kiểm tra phần cứng và CUDA ----------
+# ---------- 0. Phần cứng ----------
 echo ""
 echo ">>> [0] Phần cứng"
-nvidia-smi --query-gpu=index,name,memory.total,driver_version --format=csv,noheader
-CUDA_MAJOR="$(nvcc --version 2>/dev/null | grep -oP 'release \K[0-9]+' || echo '')"
-if [ -z "$CUDA_MAJOR" ]; then
-  CUDA_MAJOR="$(nvidia-smi | grep -oP 'CUDA Version: \K[0-9]+' || echo 12)"
-fi
-echo "    CUDA major = $CUDA_MAJOR"
-if [ "$CUDA_MAJOR" != "12" ]; then
-  echo "    [!] Script này viết cho CUDA 12. Với CUDA 11 phải đổi cuml-cu12 -> cuml-cu11,"
-  echo "        cupy-cuda12x -> cupy-cuda11x, và chọn wheel torch/flash-attn tương ứng."
-fi
+nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader
+df -h "$WORKSPACE" | tail -1
+echo "    LƯU Ý: df hiện dung lượng cả cụm MooseFS, KHÔNG phải hạn mức volume của bạn."
+echo "           Xem hạn mức thật trên dashboard RunPod."
 
-# ---------- 1. Thư mục trên volume ----------
+# ---------- 1. Venv Python 3.10 ----------
 echo ""
-echo ">>> [1] Thư mục trên volume (dữ liệu phải nằm ngoài container disk)"
+echo ">>> [1] Venv Python $PYVER (bẫy #1)"
+if [ ! -x "$VENV/bin/python" ]; then
+  if ! command -v uv >/dev/null && [ ! -x "$HOME/.local/bin/uv" ]; then
+    echo "    cài uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  fi
+  UV="$HOME/.local/bin/uv"
+  [ -x "$UV" ] || UV="$(command -v uv)"
+  "$UV" venv --python "$PYVER" "$VENV"
+fi
+# shellcheck disable=SC1091
+source "$VENV/bin/activate"
+PY="$VENV/bin/python"
+echo "    $($PY -V)"
+
+# ---------- 2. pip trong venv ----------
+# Bẫy #2 + #3: uv venv không có pip; ensurepip cấp pip 23.0.1 quá cũ.
+echo ""
+echo ">>> [2] pip trong venv (bẫy #2, #3)"
+$PY -m pip --version >/dev/null 2>&1 || $PY -m ensurepip --upgrade
+$PY -m pip install -q -U pip setuptools wheel
+echo "    $($PY -m pip --version)"
+
+# ---------- 3. Thư mục + biến môi trường ----------
+echo ""
+echo ">>> [3] Thư mục trên volume"
 mkdir -p "$WORKSPACE"/{hf,fixed-prompt-clusters,phase0_results,phase1_data}
 cat > "$WORKSPACE/env.sh" <<EOF
 # source /workspace/env.sh trước mỗi phiên làm việc
+source $VENV/bin/activate
 export HF_HOME=$WORKSPACE/hf
 export SQA_CLUSTER_DIR=$WORKSPACE/fixed-prompt-clusters
 export SQA_RESULT_DIR=$WORKSPACE/phase0_results
 export SQA_PHASE1_DIR=$WORKSPACE/phase1_data
 export CUDA_VISIBLE_DEVICES=0
 export TOKENIZERS_PARALLELISM=false
+# LongBench có custom loader; không đặt biến này thì job dài sẽ TREO ở prompt [y/N]
+export HF_DATASETS_TRUST_REMOTE_CODE=1
 EOF
-# shellcheck disable=SC1090
-source "$WORKSPACE/env.sh"
 echo "    đã ghi $WORKSPACE/env.sh"
-df -h "$WORKSPACE" | tail -1
 
-# ---------- 2. Torch ----------
-# GHIM 2.3.1. Lý do là TRITON, không phải torch:
-#   squeezedattention/kernels.py dùng `tl.math.exp2` (9 chỗ) — API Triton 2.x.
-#   Triton 3.x đã chuyển tl.math.* sang tl.* và bỏ dần hàm cũ.
-#   torch 2.3.x -> Triton 2.3 (đúng)     torch 2.8 -> Triton 3.3+ (hỏng kernel)
-# Ngoài ra torch 2.3 cùng thời với transformers 4.40.0.dev0 (đều khoảng 3-4/2024).
-TORCH_VERSION="${TORCH_VERSION:-2.3.1}"
+# ---------- 4. Torch (kéo theo triton 2.3.1) ----------
 echo ""
-echo ">>> [2] PyTorch $TORCH_VERSION (CUDA 12.1)"
-CUR="$(python -c 'import torch;print(torch.__version__)' 2>/dev/null || echo none)"
-if [[ "$CUR" == "$TORCH_VERSION"* ]]; then
-  echo "    đã đúng bản: $CUR"
-else
-  echo "    đang có '$CUR' -> cài $TORCH_VERSION"
-  pip install -q "torch==$TORCH_VERSION" --index-url https://download.pytorch.org/whl/cu121
-fi
-
-python - <<'PY'
-import torch
+echo ">>> [4] PyTorch $TORCH_VERSION + Triton"
+$PY -m pip install -q "torch==$TORCH_VERSION" --index-url https://download.pytorch.org/whl/cu121
+$PY - <<'PY'
+import torch, triton
 print(f"    torch {torch.__version__} | cuda {torch.version.cuda} | "
       f"available={torch.cuda.is_available()} | cxx11abi={torch._C._GLIBCXX_USE_CXX11_ABI}")
-try:
-    import triton
-    v = triton.__version__
-    major = int(v.split('.')[0])
-    print(f"    triton {v}")
-    if major >= 3:
-        print("    [!!] Triton 3.x: kernel dùng tl.math.exp2 (API 2.x) rất có thể sẽ lỗi")
-        print("         khi biên dịch. Hạ torch: TORCH_VERSION=2.3.1 bash scripts/setup_pod.sh")
-except ImportError:
-    print("    [!] chưa có triton — lẽ ra torch phải kéo theo")
+print(f"    triton {triton.__version__}")
+assert triton.__version__.startswith("2."), (
+    "Triton phải là 2.x — kernel dùng tl.math.exp2 (API 2.x). "
+    "Ra 3.x nghĩa là venv không phải Python 3.10.")
 PY
 
-# ---------- 3. flash-attn ----------
-# Build từ nguồn mất 30-60 phút. Ưu tiên wheel dựng sẵn; tên wheel phải khớp ĐỒNG THỜI
-# torch minor, CUDA major, phiên bản python, và cờ cxx11abi in ở trên.
+# ---------- 5. numpy + RAPIDS ----------
+# RAPIDS 24.6 cùng thời CUDA 12.1 nên KHÔNG kéo đè nvidia-*-cu12 của torch, và dùng numpy 1.x.
 echo ""
-echo ">>> [3] flash-attn"
-if python -c "import flash_attn" 2>/dev/null; then
-  echo "    đã có: $(python -c 'import flash_attn;print(flash_attn.__version__)')"
+echo ">>> [5] numpy + cuML + CuPy"
+$PY -m pip install -q "numpy<2" "cuml-cu12==24.6.*" "cupy-cuda12x<14" \
+    --extra-index-url=https://pypi.nvidia.com
+
+# ---------- 6. flash-attn từ wheel ----------
+echo ""
+echo ">>> [6] flash-attn (bẫy #4 — build từ nguồn mất 2,5 giờ)"
+if $PY -c "import flash_attn" 2>/dev/null; then
+  echo "    đã có: $($PY -c 'import flash_attn;print(flash_attn.__version__)')"
 else
-  echo "    thử wheel dựng sẵn; nếu trượt sẽ build từ nguồn (chậm)"
-  pip install -q flash-attn --no-build-isolation || {
-    echo "    [!] cài flash-attn thất bại."
-    echo "        Lấy wheel khớp tại https://github.com/Dao-AILab/flash-attention/releases"
-    echo "        Tên wheel dạng: flash_attn-<ver>+cu12<torch>cxx11abi<TRUE|FALSE>-cp310-...whl"
-    echo "        Chọn cxx11abi khớp giá trị in ở bước [2]."
+  CODE="$(curl -sIL -o /dev/null -w '%{http_code}' "$FLASH_ATTN_WHL")"
+  if [ "$CODE" = "200" ]; then
+    $PY -m pip install -q "$FLASH_ATTN_WHL"
+  else
+    echo "    [!] wheel không tồn tại (HTTP $CODE)."
+    echo "        Tìm wheel khớp tại https://github.com/Dao-AILab/flash-attention/releases"
+    echo "        Phải khớp ĐỒNG THỜI: torch minor, cxx11abi (in ở bước [4]), python, cuda."
+    echo "        Rồi chạy lại với: FLASH_ATTN_WHL=<url> bash scripts/setup_pod.sh"
     exit 1
-  }
+  fi
 fi
 
-# ---------- 4. RAPIDS ----------
-# squeezedattention/clustering.py import cupy + cuml ở TOP-LEVEL -> thiếu là crash ngay khi
-# import, không phải lúc chạy.
+# ---------- 7. Dependency còn lại ----------
+# Bẫy #5: datasets mới kéo pyarrow>=21 -> phá cudf 24.6 -> phá cuML.
 echo ""
-echo ">>> [4] cuML + CuPy (RAPIDS)"
-python -c "import cuml, cupy" 2>/dev/null && echo "    đã có" || \
-  pip install -q cuml-cu12 cupy-cuda12x --extra-index-url=https://pypi.nvidia.com
+echo ">>> [7] Dependency còn lại (bẫy #5 — ghim datasets + pyarrow)"
+# pytest: KHÔNG phải để chạy test — squeezedattention/kernels.py có `import pytest` ở dòng 3
+# (sót lại từ repo gốc), mà modeling_llama.py import kernels ở top-level. Thiếu nó là
+# `from transformers import LlamaForCausalLM` cũng chết.
+$PY -m pip install -q "datasets==2.20.0" "pyarrow>=16.1,<16.2" \
+    scikit-learn hf_transfer pytest tqdm rouge jieba fuzzywuzzy python-Levenshtein \
+    einops sentencepiece protobuf accelerate matplotlib pandas \
+    tree-sitter tree-sitter-python tree-sitter-java tree-sitter-javascript
 
-# ---------- 5. Dependency còn lại ----------
+# ---------- 8. transformers fork — PHẢI cài SAU CÙNG ----------
 echo ""
-echo ">>> [5] Dependency còn lại"
-# Bỏ qua các dòng đã cài ở trên để pip không đổi phiên bản torch/flash-attn
-grep -vE '^(torch|flash-attn|triton)\b' requirements.txt > /tmp/req_rest.txt
-pip install -q -r /tmp/req_rest.txt
+echo ">>> [8] transformers fork"
+$PY -m pip install -q -e ./transformers
+$PY -m pip install -q -e .
 
-# ---------- 6. transformers fork — PHẢI cài SAU CÙNG ----------
-echo ""
-echo ">>> [6] transformers fork (bản đã patch Squeezed Attention)"
-pip install -q -e ./transformers
-pip install -q -e .
-
-python - <<PY
+$PY - <<PY
 import sys, transformers, os
-root = os.path.abspath("$REPO_ROOT")
-p = os.path.abspath(transformers.__file__)
-ok = root in p and transformers.__version__.startswith("4.40")
+# realpath cả hai vế: repo hay được truy cập qua symlink (vd /workspace/sa), mà
+# transformers.__file__ trả về đường dẫn ĐÃ giải symlink -> so chuỗi trực tiếp sẽ báo sai.
+root = os.path.realpath("$REPO_ROOT")
+p = os.path.realpath(transformers.__file__)
 print(f"    transformers {transformers.__version__}")
 print(f"    {p}")
-if not ok:
+if not (root in p and transformers.__version__.startswith("4.40")):
     print("    [!!] SAI: không phải bản fork trong repo.")
-    print("         Nguyên nhân hay gặp: đã lỡ chạy pip install -r LongBench/requirements.txt")
-    print("         (file đó ghim transformers==4.31.0 và ghi đè fork).")
-    print("         Sửa: pip uninstall -y transformers && pip install -e ./transformers")
+    print("         KHÔNG chạy pip install -r LongBench/requirements.txt (ghim 4.31.0).")
     sys.exit(1)
 PY
 
-# ---------- 7. tree-sitter cho Phase 2 ----------
+# ---------- 9. Kiểm tra tổng thể ----------
 echo ""
-echo ">>> [7] tree-sitter (Phase 2)"
-# KHÔNG dùng tree_sitter_languages: gói đó không build được trên nhiều môi trường.
-# Bản mới dùng API tree_sitter + gói ngôn ngữ riêng.
-pip install -q tree-sitter tree-sitter-python tree-sitter-java tree-sitter-javascript
-python -c "
-from tree_sitter import Language, Parser
-import tree_sitter_python as tsp
-Parser(Language(tsp.language())).parse(b'def f():\n    pass\n')
-print('    tree-sitter OK')
-"
-
-# ---------- 8. Kiểm tra tổng thể ----------
-echo ""
-echo ">>> [8] Kiểm tra môi trường"
-python scripts/record_env.py --out "$SQA_RESULT_DIR/env_record.json" --note "setup_pod"
+echo ">>> [9] Kiểm tra môi trường"
+$PY - <<'PY'
+import numpy, torch, triton, cupy, flash_attn, transformers, datasets, pyarrow, tree_sitter
+from cuml.cluster import KMeans
+print(f"    numpy {numpy.__version__} | pyarrow {pyarrow.__version__} | datasets {datasets.__version__}")
+print(f"    torch {torch.__version__} | triton {triton.__version__} | flash_attn {flash_attn.__version__}")
+print(f"    cupy {cupy.__version__} | cuml OK | transformers {transformers.__version__}")
+PY
 
 echo ""
-echo ">>> [9] Test chạy CPU (không cần GPU, xác nhận code không hỏng)"
-python scripts/test_struct_clustering.py > /tmp/t1.log 2>&1 && echo "    struct_clustering: PASS" || { echo "    struct_clustering: FAIL"; tail -20 /tmp/t1.log; }
-python scripts/test_gqa_port.py         > /tmp/t2.log 2>&1 && echo "    gqa_port:          PASS" || { echo "    gqa_port:          FAIL"; tail -20 /tmp/t2.log; }
-python scripts/prepare_code_data.py --self_test > /tmp/t3.log 2>&1 && echo "    prepare_code_data: PASS" || { echo "    prepare_code_data: FAIL"; tail -20 /tmp/t3.log; }
+echo ">>> [10] Kernel Triton chạy thật"
+# Phải chạy từ FILE: triton JIT đọc mã nguồn qua inspect, `python -c` không có file nên lỗi
+# "could not get source code" — đó là lỗi phương pháp, không phải lỗi triton.
+printf 'import torch, triton, triton.language as tl\n@triton.jit\ndef k(x, o, N: tl.constexpr):\n    i = tl.arange(0, N)\n    tl.store(o + i, tl.math.exp2(tl.load(x + i)))\na = torch.zeros(16, device="cuda"); b = torch.empty_like(a)\nk[(1,)](a, b, 16)\nprint("    tl.math.exp2 OK", b[:3].tolist())\n' > /tmp/_tt.py
+$PY /tmp/_tt.py
+
+echo ""
+echo ">>> [11] Đường clustering thật (cupy + cuML + dlpack + torch)"
+$PY -c "import torch; from squeezedattention.clustering import run_clustering; c,l = run_clustering({0: torch.randn(1,4,300,128).cuda()}, 10, observation_window=100, device='cuda:0'); print('    run_clustering OK', tuple(c[0].shape), tuple(l[0].shape))"
+
+echo ""
+echo ">>> [12] Test CPU"
+$PY scripts/test_struct_clustering.py > /tmp/t1.log 2>&1 && echo "    struct_clustering: PASS" || { echo "    struct_clustering: FAIL"; tail -20 /tmp/t1.log; }
+$PY scripts/test_gqa_port.py         > /tmp/t2.log 2>&1 && echo "    gqa_port:          PASS" || { echo "    gqa_port:          FAIL"; tail -20 /tmp/t2.log; }
+$PY scripts/prepare_code_data.py --self_test > /tmp/t3.log 2>&1 && echo "    prepare_code_data: PASS" || { echo "    prepare_code_data: FAIL"; tail -20 /tmp/t3.log; }
+
+echo ""
+echo ">>> [13] Ghi lại môi trường"
+$PY scripts/record_env.py --out "$WORKSPACE/phase0_results/env_record.json" --note "setup_pod"
+$PY -m pip freeze > "$WORKSPACE/working_env.txt"
+echo "    đã ghi $WORKSPACE/working_env.txt"
 
 echo ""
 echo "=================================================================="
-echo "  Xong. Mỗi phiên mới nhớ:  source $WORKSPACE/env.sh"
+echo "  Xong. Mỗi phiên mới:  source $WORKSPACE/env.sh"
 echo ""
 echo "  Bước tiếp theo, KHÔNG đảo thứ tự:"
-echo "    1. bash scripts/phase0_gate.sh                      # gate môi trường"
-echo "    2. python scripts/prepare_code_data.py qwen2.5-coder-7b-instruct \\"
-echo "         --dataset lcc --limit 3"
-echo "    3. python offline_clustering.py qwen2.5-coder-7b-instruct \\"
-echo "         --dataset lcc --percent_clusters 5 --output_path /tmp/smoke/"
-echo "    4. python offline_clustering_struct.py qwen2.5-coder-7b-instruct \\"
-echo "         --dataset lcc --method hard_boundary --limit 3 --output_path /tmp/smoke2/"
+echo "    1. python scripts/prepare_code_data.py longchat-v1.5-7b-32k --dataset repobench-p --limit 3"
+echo "    2. python offline_clustering.py longchat-v1.5-7b-32k --dataset repobench-p \\"
+echo "         --percent_clusters 5 --output_path /workspace/smoke/   # đo s/it rồi Ctrl-C"
+echo "    3. du -sh /workspace/smoke/                                  # đo MB/sample"
+echo "    4. bash scripts/phase0_gate.sh                               # gate đầy đủ"
 echo "=================================================================="
