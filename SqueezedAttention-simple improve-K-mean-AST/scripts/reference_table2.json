@@ -1,0 +1,32 @@
+{
+  "_source": "Hooper et al., 'Squeezed Attention: Accelerating Long Context Length LLM Inference', ACL 2025 (2025.acl-long.1568), Table 2, trang 7.",
+  "_note": "Chỉ trích 2 cột code task (RB = RepoBench-P, LCC) cộng 2 cột trung bình. 'budget' = expected % KV cache phải load (đã gồm overhead centroid).",
+  "_longbench_allkv_reference": {
+    "_comment": "Số All-KV trong LongBench README gốc KHÁC số All-KV của bài (prompt/truncation khác nhau). Dùng số của BÀI làm mốc gate, không dùng số này.",
+    "longchat-v1.5-7b-32k": {"lcc": 53.0, "repobench-p": 55.3}
+  },
+
+  "longchat-v1.5-7b-32k": {
+    "All KV":    {"budget": 1.0,   "repobench-p": 53.20, "lcc": 56.64, "avg_star": 38.71, "avg": 38.89},
+    "Sq-70%":    {"budget": 0.325, "repobench-p": 54.64, "lcc": 56.93, "avg_star": 38.94, "avg": 39.08},
+    "Sq-80%":    {"budget": 0.225, "repobench-p": 52.83, "lcc": 57.17, "avg_star": 38.85, "avg": 39.02},
+    "Sq-90%":    {"budget": 0.125, "repobench-p": 51.57, "lcc": 56.95, "avg_star": 38.25, "avg": 38.46},
+    "H-Sq-90%":  {"budget": 0.122, "repobench-p": 51.89, "lcc": 57.20, "avg_star": 38.02, "avg": 38.23}
+  },
+
+  "LLaMA-2-7B-32K": {
+    "All KV":    {"budget": 1.0,   "repobench-p": 61.45, "lcc": 59.14, "avg_star": 33.98, "avg": 34.69},
+    "Sq-70%":    {"budget": 0.325, "repobench-p": 61.29, "lcc": 59.53, "avg_star": 33.88, "avg": 34.60},
+    "Sq-80%":    {"budget": 0.225, "repobench-p": 61.26, "lcc": 59.78, "avg_star": 33.76, "avg": 34.52},
+    "Sq-90%":    {"budget": 0.125, "repobench-p": 58.79, "lcc": 59.37, "avg_star": 33.70, "avg": 34.52},
+    "H-Sq-90%":  {"budget": 0.112, "repobench-p": 58.94, "lcc": 59.61, "avg_star": 33.45, "avg": 34.26}
+  },
+
+  "LWM-Text-Chat-1M": {
+    "All KV":    {"budget": 1.0,   "repobench-p": 41.77, "lcc": 40.72, "avg_star": 32.42, "avg": 32.94},
+    "Sq-70%":    {"budget": 0.325, "repobench-p": 41.06, "lcc": 40.76, "avg_star": 32.31, "avg": 32.84},
+    "Sq-80%":    {"budget": 0.225, "repobench-p": 42.07, "lcc": 41.89, "avg_star": 32.31, "avg": 32.82},
+    "Sq-90%":    {"budget": 0.125, "repobench-p": 44.78, "lcc": 43.80, "avg_star": 32.61, "avg": 33.13},
+    "H-Sq-90%":  {"budget": 0.118, "repobench-p": 44.31, "lcc": 43.34, "avg_star": 32.02, "avg": 32.55}
+  }
+}

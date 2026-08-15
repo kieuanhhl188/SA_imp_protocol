@@ -1,0 +1,65 @@
+# Squeezed Attention — dependency đầy đủ để chạy pipeline offline clustering + online eval.
+#
+# CẢNH BÁO: KHÔNG cài LongBench/requirements.txt. File đó ghim transformers==4.31.0
+# và sẽ ghi đè bản transformers fork (4.40.0.dev0) đã patch Squeezed Attention.
+#
+# Thứ tự cài:
+#   conda create -n sqa python=3.10 -y && conda activate sqa
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+#   pip install -r requirements.txt
+#   pip install cuml-cu12 cupy-cuda12x --extra-index-url=https://pypi.nvidia.com
+#   cd transformers && pip install -e . && cd .. && pip install -e .
+#
+# cuml/cupy (RAPIDS) KHÔNG cài được qua PyPI thường -> phải dùng --extra-index-url ở trên.
+# Chọn hậu tố -cu12 / -cu11 theo CUDA runtime của máy.
+
+# --- core ---
+# GHIM torch 2.3.1: ràng buộc đến từ TRITON chứ không phải torch.
+# squeezedattention/kernels.py dùng `tl.math.exp2` — API Triton 2.x. Triton 3.x đã chuyển
+# tl.math.* sang tl.* và bỏ dần hàm cũ, kernel sẽ lỗi lúc biên dịch.
+#   torch 2.3.x -> Triton 2.3  (đúng)
+#   torch 2.8.x -> Triton 3.3+ (hỏng)
+# torch 2.3 cũng cùng thời với transformers 4.40.0.dev0 trong repo (đều khoảng 3-4/2024).
+torch==2.3.1
+numpy<2
+scikit-learn
+
+# --- kernel Squeezed Attention (squeezedattention/kernels.py import top-level) ---
+# torch tự kéo triton đúng bản; ghim thêm để chặn nhầm
+triton>=2.2,<3
+
+# --- attention backend (config đặt _attn_implementation="flash_attention_2") ---
+flash-attn>=2.5.0
+
+# --- dataset + eval LongBench ---
+datasets
+tqdm
+rouge
+jieba
+fuzzywuzzy
+python-Levenshtein
+einops
+sentencepiece
+protobuf
+accelerate
+
+# --- chat template cho longchat/vicuna (squeezedattention/utils.py -> build_chat) ---
+# Chỉ cần cho dataset NGOÀI {trec, triviaqa, samsum, lcc, repobench-p}.
+# Gate Phase 0 chạy lcc/repobench-p nên không bắt buộc.
+fschat
+
+# --- Phase 2 trở đi: AST parsing ---
+# KHÔNG dùng tree-sitter-languages: gói đó không build được trên nhiều môi trường.
+# struct_clustering.py viết theo API tree_sitter mới + gói ngôn ngữ riêng từng thứ tiếng.
+tree-sitter>=0.22
+tree-sitter-python
+tree-sitter-java
+tree-sitter-javascript
+
+# --- phân tích / plot ---
+matplotlib
+pandas
+
+# --- KHÔNG cài qua file này (xem chú thích đầu file) ---
+# cuml-cu12
+# cupy-cuda12x
