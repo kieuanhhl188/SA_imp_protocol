@@ -330,6 +330,46 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 | 4 | `seed_everything` chỉ chạy ở process cha, `mp.spawn` không kế thừa RNG → seed lại trong con | `LongBench/pred.py` |
 | 5 | Thêm `--seed` (chuẩn bị mean±std ≥3 seed) | `LongBench/pred.py` |
 
+### 2026-08-16 — Sự cố hết quota đĩa ở mẫu 113/500, và bản vá chạy tiếp
+
+**Chuyện gì xảy ra.** Clustering LCC chết ở mẫu 113/500 sau 1 giờ 40 phút:
+
+```
+RuntimeError: [enforce fail at inline_container.cc:764] . PytorchStreamWriter failed writing file data/1
+tee: /workspace/logs/2_clustering.log: Disk quota exceeded
+```
+
+Volume thực tế được cấp ~50-55 GB, không phải 200 GB như tôi khuyến nghị. Lúc vỡ đang dùng
+53 GB: `venv310` 15 GB + `hf` 14 GB + centroid 16 GB + `.cache` 6,8 GB + repo 1,2 GB.
+Mà riêng centroid cho đủ 500 mẫu LCC cần **~71 GB**.
+
+**`df` không phát hiện được.** `/workspace` là MooseFS dùng chung; `df` báo dung lượng cả cụm
+(404 TB, còn 121 TB) chứ không biết gì về hạn mức riêng. Ghi vượt hạn mức thì báo
+`Disk quota exceeded` trong khi `df` vẫn hiện hàng trăm terabyte trống. Muốn biết hạn mức thật
+phải xem dashboard RunPod, hoặc thử ghi (`dd`) rồi xoá.
+
+**Bản vá: bỏ qua mẫu đã có kết quả** ([offline_clustering.py](offline_clustering.py) trong
+vòng lặp chính). Trước mỗi mẫu, kiểm tra `global_threshold_{dataidx}_{K}.pt` đã tồn tại chưa;
+có rồi thì `continue`.
+
+Không đổi kết quả — chỉ tránh tính lại thứ đã nằm trên đĩa. Cứu được 1 giờ 40 phút của lần
+chạy này, nhưng lý do chính là **Phase 5/6 sẽ chạy clustering hàng chục lượt, mỗi lượt nhiều
+giờ**; đứt giữa chừng là chuyện chắc chắn xảy ra, và trước bản vá thì mỗi lần đứt là mất toàn
+bộ tiến độ.
+
+Ghi chú: mẫu 113 có 2 file dở dang (`centroids_tensor` đã ghi, `centroids_labels` thì chưa).
+Bản vá kiểm tra `global_threshold` — file ghi **sau cùng** — nên mẫu dở dang sẽ được làm lại
+đúng như phải thế.
+
+**Ba lỗi vận hành trong lúc xử lý, đều của tôi:**
+1. Vòng chờ dùng `pgrep -f offline_clustering.py`, mà dòng lệnh của **chính nó** cũng chứa
+   chuỗi đó → tự khớp → lặp vô hạn, bước 3-6 không bao giờ chạy. Đổi sang `kill -0 <PID>`.
+2. `pgrep -f "offline_clustering.py --dataset lcc"` không khớp vì tên model nằm giữa
+   (`offline_clustering.py longchat-... --dataset lcc`). Dùng `pgrep -af offline_clustering`.
+3. Tin vào PID mà bash in ra sau `&`. Với lệnh dạng `source ... && cd ... && nohup python ... &`
+   thì `&` áp lên **cả chuỗi**: bash tạo subshell, subshell thoát sau khi `nohup` tiếp quản,
+   PID đó bị hệ thống cấp lại cho tiến trình khác. Phải lấy PID bằng `pgrep -af <script>`.
+
 ### 2026-08-16 — Gate LCC: phân bố độ dài thật + chi phí đo được
 
 **Phase 1.4 trên toàn bộ 500 sample LCC** (40 giây): `1/500` truncate, `0/500` lệch template,

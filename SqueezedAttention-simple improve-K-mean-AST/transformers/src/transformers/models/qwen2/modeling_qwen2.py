@@ -669,7 +669,9 @@ class Qwen2FlashAttention2(Qwen2Attention):
             )
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size).contiguous()
-        attn_output = self.o_proj(attn_output)
+        # Cùng lý do như bản Llama: kernel Triton dùng chung cấp phát output cứng ở fp32
+        # (`_attention_causal.forward`), model chạy bf16 -> o_proj ném lỗi dtype.
+        attn_output = self.o_proj(attn_output.to(self.o_proj.weight.dtype))
 
         # === Squeezed Attention: trả q/k/v (trước repeat_kv) cho offline clustering ===
         if qkv_states_for_clustering is not None:

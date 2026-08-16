@@ -869,7 +869,12 @@ class LlamaFlashAttention2(LlamaAttention):
             value_states = value_states.transpose(1, 2)
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size).contiguous()
-        attn_output = self.o_proj(attn_output)
+        # Kernel Triton cấp phát output cứng ở fp32 (`_attention_causal.forward`:
+        # `o = torch.empty(q.shape, ..., dtype=torch.float32)`), trong khi model chạy bf16.
+        # Không ép kiểu ở đây thì o_proj ném:
+        #   RuntimeError: expected mat1 and mat2 to have the same dtype, but got: float != BFloat16
+        # Chỉ lộ ra ở đường use_centroids; đường flash attention thường trả đúng bf16.
+        attn_output = self.o_proj(attn_output.to(self.o_proj.weight.dtype))
 
         if self.return_qkv_states or recompute_context:
             attn_weights = (query_states, key_states, value_states)
