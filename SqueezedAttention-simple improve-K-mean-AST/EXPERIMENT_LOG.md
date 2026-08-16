@@ -330,6 +330,46 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 | 4 | `seed_everything` chỉ chạy ở process cha, `mp.spawn` không kế thừa RNG → seed lại trong con | `LongBench/pred.py` |
 | 5 | Thêm `--seed` (chuẩn bị mean±std ≥3 seed) | `LongBench/pred.py` |
 
+### 2026-08-16 — Gate LCC: phân bố độ dài thật + chi phí đo được
+
+**Phase 1.4 trên toàn bộ 500 sample LCC** (40 giây): `1/500` truncate, `0/500` lệch template,
+**`0/500` lệch token id**. Xác nhận ở quy mô đầy đủ, không chỉ 3 sample.
+
+**Phân bố độ dài LCC** (đọc từ `lcc_meta.jsonl`, không phải ước lượng):
+
+| | token |
+|---|---|
+| min | 1.280 |
+| trung vị | 3.080 |
+| trung bình | 4.290 |
+| max | 31.494 |
+| **đĩa cần** | **73 GB** |
+
+**Tìm ra nguồn gốc sai lầm ước tính hôm qua.** LongBench công bố LCC "1235 words",
+RepoBench-P "4206 words". Tôi quy đổi **2 token/word**; thực tế code là **3,5 token/word**
+(4290 / 1235). Áp tỉ lệ đúng cho RepoBench-P: 4206 × 3,5 = 14.700 — khớp với 15.900 đo được.
+Dùng 3,5 ngay từ đầu thì đã không lệch.
+
+**Chi phí clustering LCC đo được**
+
+| | |
+|---|---|
+| Tốc độ | **42,5 giây/sample** |
+| Tổng 500 sample | **~6 giờ** |
+| GPU utilization | **54-61%** |
+
+Ước tính của tôi là 1,5-4 giờ → sai tiếp, lần này 1,5-4 lần (lần trước 10-60 lần).
+
+**Vì sao chậm hơn dự đoán bậc hai.** Theo tỉ lệ S² từ RepoBench-P (S=15.900 → 240s), LCC với
+S=4.290 lẽ ra chỉ 17,5 giây. Thực tế 42,5 giây. Phần dư ~25 giây/sample là **ghi đĩa**:
+mỗi sample ~146 MB lên MooseFS ≈ 5,8 MB/s. GPU 54-61% xác nhận: khoảng 40% thời gian chờ I/O,
+không phải nghẽn hoàn toàn ở I/O cũng không phải hoàn toàn ở tính toán.
+
+**Cải tiến cho Phase 5/6** (lúc đó clustering chạy hàng chục lượt): lưu centroid ở **fp16**
+thay fp32 → giảm nửa dung lượng ghi (73 → 37 GB) và phần lớn thời gian chờ I/O. Centroid chỉ
+dùng để so cosine, fp16 dư chính xác. Không áp dụng cho lần gate này vì D3 đã chốt chạy trên
+code nguyên bản.
+
 ### 2026-08-16 — ĐO THẬT: chi phí clustering, và ước tính thời gian của tôi sai nặng
 
 Chạy `offline_clustering.py` trên RepoBench-P thật (LongChat, 5% centroid), dừng sau 2 sample.

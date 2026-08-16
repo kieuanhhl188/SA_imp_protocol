@@ -128,6 +128,15 @@ if __name__ == "__main__":
 
     # load dataset format
     for dataidx, d in enumerate(tqdm(data)):
+        # Bỏ qua mẫu đã có kết quả -> chạy tiếp được sau khi job đứt giữa chừng.
+        # Không đổi kết quả: chỉ tránh tính lại thứ đã nằm trên đĩa. Cần thiết vì clustering
+        # chạy nhiều giờ và Phase 5/6 sẽ lặp lại hàng chục lượt.
+        if not args.hierarchical_lookup:
+            _sp = shared_prefix_length[dataidx]
+            _nc = max(1, int((args.percent_clusters / 100.0) * (_sp - args.observation_window)))
+            if os.path.exists(f'{args.output_path}/global_threshold_{dataidx}_{_nc}.pt'):
+                continue
+
         all_queries_layers = []
         all_keys_layers = []
         all_values_layers = []
