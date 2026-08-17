@@ -24,6 +24,7 @@
 #   bash scripts/phase1_gate.sh --full           # ca 500 mau LCC
 #   bash scripts/phase1_gate.sh --skip-cluster   # dung lai centroid da co
 #   bash scripts/phase1_gate.sh --data-only      # chi buoc [1], khong dung GPU
+#   bash scripts/phase1_gate.sh --model qwen2.5-coder-7b-instruct   # doi model
 #
 # Chi phi uoc tinh cho 20 mau: ~30-45 phut ke ca tai model 15 GB (~$1).
 # Qwen2.5-Coder-7B co 4 head KV (vs 32 cua LongChat) -> centroid nho hon ~8 lan,
@@ -39,9 +40,11 @@ cd "$SQA_REPO_ROOT"
 LIMIT="$SQA_PHASE1_LIMIT"
 SKIP_CLUSTER=0
 DATA_ONLY=0
+MODEL_OVERRIDE=""
 while [ $# -gt 0 ]; do
   case $1 in
     --limit) LIMIT="$2"; shift 2 ;;
+    --model) MODEL_OVERRIDE="$2"; shift 2 ;;
     --full) LIMIT=0; shift ;;
     --skip-cluster) SKIP_CLUSTER=1; shift ;;
     --data-only) DATA_ONLY=1; shift ;;
@@ -49,7 +52,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-MODEL="$SQA_MODEL_CODE"
+MODEL="${MODEL_OVERRIDE:-$SQA_MODEL_CODE}"
 DATASET="$SQA_PHASE1_TASK"
 
 # Centroid cua Qwen phai nam THU MUC RIENG, khong tron voi centroid LongChat cua

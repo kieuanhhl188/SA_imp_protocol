@@ -340,6 +340,80 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 
 ## 6. Thay đổi code
 
+### 2026-08-17 — Chạy gate Phase 1: bản port GQA đúng, nhưng model chọn sai
+
+**Đường Squeezed Attention trên Qwen2 hoạt động.** Đây là kết quả thật, giữ nguyên giá trị:
+
+| | |
+|---|---|
+| `num_attention_heads=28 \| num_key_value_heads=4 \| num_hidden_layers=28` | centroid sinh từ 4 head KV, **trước** `repeat_kv` — đúng thiết kế |
+| Tokenizer nhanh/chậm Qwen2 | **0/20 lệch token id** trên fork 4.40 thật. Câu hỏi mở duy nhất của bản port, nay đã đóng |
+| File centroid | 60/60 CRC đúng, đủ bộ ba cho cả 20 mẫu |
+| `shared_prefix_length` | assert qua hết 20 mẫu → offline và online khớp nhau |
+
+**Clustering rẻ hơn nhiều so với LongChat** — đổi hẳn ngân sách Phase 5/6:
+
+| | LongChat (32 head KV) | Qwen2.5-Coder (4 head KV) |
+|---|---:|---:|
+| Thời gian | 42,5 giây/mẫu | **5,4 giây/mẫu** |
+| Đĩa | ~146 MB/mẫu | **~10 MB/mẫu** |
+| Cả 500 mẫu LCC | 6 giờ, 68 GB | **~45 phút, ~5 GB** |
+
+Đúng tỉ lệ ~8× từ 32 head KV xuống 4. Lần đầu một ước tính của tôi khớp.
+
+**Nhưng: All-KV = 17,60** (LongChat cùng task được 54,83). Prediction thô cho thấy model
+sinh ra **gần như không gì cả**:
+
+```
+sample 0  RAW: '\n\n\n... (31 dòng trống)'      CHẤM: ''
+sample 1  RAW: ' ```'                            CHẤM: ''
+sample 4  RAW: " ```\nobj['next_line']\n``` "    CHẤM: "obj['next_line']"
+```
+
+Mẫu 4 lộ rõ nhất: model đọc `"Next line of code:"` như câu hỏi trừu tượng rồi bịa ra một
+cái tên, thay vì hoàn thành đoạn code đang dở.
+
+**Nguyên nhân: lệch model instruct với prompt completion thô.** Qwen2.5-Coder-**Instruct**
+được huấn luyện trong khung ChatML; LongBench thì **cố ý bỏ** chat template cho
+lcc/repobench-p (`truncate_fn` bỏ qua `build_chat` với 5 dataset này, comment gốc ghi
+*"chat models are better off without build prompts on these tasks"*). Không có khung đó,
+model rơi vào chế độ trợ lý, mở một khối markdown rồi phát token kết thúc sớm.
+
+**Không phải lỗi pipeline, cũng không phải lỗi bản port:**
+- Cùng đường ống đó LongChat ra 54,83.
+- Đây là nhánh **All-KV, không dùng centroid nào**.
+- Model vẫn sinh markdown fence đúng cú pháp và định danh Python hợp lệ — attention hỏng
+  thì ra ký tự loạn, không ra thế này.
+
+**Quyết định: chuyển sang bản base `Qwen/Qwen2.5-Coder-7B`** (thêm vào `model2path.json`
++ `model2maxlen.json`, `configs/phase1.sh` đổi mặc định). LCC/RepoBench-P là điền dòng code
+tiếp theo trong ngữ cảnh repo — base model tiếp tục code tự nhiên, không có chế độ trợ lý
+để rơi vào. **Hệ quả cần theo dõi:** RepoPreFixQA của Phase 6 là task QA, chỗ đó lại cần
+instruct. Nếu kết cục dùng hai model cho hai loại task thì phải ghi rõ trong paper.
+
+**Bài học quan trọng hơn: gate báo PASS trong khi cả hai con số đều vô nghĩa.**
+
+Tiêu chí "Sq-70% không tệ hơn All-KV" thấy `20,85 ≥ 17,60` và kết luận PASS. Nó không thể
+phát hiện được, vì **cả hai đường cùng hỏng theo cùng một kiểu** — đúng giới hạn tôi đã
+viết vào `check_phase1.py` từ đầu, và nó xảy ra ngay lần chạy đầu tiên.
+
+Đã vá bằng cách kiểm **riêng biệt**, chạy **trước** khi so điểm: đếm tỉ lệ mẫu mà
+`code_sim_score` chấm vào một **dòng rỗng**. Vượt 25% là FAIL ngay, kèm chẩn đoán. Lần chạy
+vừa rồi có tỉ lệ **80%** — ngưỡng này bắt được.
+
+Nguyên tắc rút ra, áp cho cả Phase 5/6: **một chỉ số tương đối không tự bảo vệ được mình.**
+So A với B chỉ có nghĩa khi đã biết A và B đều nằm trong dải hợp lệ. Mọi gate về sau phải
+có một khẳng định tuyệt đối đứng trước khẳng định tương đối.
+
+Thêm [scripts/inspect_preds.py](scripts/inspect_preds.py) — in prediction thô cạnh
+**dòng mà metric thật sự chấm**. Khoảng cách giữa "model sinh gì" và "metric thấy gì" là
+chỗ ẩn nấp của cả lớp lỗi này; `code_sim_score` lấy dòng đầu tiên không chứa `` ` ``, `#`,
+`//`, nên `` ```\nfoo()\n``` `` bị chấm ở dòng rỗng chứ không phải ở `foo()`.
+
+**Chi tiết vận hành:** Sq-70% chậm hơn All-KV (4,84 vs 1,74 giây/mẫu). Context ở 20 mẫu đầu
+chỉ 1,4–4,4K token; ở độ dài đó chi phí nạp centroid từ đĩa lớn hơn phần tiết kiệm. SA
+thiết kế cho 128K. **Đừng đo latency Phase 7 ở độ dài này.**
+
 ### 2026-08-17 — Phase 1: hai bug chặn bản port Qwen, và bộ công cụ gate
 
 Đọc lại đường Qwen trước khi thuê pod. **Không chạy GPU nào cho mục này.**

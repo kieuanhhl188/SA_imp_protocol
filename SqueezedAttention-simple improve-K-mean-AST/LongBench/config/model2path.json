@@ -10,5 +10,6 @@
     "LLaMA-2-7B-32K": "togethercomputer/LLaMA-2-7B-32K",
     "Phi-3-mini-128k-instruct": "microsoft/Phi-3-mini-128k-instruct",
     "LWM-Text-Chat-1M": "LargeWorldModel/LWM-Text-Chat-1M",
-    "qwen2.5-coder-7b-instruct": "Qwen/Qwen2.5-Coder-7B-Instruct"
+    "qwen2.5-coder-7b-instruct": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "qwen2.5-coder-7b": "Qwen/Qwen2.5-Coder-7B"
 }

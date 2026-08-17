@@ -59,6 +59,37 @@ def load_score(pred_dir, dirname, task):
     return res.get(task), path
 
 
+def degenerate_ratio(pred_dir, dirname, task):
+    """Ti le mau ma metric cham vao mot dong RONG.
+
+    Bai hoc 17/8: gate bao PASS (Sq-70% 20.85 >= All-KV 17.60) trong khi ca hai con so
+    deu vo nghia — model instruct sinh ra gan nhu khong gi ca, va `code_sim_score` cham
+    vao dong rong. Tieu chi "Sq-70% khong te hon All-KV" khong the phat hien ca do, vi
+    ca hai duong cung hong theo cung mot kieu. Nen phai kiem RIENG.
+
+    Tra ve (ti_le, so_mau) hoac (None, 0) neu khong doc duoc file.
+    """
+    path = os.path.join(pred_dir, dirname, f"{task}.jsonl")
+    if not os.path.exists(path):
+        return None, 0
+    n = n_empty = 0
+    try:
+        for line in open(path, encoding="utf-8"):
+            if not line.strip():
+                continue
+            pred = json.loads(line).get("pred", "")
+            chosen = ""
+            for ln in pred.lstrip("\n").split("\n"):
+                if ("`" not in ln) and ("#" not in ln) and ("//" not in ln):
+                    chosen = ln
+                    break
+            n += 1
+            n_empty += int(not chosen.strip())
+    except Exception:
+        return None, 0
+    return (n_empty / n if n else None), n
+
+
 def append_md_log(md_path, args, rows, verdict, env, meta):
     from datetime import datetime
 
@@ -79,6 +110,8 @@ def append_md_log(md_path, args, rows, verdict, env, meta):
     ]
     if meta.get("tokenizer_check"):
         lines.append(f"- Phase 1.4 (offset/tokenizer): {meta['tokenizer_check']}")
+    if meta.get("degenerate"):
+        lines.append(f"- Dòng được metric chấm bị **rỗng**: {meta['degenerate']}")
     if env:
         lines.append(f"- GPU: `{env['gpu']}`  (CUDA_VISIBLE_DEVICES=`{env['cuda_visible']}`)")
         fork = "đúng fork" if env["is_fork"] else "**KHÔNG phải fork trong repo**"
@@ -125,6 +158,9 @@ def main():
     ap.add_argument("--tolerance", type=float, default=2.0,
                     help="Sq-70% duoc phep thap hon All-KV toi da bao nhieu diem. "
                          "Mac dinh 2.0, cung muc da chot o Phase 0")
+    ap.add_argument("--max_degenerate", type=float, default=0.25,
+                    help="ti le toi da mau co dong-duoc-cham RONG. Vuot nguong nay thi "
+                         "FAIL truoc khi so diem, vi diem khong con y nghia")
     ap.add_argument("--env_record", default=None)
     ap.add_argument("--console_log", default=None)
     ap.add_argument("--run_note", default=None)
@@ -152,7 +188,37 @@ def main():
     print()
 
     rows = []
-    meta = {"tokenizer_check": args.tokenizer_check, "delta": None}
+    meta = {"tokenizer_check": args.tokenizer_check, "delta": None, "degenerate": None}
+
+    # --- Chan output rong TRUOC khi so diem ---
+    # Neu model sinh sai dinh dang thi moi con so sau day deu vo nghia, ke ca hieu so.
+    deg_rows = []
+    for label, dirname in (("All-KV", d_base), ("Sq-70%", d_sq)):
+        ratio, n = degenerate_ratio(args.pred_dir, dirname, args.task)
+        if ratio is not None:
+            deg_rows.append((label, ratio, n))
+    worst = max((r for _, r, _ in deg_rows), default=0.0)
+    if deg_rows:
+        meta["degenerate"] = "; ".join(f"{lb} {100*r:.0f}% ({n} mẫu)" for lb, r, n in deg_rows)
+        print("  Dong duoc metric cham bi RONG: "
+              + ", ".join(f"{lb} {100*r:.0f}%" for lb, r, _ in deg_rows))
+        print()
+
+    if worst > args.max_degenerate:
+        print(f"  ❌ FAIL — {100*worst:.0f}% mau co dong cham RONG "
+              f"(nguong {100*args.max_degenerate:.0f}%).")
+        print("     Diem so KHONG phan anh chat luong retrieval, no phan anh viec model")
+        print("     sinh sai DINH DANG. Hieu so Sq-70% vs All-KV o day vo nghia.")
+        print("     Xem prediction tho:  python scripts/inspect_preds.py "
+              f"{os.path.join(args.pred_dir, d_base, args.task + '.jsonl')}")
+        print("     Nguyen nhan thuong gap: model instruct + prompt completion tho")
+        print("     (LongBench bo chat template cho lcc/repobench-p) -> dung ban base.")
+        if not args.no_log_md:
+            env = env_summary(args.env_record)
+            rows.append(("All KV", args.task, base, "output rỗng, điểm vô nghĩa"))
+            rows.append(("Sq-70%", args.task, sq, "output rỗng, điểm vô nghĩa"))
+            append_md_log(args.log_md, args, rows, "FAIL", env, meta)
+        return 1
 
     if base is None or sq is None:
         verdict = "NO_DATA"

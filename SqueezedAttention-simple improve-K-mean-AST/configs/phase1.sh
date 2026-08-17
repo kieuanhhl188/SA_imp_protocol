@@ -11,8 +11,22 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/phase0.sh"
 
-# --- Model chinh (quyet dinh D1, chot 15/8) ---
-export SQA_MODEL_CODE="qwen2.5-coder-7b-instruct"
+# --- Model chinh (quyet dinh D1, chot 15/8; xem lai 17/8) ---
+#
+# MAC DINH LA BAN BASE, KHONG PHAI INSTRUCT. Do 17/8 tren 20 mau LCC:
+#   qwen2.5-coder-7b-instruct  ->  All-KV 17.60   (prediction gan nhu rong)
+# Instruct duoc huan luyen trong khung ChatML; LongBench cho lcc/repobench-p thi
+# co y BO chat template (build_chat bo qua hai task nay), nen model roi vao che do
+# tro ly, mo mot khoi markdown roi phat token ket thuc som. Khong phai loi pipeline:
+# cung duong ong do LongChat ra 54.83, va day la nhanh All-KV khong dung centroid nao.
+#
+# LCC/RepoBench-P la dien dong code tiep theo trong ngu canh repo -> base model la
+# dung cong cu. Doi lai: RepoPreFixQA cua Phase 6 la task QA, cho do can instruct.
+# Neu ket cuc dung hai model cho hai loai task thi PHAI ghi ro trong paper.
+#
+# Ghi de bang bien moi truong hoac co --model cua phase1_gate.sh:
+#   SQA_MODEL_CODE=qwen2.5-coder-7b-instruct bash scripts/phase1_gate.sh
+export SQA_MODEL_CODE="${SQA_MODEL_CODE:-qwen2.5-coder-7b}"
 
 # --- So sample cho smoke test cua gate Phase 1 ---
 # Muc dich cua gate la xac nhan duong GQA nap/tra dung centroid, KHONG phai do
