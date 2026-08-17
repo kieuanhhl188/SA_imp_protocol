@@ -24,12 +24,24 @@ import textwrap
 import sys
 from squeezedattention.utils import build_chat, truncate_fn
 
+_CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+
+
+def _known_models():
+    """Danh sách model hợp lệ lấy thẳng từ model2path.json.
+
+    Trước đây danh sách này hard-code trong argparse, nên thêm model mới vào
+    model2path.json/model2maxlen.json là chưa đủ — `--model` vẫn bị argparse từ chối
+    (chính là ca qwen2.5-coder-7b-instruct của Phase 1.5). Đọc từ file để hai chỗ
+    không bao giờ lệch nhau nữa.
+    """
+    with open(os.path.join(_CONFIG_DIR, "model2path.json"), "r", encoding="utf-8") as f:
+        return sorted(json.load(f).keys())
+
+
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default=None, choices=["llama2-7b-chat-4k", "longchat-v1.5-7b-32k", "xgen-7b-8k",
-                                                                    "internlm-7b-8k", "chatglm2-6b", "chatglm2-6b-32k",
-                                                                    "chatglm3-6b-32k", "vicuna-v1.5-7b-16k", "LLaMA-2-7B-32K",
-                                                                    "LWM-Text-Chat-1M"])
+    parser.add_argument('--model', type=str, default=None, choices=_known_models())
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     parser.add_argument("--path_to_clusters", type=str, default="/tmp")
     parser.add_argument("--use_centroids", action="store_true")
@@ -45,6 +57,10 @@ def parse_args(args=None):
     parser.add_argument("--overwrite", action="store_true",
                         help="xoá file .jsonl cũ trước khi chạy. pred.py ghi ở chế độ append, "
                              "chạy lại mà không có cờ này sẽ nhân đôi prediction -> eval.py ra số sai")
+    parser.add_argument("--limit", type=int, default=-1,
+                        help="chỉ chạy N sample ĐẦU (smoke test); -1 = cả dataset. "
+                             "Kết quả ghi vào thư mục có hậu tố _lim<N> để không lẫn với "
+                             "lượt chạy đầy đủ. eval.py phải truyền cùng --limit để đọc được")
     return parser.parse_args(args)
 
 def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_only_format, dataset, device, model_name, model2path, out_path, config_params):
@@ -148,7 +164,13 @@ def load_model_and_tokenizer(path, model_name, device, config_params):
     model = model.to(device)
 
     if is_qwen2:
-        tokenizer = AutoTokenizer.from_pretrained(path)
+        # use_fast=False BẮT BUỘC: offline_clustering.py cũng load use_fast=False.
+        # truncate_fn tính shared_prefix_length bằng tokenizer, nên hai bên dùng
+        # tokenizer khác nhau mà lệch dù chỉ 1 token thì centroid_labels không còn
+        # khớp vị trí key -> assert `shared_prefix_length` ở modeling_qwen2 (~L1347)
+        # nổ sau khi đã nạp xong model 15 GB, mất trắng cả lượt chạy.
+        # (Đường LLaMA vốn đã đúng: LlamaTokenizer là bản chậm.)
+        tokenizer = AutoTokenizer.from_pretrained(path, use_fast=False)
     else:
         tokenizer = LlamaTokenizer.from_pretrained(path)
 
@@ -210,6 +232,12 @@ if __name__ == '__main__':
             else:
                 savepath = f"pred/{model_name}_PC{args.percent_clusters}_PERC{args.percentile}"
 
+        # Hậu tố _lim<N>: điểm của N sample đầu KHÔNG so được với điểm của cả 500 sample.
+        # Không tách thư mục thì một lượt smoke test sẽ lặng lẽ ghi đè kết quả đầy đủ —
+        # cùng loại lỗi với bug append #3 của Phase 0.
+        if args.limit > 0:
+            savepath = f"{savepath}_lim{args.limit}"
+
         if not os.path.exists(savepath):
             os.makedirs(savepath)
         out_path = savepath + f"/{dataset}.jsonl"
@@ -229,6 +257,12 @@ if __name__ == '__main__':
 
         for i in range(len(data_all)):
             data_all[i]['different_prefix_index'] = i
+
+        # Cắt SAU khi gán different_prefix_index -> index vẫn là 0..N-1, khớp đúng tên
+        # file centroid mà offline_clustering.py --limit N đã sinh ra.
+        if args.limit > 0:
+            data_all = data_all[:args.limit]
+            print(f'[limit] chi chay {len(data_all)}/{len(data)} sample dau -> {savepath}')
 
         data_subsets = [data_all[i::world_size] for i in range(world_size)]
 

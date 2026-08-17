@@ -41,6 +41,10 @@ if __name__ == "__main__":
     parser.add_argument("--percent_clusters_l2", type=int, default=-1)
     parser.add_argument('--observation_window', type=int, default=100)
     parser.add_argument('--device', type=int, default=0)
+    parser.add_argument('--limit', type=int, default=-1,
+                        help="chi cluster N sample DAU (smoke test); -1 = ca dataset. "
+                             "Phai truyen dung N nay cho LongBench/pred.py --limit, "
+                             "vi pred.py tra centroid theo different_prefix_index = 0..N-1")
 
     args = parser.parse_args()
     DEV = torch.device(f"cuda:{args.device}")
@@ -95,6 +99,15 @@ if __name__ == "__main__":
     prompt_format = dataset2prompt[dataset]
     prompt_only_format = dataset2prompt[dataset_name_prompt]
     data_all = [data_sample for data_sample in data]
+
+    # --limit: cat ca danh sach mau NGAY TU DAY, khong chi trong vong lap chinh.
+    # Vong profiling ben duoi tokenize 2 lan/mau bang tokenizer CHAM; voi Qwen2 do la
+    # BPE thuan Python nen quet ca 500 mau cho mot smoke test 10 mau la lang phi that su.
+    n_total = len(data_all)
+    if args.limit > 0 and args.limit < n_total:
+        data_all = data_all[:args.limit]
+        data = [data[i] for i in range(args.limit)]
+        print(f"[limit] chi xu ly {len(data_all)}/{n_total} sample dau")
 
     # different prefix profiling offline (also need to account for truncation)
     shared_prefix_length = {}

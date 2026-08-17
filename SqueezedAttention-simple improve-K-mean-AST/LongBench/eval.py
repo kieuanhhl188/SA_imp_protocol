@@ -49,6 +49,9 @@ def parse_args(args=None):
     parser.add_argument("--percent_clusters_l2", type=int, default=-1)
     parser.add_argument("--percentile", type=float, default=0.5)
     parser.add_argument("--percentile_lower", type=float, default=0.7)
+    parser.add_argument("--limit", type=int, default=-1,
+                        help="đọc thư mục có hậu tố _lim<N> do `pred.py --limit N` sinh ra. "
+                             "Phải trùng đúng N đã dùng ở pred.py")
     return parser.parse_args(args)
 
 def scorer_e(dataset, predictions, answers, lengths, all_classes):
@@ -83,15 +86,21 @@ def scorer(dataset, predictions, answers, all_classes):
 if __name__ == '__main__':
     args = parse_args()
     scores = dict()
+    # Tên thư mục config dựng MỘT lần rồi dùng lại cho cả chỗ đọc và chỗ ghi.
+    # Trước đây dựng hai lần bằng hai khối if giống hệt nhau -> sửa một bên quên bên
+    # kia là kết quả rơi vào thư mục khác chỗ đọc.
     if not args.use_centroids:
-        path = f"pred/{args.model}_baseline/"
+        config_dir = f"{args.model}_baseline"
+    elif args.hierarchical_lookup:
+        config_dir = (f"{args.model}_PC1_{args.percent_clusters}_PERC1_{args.percentile}"
+                      f"_PC2_{args.percent_clusters_l2}_PERC2_{args.percentile_lower}_lookup")
     else:
+        config_dir = f"{args.model}_PC{args.percent_clusters}_PERC{args.percentile}"
 
-        if args.hierarchical_lookup:
-            path = f"pred/{args.model}_PC1_{args.percent_clusters}_PERC1_{args.percentile}_PC2_{args.percent_clusters_l2}_PERC2_{args.percentile_lower}_lookup/"
-        else:
-            path = f"pred/{args.model}_PC{args.percent_clusters}_PERC{args.percentile}/"
+    if args.limit > 0:
+        config_dir = f"{config_dir}_lim{args.limit}"
 
+    path = f"pred/{config_dir}/"
     all_files = os.listdir(path)
     print("Evaluating on:", all_files)
     for filename in all_files:
@@ -112,13 +121,7 @@ if __name__ == '__main__':
         scores[dataset] = score
 
 
-    if not args.use_centroids:
-        out_path = f"pred/{args.model}_baseline/result.json"
-    else:
-        if args.hierarchical_lookup:
-            out_path = f"pred/{args.model}_PC1_{args.percent_clusters}_PERC1_{args.percentile}_PC2_{args.percent_clusters_l2}_PERC2_{args.percentile_lower}_lookup/result.json"
-        else:
-            out_path = f"pred/{args.model}_PC{args.percent_clusters}_PERC{args.percentile}/result.json"
+    out_path = f"{path}result.json"
 
     with open(out_path, "w") as f:
         json.dump(scores, f, ensure_ascii=False, indent=4)

@@ -203,6 +203,29 @@ def run(args):
     meta_path = os.path.join(args.output_path, f"{args.dataset}_meta.jsonl")
     npz_path = os.path.join(args.output_path, f"{args.dataset}_offsets.npz")
 
+    # Tên file KHÔNG chứa tên model, mà offset thì phụ thuộc hoàn toàn vào tokenizer.
+    # Chạy script này cho Qwen sau khi đã chạy cho LongChat sẽ lặng lẽ đè mất bộ offset
+    # 500 mẫu của LongChat — và Phase 2 thì không có cách nào biết mình đang đọc offset
+    # của model nào. Chặn ở đây, bắt phải nói rõ ý định.
+    if os.path.exists(meta_path) and not args.overwrite:
+        prev_model = None
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                first = f.readline()
+            if first.strip():
+                prev_model = json.loads(first).get("model")
+        except Exception:
+            pass
+        if prev_model is not None and prev_model != args.model:
+            raise SystemExit(
+                f"[ERROR] {meta_path} đang chứa offset của model '{prev_model}',\n"
+                f"        còn lệnh này chạy cho '{args.model}'. Offset phụ thuộc tokenizer\n"
+                f"        nên hai bộ KHÔNG dùng thay nhau được.\n"
+                f"        Chọn một:\n"
+                f"          --output_path {os.path.join(args.output_path, args.model)}   (khuyên dùng)\n"
+                f"          --overwrite                                    (bỏ bộ cũ đi)"
+            )
+
     import numpy as np
     from tqdm import tqdm
 
@@ -400,6 +423,9 @@ def main():
                     help="lưu prompt vào npz thay vì jsonl")
     ap.add_argument("--self_test", action="store_true",
                     help="kiểm tra logic offline, không cần mạng/GPU")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="cho phép ghi đè bộ offset đã có của MODEL KHÁC. "
+                         "Mặc định script từ chối, vì offset phụ thuộc tokenizer")
     args = ap.parse_args()
 
     if args.self_test:
