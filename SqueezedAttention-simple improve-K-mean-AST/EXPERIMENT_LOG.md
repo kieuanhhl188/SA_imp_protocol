@@ -735,3 +735,25 @@ trước khi chạy gate**, để số Phase 0 sinh ra từ đúng code sẽ dù
 <!-- check_gate.py phụ lục bên dưới. Không xoá dòng này. -->
 
 *(chưa có lần chạy nào)*
+
+### 2026-08-17 06:38:51 — Phase 0 gate — longchat-v1.5-7b-32k — ✅ PASS
+
+> Gate LCC, dung sai noi long 2.0
+
+- Tolerance: ±2.0
+- pred_dir: `LongBench/pred`
+- env: *(chưa có `env_record.json`, chạy `scripts/record_env.py`)*
+
+| Config | Task | Expected | Actual | Delta | Status |
+|---|---|---:|---:|---:|---|
+| All KV | lcc | 56.64 | 54.83 | -1.81 | ✅ PASS |
+| All KV | repobench-p | 53.20 | - | - | ⬜ SKIP (thiếu task) |
+| Sq-70% | lcc | 56.93 | 56.08 | -0.85 | ✅ PASS |
+| Sq-70% | repobench-p | 54.64 | - | - | ⬜ SKIP (thiếu task) |
+| Sq-80% | - | - | - | - | ⬜ SKIP (chưa có result.json) |
+| Sq-90% | - | - | - | - | ⬜ SKIP (chưa có result.json) |
+| H-Sq-90% | - | - | - | - | ⬜ SKIP (chưa có result.json) |
+
+**PASS=2 · FAIL=0 · SKIP=5**
+
+<!-- ghi chú tay bên dưới -->
