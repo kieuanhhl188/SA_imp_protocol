@@ -341,6 +341,48 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 
 ## 6. Thay đổi code
 
+### 2026-08-18 (chiều) — Sau khi vá: 23,05 → **62,55**. Gate còn lệch −2,80
+
+| | All-KV | Sq-70% | Hiệu |
+|---|---:|---:|---:|
+| Trước khi vá | 65,35 | 23,05 | **−42,30** |
+| **Sau khi vá** | 65,35 | **62,55** | **−2,80** |
+
+Bản vá lấy lại **39,5 điểm**. Dòng chấm rỗng 0% ở cả hai. Đường Squeezed Attention trên
+Qwen2/GQA hoạt động — đó là câu hỏi gate sinh ra để trả lời, và câu trả lời là **có**.
+
+**Gate vẫn báo FAIL vì −2,80 > dung sai ±2,0 — nhưng tiêu chí đó không vững ở n = 20.**
+
+±2,0 được mượn nguyên từ Phase 0, nơi nó áp lên **500 mẫu**. Trên 20 mẫu, sai số chuẩn của
+riêng một điểm trung bình đã vượt 5 điểm, nên đọc `−2,80` như một con số tuyệt đối là sai
+phương pháp. Hai lần chạy dùng **cùng 20 mẫu, cùng model**, chỉ khác cờ `use_centroids` —
+đây là thiết kế **ghép cặp**, và đại lượng đúng là phân bố **hiệu số từng mẫu**. Phần lớn
+mẫu thường cho prediction y hệt nhau (hiệu = 0), nên phương sai của hiệu số nhỏ hơn hẳn
+phương sai của từng điểm.
+
+Thêm [scripts/compare_runs.py](scripts/compare_runs.py): so theo cặp từ `result_detail.json`
+— đếm mẫu giống hệt / tốt hơn / kém hơn, hiệu số trung bình ± SE, khoảng tin cậy 95%, sign
+test chính xác (không cần scipy) và Wilcoxon nếu có. Đúng thứ **Phase 5.5** yêu cầu
+("paired test qua các mẫu"), nên không phải công cụ dùng một lần.
+
+Test trên hai kịch bản dựng sẵn: 3/20 mẫu lệch → khoảng tin cậy `[−8,08, +0,58]` chứa 0,
+kết luận "chưa có ý nghĩa thống kê"; tụt đều 20/20 → `[−41,91, −36,59]`, `p < 0,0001`,
+kết luận "thực sự kém hơn". Phân biệt được đúng hai chế độ.
+
+**Chưa chốt được ở đây:** −2,80 là thật hay nhiễu. Phải chạy `compare_runs.py` trên dữ liệu
+thật mới biết. Ba khả năng:
+
+1. Khoảng tin cậy **chứa 0** → chênh lệch không có ý nghĩa ở n=20. Tiêu chí gate phải đổi
+   sang paired test, hoặc tăng số mẫu. **Không được nới ngưỡng cho vừa số đo** — đó là sửa
+   thước cho khớp kết quả.
+2. Khoảng tin cậy **loại 0**, và độ tụt dồn vào vài mẫu → nghi cluster suy biến (một cluster
+   nuốt 60% context ở mẫu 19). Đây là chỗ Idea 1 có động cơ.
+3. Loại 0 và tụt đều → còn lỗi hệ thống nữa, tiếp tục truy.
+
+Nhắc lại để so: LongChat ở Phase 0 ra **+1,25**, bài gốc ra **+0,29** — cả hai đều dương.
+Qwen ra âm là khác chiều, nên dù không có ý nghĩa thống kê thì vẫn phải giải thích được
+trong bài, không lờ đi.
+
 ### 2026-08-18 — Tìm ra lỗi thật: ngưỡng `NaN` do tràn số học ở `exp`
 
 Gate Phase 1 với model **base** `Qwen/Qwen2.5-Coder-7B`:
