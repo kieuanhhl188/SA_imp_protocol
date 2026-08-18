@@ -1,0 +1,253 @@
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cudart module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.runtime module instead.
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cuda module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.driver module instead.
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [02:42<02:42, 162.65s/it]Loading checkpoint shards: 100%|██████████| 2/2 [02:52<00:00, 72.92s/it] Loading checkpoint shards: 100%|██████████| 2/2 [02:52<00:00, 86.38s/it]
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+num_attention_heads=32 | num_key_value_heads=32 | num_hidden_layers=32
+Model type : llama
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+Token indices sequence length is longer than the specified maximum sequence length for this model (37643 > 32768). Running this sequence through the model will result in indexing errors
+  0%|          | 0/500 [00:00<?, ?it/s]dataidx: 0 | length of input_ids: 18062
+dataidx: 0 | shared_prefix_length: 18056
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/squeezedattention/clustering.py:62: VisibleDeprecationWarning: This function is deprecated and will be removed in a future release. Use the cupy.from_dlpack() array constructor instead.
+  data_cp = fromDlpack(dlpack_tensor)
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/squeezedattention/clustering.py:75: VisibleDeprecationWarning: This function is deprecated and will be removed in a future release. Use the cupy.from_dlpack() array constructor instead.
+  dlpack_labels = cluster_labels.toDlpack()
+  0%|          | 1/500 [04:30<37:28:44, 270.39s/it]dataidx: 1 | length of input_ids: 3999
+dataidx: 1 | shared_prefix_length: 3993
+  0%|          | 2/500 [05:17<19:12:51, 138.90s/it]dataidx: 2 | length of input_ids: 2827
+dataidx: 2 | shared_prefix_length: 2821
+  1%|          | 3/500 [05:50<12:31:59, 90.78s/it] dataidx: 3 | length of input_ids: 2476
+dataidx: 3 | shared_prefix_length: 2470
+  1%|          | 4/500 [06:20<9:10:55, 66.64s/it] dataidx: 4 | length of input_ids: 3175
+dataidx: 4 | shared_prefix_length: 3169
+  1%|          | 5/500 [06:56<7:40:22, 55.80s/it]dataidx: 5 | length of input_ids: 5308
+dataidx: 5 | shared_prefix_length: 5302
+  1%|          | 6/500 [08:01<8:03:24, 58.71s/it]dataidx: 6 | length of input_ids: 3281
+dataidx: 6 | shared_prefix_length: 3275
+  1%|▏         | 7/500 [08:39<7:08:25, 52.14s/it]dataidx: 7 | length of input_ids: 4534
+dataidx: 7 | shared_prefix_length: 4528
+  2%|▏         | 8/500 [09:37<7:22:28, 53.96s/it]dataidx: 8 | length of input_ids: 2986
+dataidx: 8 | shared_prefix_length: 2980
+  2%|▏         | 9/500 [10:12<6:32:23, 47.95s/it]dataidx: 9 | length of input_ids: 2702
+dataidx: 9 | shared_prefix_length: 2696
+  2%|▏         | 10/500 [10:44<5:50:09, 42.88s/it]dataidx: 10 | length of input_ids: 5546
+dataidx: 10 | shared_prefix_length: 5540
+  2%|▏         | 11/500 [11:51<6:50:12, 50.33s/it]dataidx: 11 | length of input_ids: 3348
+dataidx: 11 | shared_prefix_length: 3342
+  2%|▏         | 12/500 [12:30<6:21:06, 46.86s/it]dataidx: 12 | length of input_ids: 4566
+dataidx: 12 | shared_prefix_length: 4560
+  3%|▎         | 13/500 [13:26<6:44:17, 49.81s/it]dataidx: 13 | length of input_ids: 2697
+dataidx: 13 | shared_prefix_length: 2691
+  3%|▎         | 14/500 [13:58<6:00:15, 44.48s/it]dataidx: 14 | length of input_ids: 2759
+dataidx: 14 | shared_prefix_length: 2753
+  3%|▎         | 15/500 [14:31<5:31:10, 40.97s/it]dataidx: 15 | length of input_ids: 2620
+dataidx: 15 | shared_prefix_length: 2614
+  3%|▎         | 16/500 [15:03<5:06:46, 38.03s/it]dataidx: 16 | length of input_ids: 4660
+dataidx: 16 | shared_prefix_length: 4654
+  3%|▎         | 17/500 [15:59<5:50:34, 43.55s/it]dataidx: 17 | length of input_ids: 3436
+dataidx: 17 | shared_prefix_length: 3430
+  4%|▎         | 18/500 [16:39<5:41:59, 42.57s/it]dataidx: 18 | length of input_ids: 4037
+dataidx: 18 | shared_prefix_length: 4031
+  4%|▍         | 19/500 [17:27<5:53:14, 44.06s/it]dataidx: 19 | length of input_ids: 2137
+dataidx: 19 | shared_prefix_length: 2131
+  4%|▍         | 20/500 [17:52<5:07:41, 38.46s/it]dataidx: 20 | length of input_ids: 4046
+dataidx: 20 | shared_prefix_length: 4040
+  4%|▍         | 21/500 [18:40<5:29:22, 41.26s/it]dataidx: 21 | length of input_ids: 1946
+dataidx: 21 | shared_prefix_length: 1940
+  4%|▍         | 22/500 [19:03<4:45:47, 35.87s/it]dataidx: 22 | length of input_ids: 11313
+dataidx: 22 | shared_prefix_length: 11307
+  5%|▍         | 23/500 [21:30<9:10:52, 69.29s/it]dataidx: 23 | length of input_ids: 5645
+dataidx: 23 | shared_prefix_length: 5639
+  5%|▍         | 24/500 [22:40<9:09:11, 69.23s/it]dataidx: 24 | length of input_ids: 17277
+dataidx: 24 | shared_prefix_length: 17271
+  5%|▌         | 25/500 [26:53<16:26:38, 124.63s/it]dataidx: 25 | length of input_ids: 2343
+dataidx: 25 | shared_prefix_length: 2337
+  5%|▌         | 26/500 [27:22<12:35:43, 95.66s/it] dataidx: 26 | length of input_ids: 3605
+dataidx: 26 | shared_prefix_length: 3599
+  5%|▌         | 27/500 [28:04<10:28:40, 79.75s/it]dataidx: 27 | length of input_ids: 7335
+dataidx: 27 | shared_prefix_length: 7329
+  6%|▌         | 28/500 [29:38<11:01:11, 84.05s/it]dataidx: 28 | length of input_ids: 2437
+dataidx: 28 | shared_prefix_length: 2431
+  6%|▌         | 29/500 [30:07<8:49:30, 67.45s/it] dataidx: 29 | length of input_ids: 3886
+dataidx: 29 | shared_prefix_length: 3880
+  6%|▌         | 30/500 [30:52<7:56:46, 60.86s/it]dataidx: 30 | length of input_ids: 3021
+dataidx: 30 | shared_prefix_length: 3015
+  6%|▌         | 31/500 [31:28<6:56:16, 53.26s/it]dataidx: 31 | length of input_ids: 11033
+dataidx: 31 | shared_prefix_length: 11027
+  6%|▋         | 32/500 [33:47<10:15:24, 78.90s/it]dataidx: 32 | length of input_ids: 3745
+dataidx: 32 | shared_prefix_length: 3739
+  7%|▋         | 33/500 [34:30<8:51:45, 68.32s/it] dataidx: 33 | length of input_ids: 3790
+dataidx: 33 | shared_prefix_length: 3784
+  7%|▋         | 34/500 [35:17<8:00:03, 61.81s/it]dataidx: 34 | length of input_ids: 2264
+dataidx: 34 | shared_prefix_length: 2258
+  7%|▋         | 35/500 [35:44<6:39:16, 51.52s/it]dataidx: 35 | length of input_ids: 3037
+dataidx: 35 | shared_prefix_length: 3031
+  7%|▋         | 36/500 [36:22<6:05:11, 47.22s/it]dataidx: 36 | length of input_ids: 2002
+dataidx: 36 | shared_prefix_length: 1996
+  7%|▋         | 37/500 [36:46<5:11:39, 40.39s/it]dataidx: 37 | length of input_ids: 2296
+dataidx: 37 | shared_prefix_length: 2290
+  8%|▊         | 38/500 [37:14<4:41:56, 36.62s/it]dataidx: 38 | length of input_ids: 1839
+dataidx: 38 | shared_prefix_length: 1833
+  8%|▊         | 39/500 [37:36<4:08:56, 32.40s/it]dataidx: 39 | length of input_ids: 2348
+dataidx: 39 | shared_prefix_length: 2342
+  8%|▊         | 40/500 [38:05<3:59:56, 31.30s/it]dataidx: 40 | length of input_ids: 1743
+dataidx: 40 | shared_prefix_length: 1737
+  8%|▊         | 41/500 [38:27<3:36:54, 28.35s/it]dataidx: 41 | length of input_ids: 2640
+dataidx: 41 | shared_prefix_length: 2634
+  8%|▊         | 42/500 [38:59<3:44:36, 29.43s/it]dataidx: 42 | length of input_ids: 3702
+dataidx: 42 | shared_prefix_length: 3696
+  9%|▊         | 43/500 [39:46<4:26:15, 34.96s/it]dataidx: 43 | length of input_ids: 5925
+dataidx: 43 | shared_prefix_length: 5919
+  9%|▉         | 44/500 [41:01<5:56:30, 46.91s/it]dataidx: 44 | length of input_ids: 1938
+dataidx: 44 | shared_prefix_length: 1932
+  9%|▉         | 45/500 [41:25<5:03:13, 39.99s/it]dataidx: 45 | length of input_ids: 2178
+dataidx: 45 | shared_prefix_length: 2172
+  9%|▉         | 46/500 [41:51<4:31:20, 35.86s/it]dataidx: 46 | length of input_ids: 6155
+dataidx: 46 | shared_prefix_length: 6149
+  9%|▉         | 47/500 [43:10<6:07:47, 48.71s/it]dataidx: 47 | length of input_ids: 4809
+dataidx: 47 | shared_prefix_length: 4803
+ 10%|▉         | 48/500 [44:11<6:33:55, 52.29s/it]dataidx: 48 | length of input_ids: 5417
+dataidx: 48 | shared_prefix_length: 5411
+ 10%|▉         | 49/500 [45:18<7:07:37, 56.89s/it]dataidx: 49 | length of input_ids: 3095
+dataidx: 49 | shared_prefix_length: 3089
+ 10%|█         | 50/500 [45:56<6:23:44, 51.17s/it]dataidx: 50 | length of input_ids: 7813
+dataidx: 50 | shared_prefix_length: 7807
+ 10%|█         | 51/500 [47:35<8:10:28, 65.54s/it]dataidx: 51 | length of input_ids: 2343
+dataidx: 51 | shared_prefix_length: 2337
+ 10%|█         | 52/500 [48:04<6:46:26, 54.43s/it]dataidx: 52 | length of input_ids: 2067
+dataidx: 52 | shared_prefix_length: 2061
+ 11%|█         | 53/500 [48:29<5:41:24, 45.83s/it]dataidx: 53 | length of input_ids: 2850
+dataidx: 53 | shared_prefix_length: 2844
+ 11%|█         | 54/500 [49:04<5:16:01, 42.52s/it]dataidx: 54 | length of input_ids: 17640
+dataidx: 54 | shared_prefix_length: 17634
+ 11%|█         | 55/500 [53:31<13:35:01, 109.89s/it]dataidx: 55 | length of input_ids: 3482
+dataidx: 55 | shared_prefix_length: 3476
+ 11%|█         | 56/500 [54:13<11:02:14, 89.49s/it] dataidx: 56 | length of input_ids: 3044
+dataidx: 56 | shared_prefix_length: 3038
+ 11%|█▏        | 57/500 [54:50<9:04:26, 73.74s/it] dataidx: 57 | length of input_ids: 3668
+dataidx: 57 | shared_prefix_length: 3662
+ 12%|█▏        | 58/500 [55:35<7:59:02, 65.03s/it]dataidx: 58 | length of input_ids: 2558
+dataidx: 58 | shared_prefix_length: 2552
+ 12%|█▏        | 59/500 [56:05<6:41:35, 54.64s/it]dataidx: 59 | length of input_ids: 3198
+dataidx: 59 | shared_prefix_length: 3192
+ 12%|█▏        | 60/500 [56:44<6:04:36, 49.72s/it]dataidx: 60 | length of input_ids: 3275
+dataidx: 60 | shared_prefix_length: 3269
+ 12%|█▏        | 61/500 [57:23<5:40:22, 46.52s/it]dataidx: 61 | length of input_ids: 2754
+dataidx: 61 | shared_prefix_length: 2748
+ 12%|█▏        | 62/500 [57:56<5:10:31, 42.54s/it]dataidx: 62 | length of input_ids: 2385
+dataidx: 62 | shared_prefix_length: 2379
+ 13%|█▎        | 63/500 [58:25<4:39:57, 38.44s/it]dataidx: 63 | length of input_ids: 3464
+dataidx: 63 | shared_prefix_length: 3458
+ 13%|█▎        | 64/500 [59:06<4:46:11, 39.38s/it]dataidx: 64 | length of input_ids: 3438
+dataidx: 64 | shared_prefix_length: 3432
+ 13%|█▎        | 65/500 [59:49<4:52:14, 40.31s/it]dataidx: 65 | length of input_ids: 4222
+dataidx: 65 | shared_prefix_length: 4216
+ 13%|█▎        | 66/500 [1:00:41<5:16:52, 43.81s/it]dataidx: 66 | length of input_ids: 2213
+dataidx: 66 | shared_prefix_length: 2207
+ 13%|█▎        | 67/500 [1:01:08<4:39:36, 38.74s/it]dataidx: 67 | length of input_ids: 5106
+dataidx: 67 | shared_prefix_length: 5100
+ 14%|█▎        | 68/500 [1:02:12<5:34:01, 46.39s/it]dataidx: 68 | length of input_ids: 3383
+dataidx: 68 | shared_prefix_length: 3377
+ 14%|█▍        | 69/500 [1:02:52<5:20:31, 44.62s/it]dataidx: 69 | length of input_ids: 2028
+dataidx: 69 | shared_prefix_length: 2022
+ 14%|█▍        | 70/500 [1:03:18<4:37:54, 38.78s/it]dataidx: 70 | length of input_ids: 3644
+dataidx: 70 | shared_prefix_length: 3638
+ 14%|█▍        | 71/500 [1:04:01<4:48:11, 40.31s/it]dataidx: 71 | length of input_ids: 1741
+dataidx: 71 | shared_prefix_length: 1735
+ 14%|█▍        | 72/500 [1:04:23<4:07:58, 34.76s/it]dataidx: 72 | length of input_ids: 4852
+dataidx: 72 | shared_prefix_length: 4846
+ 15%|█▍        | 73/500 [1:05:24<5:02:41, 42.53s/it]dataidx: 73 | length of input_ids: 1713
+dataidx: 73 | shared_prefix_length: 1707
+ 15%|█▍        | 74/500 [1:05:45<4:16:08, 36.08s/it]dataidx: 74 | length of input_ids: 6931
+dataidx: 74 | shared_prefix_length: 6925
+ 15%|█▌        | 75/500 [1:07:13<6:05:05, 51.54s/it]dataidx: 75 | length of input_ids: 2243
+dataidx: 75 | shared_prefix_length: 2237
+ 15%|█▌        | 76/500 [1:07:40<5:12:32, 44.23s/it]dataidx: 76 | length of input_ids: 4894
+dataidx: 76 | shared_prefix_length: 4888
+ 15%|█▌        | 77/500 [1:08:41<5:48:13, 49.39s/it]dataidx: 77 | length of input_ids: 2066
+dataidx: 77 | shared_prefix_length: 2060
+ 16%|█▌        | 78/500 [1:09:07<4:56:39, 42.18s/it]dataidx: 78 | length of input_ids: 4277
+dataidx: 78 | shared_prefix_length: 4271
+ 16%|█▌        | 79/500 [1:10:01<5:22:09, 45.91s/it]dataidx: 79 | length of input_ids: 3744
+dataidx: 79 | shared_prefix_length: 3738
+ 16%|█▌        | 80/500 [1:10:46<5:20:09, 45.74s/it]dataidx: 80 | length of input_ids: 7096
+dataidx: 80 | shared_prefix_length: 7090
+ 16%|█▌        | 81/500 [1:12:17<6:53:22, 59.19s/it]dataidx: 81 | length of input_ids: 3713
+dataidx: 81 | shared_prefix_length: 3707
+ 16%|█▋        | 82/500 [1:13:02<6:21:54, 54.82s/it]dataidx: 82 | length of input_ids: 2290
+dataidx: 82 | shared_prefix_length: 2284
+ 17%|█▋        | 83/500 [1:13:29<5:23:49, 46.59s/it]dataidx: 83 | length of input_ids: 3030
+dataidx: 83 | shared_prefix_length: 3024
+ 17%|█▋        | 84/500 [1:14:06<5:02:23, 43.61s/it]dataidx: 84 | length of input_ids: 1954
+dataidx: 84 | shared_prefix_length: 1948
+ 17%|█▋        | 85/500 [1:14:29<4:20:25, 37.65s/it]dataidx: 85 | length of input_ids: 6488
+dataidx: 85 | shared_prefix_length: 6482
+ 17%|█▋        | 86/500 [1:15:50<5:49:16, 50.62s/it]dataidx: 86 | length of input_ids: 11416
+dataidx: 86 | shared_prefix_length: 11410
+ 17%|█▋        | 87/500 [1:18:19<9:10:52, 80.03s/it]dataidx: 87 | length of input_ids: 2754
+dataidx: 87 | shared_prefix_length: 2748
+ 18%|█▊        | 88/500 [1:18:52<7:33:22, 66.03s/it]dataidx: 88 | length of input_ids: 2115
+dataidx: 88 | shared_prefix_length: 2109
+ 18%|█▊        | 89/500 [1:19:18<6:10:10, 54.04s/it]dataidx: 89 | length of input_ids: 2210
+dataidx: 89 | shared_prefix_length: 2204
+ 18%|█▊        | 90/500 [1:19:45<5:12:27, 45.73s/it]dataidx: 90 | length of input_ids: 2779
+dataidx: 90 | shared_prefix_length: 2773
+ 18%|█▊        | 91/500 [1:20:19<4:47:25, 42.16s/it]dataidx: 91 | length of input_ids: 2237
+dataidx: 91 | shared_prefix_length: 2231
+ 18%|█▊        | 92/500 [1:20:46<4:16:16, 37.69s/it]dataidx: 92 | length of input_ids: 5892
+dataidx: 92 | shared_prefix_length: 5886
+ 19%|█▊        | 93/500 [1:22:00<5:30:21, 48.70s/it]dataidx: 93 | length of input_ids: 3650
+dataidx: 93 | shared_prefix_length: 3644
+ 19%|█▉        | 94/500 [1:22:45<5:20:34, 47.38s/it]dataidx: 94 | length of input_ids: 2643
+dataidx: 94 | shared_prefix_length: 2637
+ 19%|█▉        | 95/500 [1:23:17<4:48:57, 42.81s/it]dataidx: 95 | length of input_ids: 14702
+dataidx: 95 | shared_prefix_length: 14696
+ 19%|█▉        | 96/500 [1:26:45<10:21:49, 92.35s/it]dataidx: 96 | length of input_ids: 1838
+dataidx: 96 | shared_prefix_length: 1832
+ 19%|█▉        | 97/500 [1:27:07<7:59:22, 71.37s/it] dataidx: 97 | length of input_ids: 1952
+dataidx: 97 | shared_prefix_length: 1946
+ 20%|█▉        | 98/500 [1:27:31<6:22:58, 57.16s/it]dataidx: 98 | length of input_ids: 3511
+dataidx: 98 | shared_prefix_length: 3505
+ 20%|█▉        | 99/500 [1:28:14<5:53:14, 52.85s/it]dataidx: 99 | length of input_ids: 1286
+dataidx: 99 | shared_prefix_length: 1280
+ 20%|██        | 100/500 [1:28:30<4:38:37, 41.79s/it]dataidx: 100 | length of input_ids: 2883
+dataidx: 100 | shared_prefix_length: 2877
+ 20%|██        | 101/500 [1:29:05<4:24:35, 39.79s/it]dataidx: 101 | length of input_ids: 6739
+dataidx: 101 | shared_prefix_length: 6733
+ 20%|██        | 102/500 [1:30:33<5:59:29, 54.20s/it]dataidx: 102 | length of input_ids: 6398
+dataidx: 102 | shared_prefix_length: 6392
+ 21%|██        | 103/500 [1:31:53<6:50:13, 62.00s/it]dataidx: 103 | length of input_ids: 3178
+dataidx: 103 | shared_prefix_length: 3172
+ 21%|██        | 104/500 [1:32:30<6:00:29, 54.62s/it]dataidx: 104 | length of input_ids: 12780
+dataidx: 104 | shared_prefix_length: 12774
+ 21%|██        | 105/500 [1:35:18<9:42:40, 88.51s/it]dataidx: 105 | length of input_ids: 3387
+dataidx: 105 | shared_prefix_length: 3381
+ 21%|██        | 106/500 [1:35:59<8:07:31, 74.24s/it]dataidx: 106 | length of input_ids: 2886
+dataidx: 106 | shared_prefix_length: 2880
+ 21%|██▏       | 107/500 [1:36:34<6:49:17, 62.49s/it]dataidx: 107 | length of input_ids: 5041
+dataidx: 107 | shared_prefix_length: 5035
+ 22%|██▏       | 108/500 [1:37:37<6:49:51, 62.73s/it]dataidx: 108 | length of input_ids: 2149
+dataidx: 108 | shared_prefix_length: 2143
+ 22%|██▏       | 109/500 [1:38:04<5:38:05, 51.88s/it]dataidx: 109 | length of input_ids: 3274
+dataidx: 109 | shared_prefix_length: 3268
+ 22%|██▏       | 110/500 [1:38:43<5:12:56, 48.15s/it]dataidx: 110 | length of input_ids: 3553
+dataidx: 110 | shared_prefix_length: 3547
+ 22%|██▏       | 111/500 [1:39:26<5:01:39, 46.53s/it]dataidx: 111 | length of input_ids: 3758
+dataidx: 111 | shared_prefix_length: 3752
+ 22%|██▏       | 112/500 [1:40:14<5:03:38, 46.95s/it]dataidx: 112 | length of input_ids: 4789
+dataidx: 112 | shared_prefix_length: 4783
+ 23%|██▎       | 113/500 [1:41:14<5:28:20, 50.91s/it]dataidx: 113 | length of input_ids: 3666
+dataidx: 113 | shared_prefix_length: 3660

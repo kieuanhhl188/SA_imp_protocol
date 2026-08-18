@@ -1,0 +1,23 @@
+]633;E;echo "# Phase 0 evidence — $(date -u '+%Y-%m-%d %H:%M:%S UTC')";ca9927ec-eb9e-48a0-a512-9a5bcd022750]633;C# Phase 0 evidence — 2026-08-17 10:10:52 UTC
+# eval.py chay lai tren chinh cac jsonl nay -> ra dung 54.83 / 56.08
+
+## line counts
+   500 SqueezedAttention-simple improve-K-mean-AST/phase0_evidence/pred/longchat-v1.5-7b-32k_PC5_PERC0.7/lcc.jsonl
+   500 SqueezedAttention-simple improve-K-mean-AST/phase0_evidence/pred/longchat-v1.5-7b-32k_baseline/lcc.jsonl
+  1000 total
+
+## sha256
+7182f9aaacd934169488ed0a6d0488d97126eed0d2cbb1ec60e7625f4daa4450  ./console/1_offset.log
+6410c214827b82822452262a4d21c2dc4bc1532729d2874b5d6a26d99fb41dc5  ./console/2_clustering.log
+5fa0f16582fd98f6822d1e157148fc84f6e7a963e035cf70894e677f27033d4b  ./console/2_clustering_resume.log
+4aaf746f763413b2438fcc597d547a3e616a940a2c91b3cca7f67baaa29ac981  ./console/2b-6_fix.log
+65116f5057178c6148201219e91af33bcdf40ce289b0480a5620cba6941eedc4  ./console/3-6_pred_eval.log
+3e2c5da5be0f6b8409020e169fd92b49af8ed61bbbecce9ed12514aa25b594f9  ./console/5-6_sq70.log
+5edf21a56f29300008df854b3e0a3b3e874ca5b15f3f47d650dabde7c90899ff  ./console/setup.log
+eb7282cea5eabd23d7fc86de8337b990031ebdd86372fdcd5ba2f1a58d915f7c  ./env/env_record.json
+9537c1b36bc260ae513288108424bb5702a761a8ee6261040da51ded39ffcfcd  ./env/env_record_pip_freeze.txt
+97866b494d41ecf52e68c7af07b499f097f854a87195ff166beea289172ca80c  ./env/working_env.txt
+f1e96fb289ecc7d02bb91df0defb404403c3b47494eb97582ace8f6dd6b8ded6  ./pred/longchat-v1.5-7b-32k_PC5_PERC0.7/lcc.jsonl
+d2417b2434dff3cbcf4b6bd2a06f9f9d178b0c8b530fa4c7d53a546b34dd2c21  ./pred/longchat-v1.5-7b-32k_PC5_PERC0.7/result.json
+6069f5f0d3529ac45829426894592bdd8a2bf58fe9f721b09ada477cdc3dc380  ./pred/longchat-v1.5-7b-32k_baseline/lcc.jsonl
+976c6542fb1b7996ce5507636253a06b91ca130b6fe0c0f37f08fa0d57279b80  ./pred/longchat-v1.5-7b-32k_baseline/result.json

@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-08-15T19:07:39",
+  "note": "py3.10 venv - stack hoat dong",
+  "seed": 42,
+  "python": "3.10.18 (main, Jun  4 2025, 08:56:00) [GCC 13.3.0]",
+  "platform": "Linux-6.8.0-100-generic-x86_64-with-glibc2.39",
+  "repo_root": "/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST",
+  "env_vars": {
+    "CUDA_VISIBLE_DEVICES": null,
+    "CONDA_DEFAULT_ENV": null,
+    "PYTORCH_CUDA_ALLOC_CONF": null
+  },
+  "packages": {
+    "torch": {
+      "installed": true,
+      "version": "2.3.1+cu121",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/torch/__init__.py"
+    },
+    "transformers": {
+      "installed": true,
+      "version": "4.40.0.dev0",
+      "path": "/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/__init__.py"
+    },
+    "triton": {
+      "installed": true,
+      "version": "2.3.1",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/triton/__init__.py"
+    },
+    "flash_attn": {
+      "installed": true,
+      "version": "2.6.3",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/flash_attn/__init__.py"
+    },
+    "datasets": {
+      "installed": true,
+      "version": "2.20.0",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/datasets/__init__.py"
+    },
+    "numpy": {
+      "installed": true,
+      "version": "1.26.4",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/numpy/__init__.py"
+    },
+    "sklearn": {
+      "installed": true,
+      "version": "1.7.2",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/sklearn/__init__.py"
+    },
+    "cupy": {
+      "installed": true,
+      "version": "13.6.0",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/cupy/__init__.py"
+    },
+    "cuml": {
+      "installed": true,
+      "version": "24.06.01",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/cuml/__init__.py"
+    },
+    "tree_sitter": {
+      "installed": true,
+      "version": "0.26.0",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/tree_sitter/__init__.py"
+    },
+    "accelerate": {
+      "installed": true,
+      "version": "1.14.0",
+      "path": "/workspace/venv310/lib/python3.10/site-packages/accelerate/__init__.py"
+    }
+  },
+  "nvidia_smi": "0, NVIDIA A100-SXM4-80GB, 81920 MiB, 580.126.16",
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Fri_Feb_21_20:23:50_PST_2025\nCuda compilation tools, release 12.8, V12.8.93\nBuild cuda_12.8.r12.8/compiler.35583870_0",
+  "torch_cuda": {
+    "cuda_available": true,
+    "cuda_version": "12.1",
+    "device_count": 1,
+    "devices": [
+      "NVIDIA A100-SXM4-80GB"
+    ]
+  },
+  "checks": {
+    "transformers_is_repo_fork": true,
+    "transformers_version_expected": "4.40.0.dev0",
+    "transformers_version_actual": "4.40.0.dev0"
+  }
+}
