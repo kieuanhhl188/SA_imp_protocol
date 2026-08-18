@@ -183,10 +183,33 @@ def run_global_threshold(
         #     exp(s - M) / sum_k n_k*exp(a_k - M)  ==  exp(s) / sum_k n_k*exp(a_k)
         # M lay theo chieu cluster cho tung (head, token quan sat), nen moi so hang deu
         # <= 0 va exp bi chan boi 1.
-        amax = attn_scores_centroids.amax(dim=-1, keepdim=True)      # [H, obs, 1]
+        # Lay max CHI TREN CLUSTER CO KEY. Cluster rong bi run_clustering gan centroid =
+        # VECTOR 0, nen diem cua no la q.0 = 0 — thuong cao hon moi cluster that khi diem
+        # that deu am. De no lam max thi:
+        #   - no gop 0 vao mau so (num_keys = 0)
+        #   - moi cluster that thanh exp(rat am) -> underflow ve 0
+        #   - mau so = 0, tu so = 0  ->  0/0 = NaN
+        # Do la 0.64% diem nan con lai sau khi da tru max (do 18/8, khop ti le cluster rong
+        # 0.8-1% ma inspect_centroids.py bao).
+        #
+        # Loai chung ra la dung ca ve so hoc lan ve ngu nghia: cluster rong dai dien cho 0
+        # key, khong co ly do gi tham gia chuan hoa. Sau khi loai, cluster dat max chac chan
+        # co num_keys >= 1 nen mau so >= 1 > 0 — khong the chia cho 0 nua.
+        #
+        # Ket qua KHONG DOI voi moi truong hop huu han: cluster rong von da gop 0 vao mau so
+        # du co bi loai hay khong, con M thi trie tieu giua tu va mau.
+        # Mask dung MOT LAN roi dung cho ca max lan tong. Dat -inf o cluster rong thi
+        # exp(-inf - M) = 0 chinh xac, khong phu thuoc vao viec num_keys = 0 nhan voi cai gi.
+        #
+        # (Chi loai khoi max thoi thi KHONG du: M tut xuong muc cua cluster that, roi diem 0
+        #  cua cluster rong thanh exp(0 - M) = exp(+150) = inf, va 0 * inf = NaN. Doi cho tran
+        #  chu khong khu duoc no.)
+        empty = (num_keys_per_cluster == 0).unsqueeze(-2)            # [H, 1, K]
+        attn_scores_masked = attn_scores_centroids.masked_fill(empty, float("-inf"))
+        amax = attn_scores_masked.amax(dim=-1, keepdim=True)         # [H, obs, 1]
 
         # estimate denominator here
-        attn_scores_centroids_est_exp = torch.exp(attn_scores_centroids - amax)
+        attn_scores_centroids_est_exp = torch.exp(attn_scores_masked - amax)
         num_keys_per_cluster = num_keys_per_cluster.unsqueeze(-2)
         denom_est_tmp = num_keys_per_cluster * attn_scores_centroids_est_exp
         denom_est = torch.sum(denom_est_tmp, dim=-1) # per-head estimate
@@ -223,8 +246,9 @@ def run_global_threshold(
             f"run_global_threshold: {n_bad}/{total} diem centroid khong huu han (nan/inf).\n"
             "Nguyen nhan thuong gap: tran so hoc o exp() khi logit attention qua lon "
             "(vd Qwen2 co massive activations).\n"
-            "Khoi tinh exp da co buoc tru max; con bao loi nay nghia la key/query "
-            "dau vao da chua nan/inf san - kiem hook thu q/k trong offline_clustering.py."
+            "Khoi tinh exp da tru max VA loai cluster rong khoi phep lay max. Con bao "
+            "loi nay nghia la key/query dau vao da chua nan/inf san — kiem hook thu q/k "
+            "trong offline_clustering.py, hoac centroid co nan (chay inspect_centroids.py)."
         )
 
     quantile_result = np.quantile(full_centroid_scores_cpu, q)

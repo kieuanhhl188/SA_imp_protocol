@@ -384,8 +384,37 @@ Không crash. Không assert nào nổ. Model vẫn sinh code sạch. Chỉ tụt
 LLaMA/LongChat thoát vì logit nằm trong dải an toàn; Qwen2 có **massive activations** nên
 logit lớn hơn hẳn. Đây là loại lỗi chỉ lộ ra khi đổi họ model.
 
-**Đã sửa** — trừ max theo chiều cluster trước khi `exp`. Cùng một hằng số cho cả tử và mẫu
+**Sửa — hai tầng, tầng thứ hai chỉ lộ ra sau khi vá tầng thứ nhất.**
+
+*Tầng 1 — tràn.* Trừ max theo chiều cluster trước khi `exp`. Cùng hằng số cho cả tử và mẫu
 nên tỉ số **không đổi về mặt toán học**: `exp(s−M) / Σ n_k·exp(a_k−M) ≡ exp(s) / Σ n_k·exp(a_k)`.
+
+*Tầng 2 — chia cho 0.* Vá xong tầng 1, chốt chặn mới **nổ ngay ở mẫu 0**:
+`56880/8918784 (0,64%)` điểm vẫn không hữu hạn — khớp gần đúng tỉ lệ **cluster rỗng 0,8-1%**
+mà `inspect_centroids.py` báo. Không trùng hợp:
+
+1. `run_clustering` gán centroid của cluster rỗng bằng **vector 0** → điểm `q·0 = 0`
+2. Khi mọi cluster thật có điểm rất âm, **max rơi vào cluster rỗng**
+3. Cluster rỗng có `num_keys = 0` → góp **0** vào mẫu số
+4. Cluster thật, sau khi trừ max, thành `exp(−150)` → **underflow về 0** (float32 hết dải ở ~−103)
+5. Mẫu số `= 0`, tử số `= 0` → **`0/0 = NaN`**
+
+**Lần vá đầu của tôi sai:** chỉ loại cluster rỗng khỏi phép lấy *max*. Thế là `M` tụt xuống
+mức cluster thật, rồi điểm `0` của cluster rỗng thành `exp(0−(−150)) = exp(150) = inf`, và
+`0 × inf = NaN`. Đổi chỗ tràn chứ không khử. Bản đúng phải **mask một lần rồi dùng cho cả max
+lẫn tổng**: đặt `−inf` ở cluster rỗng thì `exp(−inf − M) = 0` chính xác, không phụ thuộc
+`num_keys = 0` nhân với cái gì.
+
+Kiểm bằng số, ba chế độ, bốn biến thể cài đặt:
+
+| Chế độ | gốc | chỉ trừ max | loại khỏi max | **mask cả hai** |
+|---|---|---|---|---|
+| Cluster thật −150, rỗng 0 *(ca trên pod)* | NaN | NaN | NaN | ✅ hữu hạn |
+| Logit +120 *(tràn exp)* | NaN | ✅ | ✅ | ✅ |
+| Dải LLaMA | ✅ | ✅ | ✅ | ✅ |
+
+Chỉ biến thể cuối qua được cả ba. Ở dải an toàn nó lệch bản gốc **5,7e-07** → **Phase 0 không
+phải chạy lại**.
 
 Kiểm chứng bằng số (`torch.randn`, tái dựng đúng phép tính của hàm):
 
