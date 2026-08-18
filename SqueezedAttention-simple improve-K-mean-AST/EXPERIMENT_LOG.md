@@ -45,6 +45,7 @@ Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablati
 | 0.6 | Sửa bug chặn gate | ✅ | 5 bug, xem mục 6 |
 | 0.7 | Cài đặt thật trên pod | ✅ | A100 SXM 80GB. Stack đã kiểm chứng, xem mục 6 |
 | 0.8 | Chạy gate | ✅ | **PASS** với dung sai nới ±2.0. All-KV 54,83 · Sq-70% 56,08. Chỉ LCC; bỏ RepoBench-P và Sq-80/90% |
+| 0.9 | Hậu kiểm prediction thô | ✅ | Thêm 17/8. `inspect_preds.py` trên cả 500 mẫu: dòng chấm rỗng **14,6%** (All-KV) / **12,6%** (Sq-70%), dưới ngưỡng 25%. Prediction là code thật → 54,83 không phải số ảo. Xem mục 6 |
 
 **Còn lại:**
 1. Thuê pod theo cấu hình mục 5, cài theo [docs/PHASE0.md](docs/PHASE0.md).
@@ -339,6 +340,49 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-08-17 — Hậu kiểm Phase 0: prediction sạch, và hiệu chuẩn được ngưỡng dòng rỗng
+
+Chốt chặn "dòng chấm rỗng" viết hôm nay chưa từng soi Phase 0, nên chạy
+[scripts/inspect_preds.py](scripts/inspect_preds.py) trên toàn bộ 500 mẫu đã có.
+
+| | All-KV | Sq-70% |
+|---|---:|---:|
+| Điểm script tính lại | **54,83** | **56,08** |
+| Dòng được chấm bị rỗng | 73/500 (**14,6%**) | 63/500 (**12,6%**) |
+| Prediction có markdown fence | 435/500 | 430/500 |
+
+Điểm tính lại **khớp `result.json`** — xác nhận bản sao logic `code_sim_score` trong
+`inspect_preds.py` là chính xác, nên mọi chẩn đoán dựa vào nó đều đọc được.
+
+**Phase 0 sạch, 54,83 là số thật.** Dưới ngưỡng 25%, và prediction là code thật:
+mẫu 1 được 100 điểm, mẫu 0 và 2 đúng một phần — đúng dáng model đang làm việc.
+
+**Chi tiết giải thích được ca Qwen-Instruct.** LongChat cũng mở markdown fence ở
+435/500 mẫu. Nhưng metric bỏ qua mọi dòng chứa `` ` `` nên nhảy xuống dòng code bên dưới
+và chấm đúng chỗ. Khác biệt không nằm ở chuyện có fence hay không, mà ở chỗ **LongChat
+sinh code thật sau fence, còn Qwen-Instruct dừng ngay tại dấu fence**. Chẩn đoán hôm nay
+giờ có đối chứng, không còn là suy luận.
+
+**Hiệu chuẩn ngưỡng 25%.** Trước đó tôi đặt con số này theo cảm tính. Nay có hai đầu mút đo được:
+
+| | Tỉ lệ dòng rỗng |
+|---|---:|
+| Lành (LongChat, Phase 0) | 12,6 – 14,6% |
+| Hỏng (Qwen-Instruct, Phase 1) | 50 – 80% |
+
+Ngưỡng 25% nằm giữa hai vùng, cách đều. Đây là **toàn bộ cơ sở thực nghiệm** cho con số
+đó — nếu về sau một model lành vượt 20% thì phải xem lại ngưỡng, đừng nới tay.
+
+**Một điều phải ghi vào paper:** 14,6% mẫu bị chấm 0 điểm vì lý do định dạng, không phải
+vì model dự đoán sai. Trần accuracy của LCC bị hạ sẵn chừng đó cho **mọi** cấu hình. Không
+làm hỏng so sánh nào của protocol vì nó áp đều lên All-KV, SA và mọi biến thể structure-aware
+— và cũng áp lên số của bài gốc, vốn dùng đúng metric này. Nhưng nó có nghĩa là con số
+tuyệt đối trên LCC không nên đọc như "độ chính xác của model".
+
+⚠️ File prediction thô (`lcc.jsonl`, vài trăm KB mỗi cái) **chỉ nằm trên pod**, không có
+trong git — chỉ `result.json` được commit. Đó là bằng chứng gốc cho con số nền mà mọi so
+sánh về sau dựa vào. Nên `git add -f` hai file đó trước khi pod bị xoá.
 
 ### 2026-08-17 — Chạy gate Phase 1: bản port GQA đúng, nhưng model chọn sai
 
