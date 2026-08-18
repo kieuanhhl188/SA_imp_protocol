@@ -107,7 +107,11 @@ def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_
             )[0]
         pred = tokenizer.decode(output[context_length:], skip_special_tokens=True)
         with open(out_path, "a", encoding="utf-8") as f:
-            json.dump({"pred": pred, "answers": json_obj["answers"], "all_classes": json_obj["all_classes"], "length": json_obj["length"]}, f, ensure_ascii=False)
+            # dataidx = different_prefix_index (0..N-1, trung voi ten file centroid).
+            # BAT BUOC cho paired test (Phase 5.5) va mean+-std qua nhieu seed: voi
+            # world_size > 1 cac process cung append vao mot file nen thu tu dong bi
+            # tron, khong the dung thu tu de ghep mau giua hai config.
+            json.dump({"dataidx": different_prefix_index, "pred": pred, "answers": json_obj["answers"], "all_classes": json_obj["all_classes"], "length": json_obj["length"]}, f, ensure_ascii=False)
             f.write('\n')
 
     if dist.is_initialized():

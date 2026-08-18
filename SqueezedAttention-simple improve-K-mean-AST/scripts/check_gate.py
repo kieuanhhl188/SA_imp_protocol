@@ -194,8 +194,17 @@ def main():
     ap.add_argument("--tasks", nargs="*", default=TASKS)
     ap.add_argument("--log_md", default=os.path.join(REPO_ROOT, "EXPERIMENT_LOG.md"),
                     help="file nhật ký markdown để phụ lục kết quả; '' để tắt")
-    ap.add_argument("--env_record", default=os.path.join(REPO_ROOT, "phase0_results", "env_record.json"),
-                    help="env_record.json để nhúng thông tin môi trường vào nhật ký")
+    # Default PHẢI theo $SQA_RESULT_DIR: trên pod thư mục này nằm ở /workspace/phase0_results,
+    # không phải trong repo. Bản cũ hard-code repo-relative nên khi chạy tay (không qua
+    # phase0_gate.sh — script đó truyền --env_record tường minh) thì luôn báo "chưa có
+    # env_record.json" dù file có thật → nhật ký ghi sai môi trường thành "không có".
+    ap.add_argument("--env_record",
+                    default=os.path.join(
+                        os.environ.get("SQA_RESULT_DIR",
+                                       os.path.join(REPO_ROOT, "phase0_results")),
+                        "env_record.json"),
+                    help="env_record.json để nhúng thông tin môi trường vào nhật ký "
+                         "(mặc định $SQA_RESULT_DIR/env_record.json)")
     ap.add_argument("--console_log", default=None,
                     help="đường dẫn console log để trỏ tới từ nhật ký")
     ap.add_argument("--run_note", default="", help="ghi chú tự do cho lần chạy này")
