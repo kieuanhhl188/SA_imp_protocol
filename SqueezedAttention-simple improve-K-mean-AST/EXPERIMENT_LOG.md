@@ -341,6 +341,83 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 
 ## 6. Thay đổi code
 
+### 2026-08-18 — Tìm ra lỗi thật: ngưỡng `NaN` do tràn số học ở `exp`
+
+Gate Phase 1 với model **base** `Qwen/Qwen2.5-Coder-7B`:
+
+| | All-KV | Sq-70% |
+|---|---:|---:|
+| Điểm (20 mẫu LCC) | **65,35** | **23,05** |
+| Dòng chấm rỗng | 0% | 0% |
+
+**Đổi sang base là đúng: 65,35 cao hơn cả LongChat 54,83.** Và vì output đã sạch (0% rỗng
+ở cả hai), con số 23,05 mới đọc được — đây là lỗi retrieval thật, không phải lỗi định dạng.
+
+**Chẩn đoán, bằng hai nguồn bằng chứng độc lập và không tốn phút GPU nào:**
+
+`scripts/inspect_centroids.py` trên file `.pt` đã lưu:
+
+```
+[THRESHOLD]  q=0.50 tau = nan | q=0.70 tau = nan | q=0.80 tau = nan | q=0.90 tau = nan
+```
+
+`result_detail.json` (điểm từng mẫu): 0,27 · 0,20 · 0,28 · 0,22 · 0,22 · 0,15 … — **tụt đều
+cả 20 mẫu**, không mẫu nào thoát. Đúng dấu hiệu lỗi hệ thống chứ không phải dữ liệu lẻ.
+
+**Chuỗi nhân quả.** `run_global_threshold` gọi `torch.exp` thẳng trên logit thô — softmax
+chưa chuẩn hoá, không trừ max:
+
+```python
+attn_scores_centroids_est_exp = torch.exp(attn_scores_centroids)   # -> inf
+scores_scaled_sm = torch.exp(scores) / denom_est.unsqueeze(-2)     # inf/inf -> nan
+```
+
+float32 tràn thành `inf` khi logit vượt ~88,7 → `inf/inf = nan` → `np.quantile` trên mảng
+có `nan` trả về `nan` → ngưỡng `nan` được `torch.save` xuống đĩa mà không ai kêu ca →
+`mask = (avg_score_per_token > threshold)` **luôn False** vì `nan` so sánh với gì cũng False
+→ **không cluster nào được chọn**, model mất toàn bộ fixed context.
+
+Không crash. Không assert nào nổ. Model vẫn sinh code sạch. Chỉ tụt 42 điểm.
+
+**Lỗi nằm ở code DÙNG CHUNG, không phải bản port Qwen.** Bản port GQA đúng — centroid nạp
+đúng 4 head, `repeat_interleave` đúng nhóm, `shared_prefix_length` khớp qua cả 20 mẫu.
+LLaMA/LongChat thoát vì logit nằm trong dải an toàn; Qwen2 có **massive activations** nên
+logit lớn hơn hẳn. Đây là loại lỗi chỉ lộ ra khi đổi họ model.
+
+**Đã sửa** — trừ max theo chiều cluster trước khi `exp`. Cùng một hằng số cho cả tử và mẫu
+nên tỉ số **không đổi về mặt toán học**: `exp(s−M) / Σ n_k·exp(a_k−M) ≡ exp(s) / Σ n_k·exp(a_k)`.
+
+Kiểm chứng bằng số (`torch.randn`, tái dựng đúng phép tính của hàm):
+
+| | Kết quả |
+|---|---|
+| Logit dải LLaMA: cũ vs mới | lệch tương đối **8,8e-07** → **Phase 0 không phải chạy lại** |
+| Logit +120 (kiểu Qwen): bản cũ | **120000/120000** phần tử `nan`/`inf`, quantile ra `nan` |
+| Logit +120: bản mới | **0** phần tử `nan`, quantile ra `0,001493` |
+| Bất biến dịch chuyển `exp(x+c)` ≡ `exp(x)` | lệch **7,1e-06** |
+
+**Chốt chặn thêm.** `run_global_threshold` giờ `raise RuntimeError` ngay nếu điểm centroid
+hoặc quantile ra `nan`/`inf`, kèm chẩn đoán. Cùng nguyên tắc với chốt chặn dòng rỗng: **hỏng
+thì phải nổ tại chỗ, không được xuống đĩa.** Một file ngưỡng `nan` nằm im trên đĩa đã tốn
+một lượt clustering + hai lượt `pred.py`.
+
+**⚠️ Phải xoá centroid cũ trước khi chạy lại.** `offline_clustering.py` bỏ qua mẫu đã có
+`global_threshold_{idx}_{K}.pt` — chính bản vá chống đứt job của Phase 0. File `nan` vẫn
+tồn tại nên nó sẽ bỏ qua sạch và giữ nguyên dữ liệu hỏng. `rm -rf` thư mục trước.
+
+**Còn một vấn đề chưa xử lý, phát hiện cùng lúc.** `inspect_centroids.py` báo ở mẫu 19:
+
+```
+mot cluster chua 813 key (>50% toan bo context) -> K-means suy bien
+```
+
+K-means trên key của Qwen2 bị outlier kéo lệch: một cluster nuốt 60% context, cluster nhỏ
+nhất chỉ 1 key. Kể cả khi ngưỡng đã đúng, một cluster chứa 60% key thì chọn nó là mất hết
+tính thưa, bỏ nó là mất 60% ngữ cảnh — centroid gần như không phân biệt được gì. **Chưa
+sửa; sửa lỗi chí mạng trước rồi đo lại mới biết cái này còn ảnh hưởng bao nhiêu.** Nếu còn
+thì đây chính là chỗ Idea 1 (ranh giới cứng theo AST) có lý do tồn tại rõ ràng nhất — nó
+ép cluster không được vắt qua đơn vị cấu trúc, tức chặn sẵn kiểu suy biến này.
+
 ### 2026-08-17 — Hậu kiểm Phase 0: prediction sạch, và hiệu chuẩn được ngưỡng dòng rỗng
 
 Chốt chặn "dòng chấm rỗng" viết hôm nay chưa từng soi Phase 0, nên chạy

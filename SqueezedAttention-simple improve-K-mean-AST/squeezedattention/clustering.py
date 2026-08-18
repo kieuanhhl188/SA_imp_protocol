@@ -167,14 +167,33 @@ def run_global_threshold(
             label_mask = centroids_labels == k
             num_keys_per_cluster[:,k] = torch.sum(label_mask, dim=-1)
 
+        # === On dinh so hoc: TRU MAX TRUOC KHI exp ===
+        # Ban goc goi torch.exp thang tren logit tho. Do la softmax chua chuan hoa:
+        # float32 tran thanh inf khi logit vuot ~88.7, roi inf/inf = nan, va np.quantile
+        # tren mang co nan tra ve nan. Nguong nan thi `score > threshold` LUON False ->
+        # khong cluster nao duoc chon -> model mat toan bo fixed context, khong crash,
+        # khong assert nao no. Do dung la ca Qwen2.5-Coder ngay 18/8: tau = nan o ca 4
+        # quantile, Sq-70% tut tu 65.35 xuong 23.05.
+        #
+        # LLaMA/LongChat thoat vi logit nam trong dai an toan; Qwen2 co massive
+        # activations nen logit lon hon han. Loi nay o code DUNG CHUNG, khong phai o
+        # ban port GQA.
+        #
+        # Tru cung mot hang so M cho ca tu va mau thi ti so KHONG DOI:
+        #     exp(s - M) / sum_k n_k*exp(a_k - M)  ==  exp(s) / sum_k n_k*exp(a_k)
+        # M lay theo chieu cluster cho tung (head, token quan sat), nen moi so hang deu
+        # <= 0 va exp bi chan boi 1.
+        amax = attn_scores_centroids.amax(dim=-1, keepdim=True)      # [H, obs, 1]
+
         # estimate denominator here
-        attn_scores_centroids_est_exp = torch.exp(attn_scores_centroids)
+        attn_scores_centroids_est_exp = torch.exp(attn_scores_centroids - amax)
         num_keys_per_cluster = num_keys_per_cluster.unsqueeze(-2)
         denom_est_tmp = num_keys_per_cluster * attn_scores_centroids_est_exp
         denom_est = torch.sum(denom_est_tmp, dim=-1) # per-head estimate
 
         # divide centroid scores (copied per-token) by the denominator estimate
-        scores_scaled_sm = torch.exp(scores) / denom_est.unsqueeze(-2)
+        # scores: [H, S_prefix, obs] | amax -> [H, 1, obs] de broadcast dung truc
+        scores_scaled_sm = torch.exp(scores - amax.squeeze(-1).unsqueeze(-2)) / denom_est.unsqueeze(-2)
 
         # compute average across tokens
         scored_scaled_sm_sum = torch.mean(scores_scaled_sm, dim=-1, dtype=torch.float32)
@@ -193,8 +212,29 @@ def run_global_threshold(
 
     # for long sequence lengths, we need to move to CPU
     full_centroid_scores_cpu = full_centroid_scores.cpu().numpy()
+
+    # Chan nguong hong TAI CHO, thay vi de no xuong dia roi phat tac o pred.py sau nhieu gio.
+    # np.quantile tra ve nan neu dau vao co nan, va nguong nan lam `score > threshold` luon
+    # False -> khong cluster nao duoc chon. Trieu chung la accuracy tut sau, khong crash.
+    n_bad = int((~np.isfinite(full_centroid_scores_cpu)).sum())
+    if n_bad:
+        total = full_centroid_scores_cpu.size
+        raise RuntimeError(
+            f"run_global_threshold: {n_bad}/{total} diem centroid khong huu han (nan/inf).\n"
+            "Nguyen nhan thuong gap: tran so hoc o exp() khi logit attention qua lon "
+            "(vd Qwen2 co massive activations).\n"
+            "Khoi tinh exp da co buoc tru max; con bao loi nay nghia la key/query "
+            "dau vao da chua nan/inf san - kiem hook thu q/k trong offline_clustering.py."
+        )
+
     quantile_result = np.quantile(full_centroid_scores_cpu, q)
     thresholds = torch.tensor(quantile_result)
+
+    if not np.all(np.isfinite(quantile_result)):
+        raise RuntimeError(
+            f"run_global_threshold: quantile ra gia tri khong huu han {quantile_result}. "
+            f"Khong luu file de tranh sinh du lieu hong."
+        )
 
     tdict = {}
     i = 0
