@@ -48,6 +48,141 @@
 >   thấp hơn nhiều, không được nói quá.
 > - **Contamination**: `created_at` toàn 2023, Qwen2.5-Coder train tới ~2024.
 >
+> ---
+>
+> ## Đo lại đầy đủ 19/8 — cả ba bộ
+>
+> | | CrossCodeEval | RepoBench v1.1 | **RepoEval** |
+> |---|---:|---:|---:|
+> | Số fixed context | ~90 nhóm (Py) | **1.308** (732 nhóm ≥16k) | **16 repo** |
+> | **Query / context** | ≤3 (Py) | trung vị 3, max 30 | **200** (line/api) · 46 (function) |
+> | Độ dài context dựng được | 1,4K · max 8,6K tok | 10,8K · max 99,4K tok | **192K – 1,19M tok** |
+> | Repo gốc kèm theo | ❌ xin qua email | ⚠️ clone lại được | ✅ **ship sẵn 43 MB** |
+>
+> ### CrossCodeEval — kết luận cũ ĐÚNG, nhưng vì lý do khác
+>
+> Đo lại cả 4 ngôn ngữ với khoá nhóm đúng `(repo, bộ context)`:
+>
+> | Ngôn ngữ | n | Context trung vị | Nhóm ≥2 query | Query/nhóm max | Khoá **cũ** (sai) |
+> |---|---:|---:|---:|---:|---:|
+> | Python | 2.665 | ~1.376 tok | 90 (7,1%) | 3 | 2/370 (0,5%) |
+> | Java | 2.139 | ~1.667 tok | 143 (15,2%) | 14 | 3/204 (1,5%) |
+> | C# | 1.768 | ~1.080 tok | 173 (24,5%) | 24 | 0/94 (0%) |
+> | TypeScript | 3.356 | ~1.429 tok | 561 (37,8%) | 7 | 5/178 (2,8%) |
+>
+> Khoá đúng nâng tỉ lệ dùng chung lên đáng kể, nhưng **không cứu được** bộ này: lý do loại bỏ
+> thật sự là **độ dài**. `crossfile_context` là top-5 chunk retrieve, p95 chỉ ~3.700 ký tự —
+> bị chặn về mặt cấu trúc, không biến thể nào dài ra được.
+>
+> ### RepoEval — chưa từng đo ở khảo sát 15/8
+>
+> | Nhóm task | Repo | Query | Query/repo |
+> |---|---:|---:|---:|
+> | line + api level | 8 | 1.600 | **200** (đều nhau) |
+> | function level | 8 | 455 | trung vị 46, max 146 |
+>
+> Hai bộ repo **rời nhau** → tổng **16 repo**.
+>
+> Kích thước repo (chỉ file `.py`, ước 3,5 ký tự/token):
+>
+> | line/api | ~token | | function | ~token |
+> |---|---:|---|---|---:|
+> | huggingface_diffusers | 1.187.670 | | leopard-ai_betty | 191.602 |
+> | opendilab_ACE | 756.181 | | facebookresearch_omnivore | 119.853 |
+> | pytorch_rl | 646.722 | | google_lightweight_mmm | 107.167 |
+> | alibaba_FederatedScope | 524.393 | | CarperAI_trlx | 104.598 |
+> | google_vizier | 447.130 | | deepmind_tracr | 96.011 |
+> | nerfstudio-project_nerfstudio | 295.262 | | lucidrains_imagen-pytorch | 73.955 |
+> | huggingface_evaluate | 242.383 | | maxhumber_redframes | 34.961 |
+> | awslabs_fortuna | 192.725 | | amazon-science_patchcore-inspection | 26.185 |
+>
+> **Cả 8 repo line/api đều vượt 128K token.** Mọi repo function-level đều ≥26K.
+>
+> ⚠️ `prompt` trong file phân phối đã bị **cắt sẵn** theo ngân sách 1k/2k/4k của model năm
+> 2023 (tên file ghi rõ). Dùng nguyên `prompt` là tự giới hạn ở 1-4K token. Phải dựng lại
+> fixed context từ repo mới ra dải dài — và **cách ghép/cắt file trở thành một lựa chọn thiết
+> kế phải ghi rõ trong bài**, vì nó ảnh hưởng thẳng tới kết quả.
+>
+> ### Khuyến nghị sau khi đo đủ
+>
+> **Đi cả hai đường, chúng bù nhau đúng chỗ yếu của nhau:**
+>
+> | | RepoBench v1.1 | RepoEval |
+> |---|---|---|
+> | Điểm mạnh | dùng ngay, 732 context dài, nhãn thật | **200 query/context**, repo tới 1,19M token |
+> | Điểm yếu | **chỉ ~3 query/context** | phải tự dựng fixed context |
+> | Công việc | viết loader gom theo `(repo, bộ context)` | ghép file repo + cắt tới độ dài đích |
+>
+> Cả hai dùng **nhãn thật**, không cần pipeline RepoPreFixQA (LLM sinh câu hỏi +
+> self-consistency 5 lần + LLM-as-judge) mà protocol dự kiến.
+>
+> **Ba điều phải ghi vào bài:** contamination (repo 2022-2023, Qwen2.5-Coder train tới ~2024);
+> RepoEval chỉ có 16 repo nên phải báo cáo theo từng repo chứ không chỉ một số trung bình; và
+> cách dựng fixed context của RepoEval là lựa chọn thiết kế, không phải dữ liệu có sẵn.
+>
+> ### CrossCodeEval — đã đo đủ 9 biến thể × 4 ngôn ngữ (bản gốc GitHub)
+>
+> Độ dài context (ký tự, `prompt` + `crossfile_context`), Python:
+>
+> | Biến thể | trung vị | p95 | max |
+> |---|---:|---:|---:|
+> | `oracle_bm25` | 4.816 | 13.504 | 35.517 |
+> | `oracle_openai` | 4.787 | 13.635 | 35.591 |
+> | `oracle_unixcoder` | 4.853 | 13.636 | 35.477 |
+> | `rg1_bm25` | 4.638 | 13.313 | 35.486 |
+> | `rg1_openai` | 4.655 | 13.315 | 34.849 |
+> | `rg1_unixcoder` | 4.660 | 13.466 | 35.570 |
+>
+> Sáu biến thể retrieval chênh nhau **dưới 5%**, trần max ~35,6K ký tự ≈ **10,2K token**.
+> Đổi retriever hay đổi loại đều không làm context dài ra. **Kết luận loại bỏ vì độ dài là
+> vững, đã kiểm trên toàn bộ biến thể chứ không phải suy đoán.**
+>
+> Chi tiết cần nêu nếu về sau ai dùng bộ này: **lựa chọn retriever ảnh hưởng mạnh tới tỉ lệ
+> dùng chung** — Python `rg1`: bm25 5,3% vs unixcoder 1,9%; TypeScript `oracle`: bm25 37,8%
+> vs unixcoder 18,6%. Không được nói chung chung "CrossCodeEval", phải ghi rõ biến thể.
+>
+> ### ⚠️ Một con số suýt thành "phát hiện" sai — ghi lại để không lặp
+>
+> Biến thể `line_completion.jsonl` báo tỉ lệ dùng chung **96-99,6%**:
+>
+> ```
+> python/line_completion.jsonl        370 nhom  2564 query  96.2%
+> typescript/line_completion.jsonl    178 nhom  3341 query  99.6%
+> ```
+>
+> **Đây là rác.** Biến thể này **không có** `crossfile_context`, nên hàm trích trả về chuỗi
+> rỗng cho mọi dòng và khoá nhóm `(repo, hash(""))` gom hết query cùng repo vào một nhóm.
+> Con số đó chỉ đo "có bao nhiêu repo nhiều mẫu", không đo chia sẻ context.
+>
+> Cùng họ với lỗi nhóm sai khoá ở RepoBench: **khoá nhóm không nói lên điều mình tưởng nó
+> nói.** Lần này bắt được vì con số đẹp bất thường. Quy tắc rút ra: khi một tỉ lệ chia sẻ
+> vọt lên gần 100%, kiểm xem trường dùng làm khoá có rỗng không **trước khi** mừng.
+>
+> ### RepoBench Java — đo xong, TỐT HƠN Python
+>
+> | `cross_file_first` | Python | **Java** |
+> |---|---:|---:|
+> | Số dòng | 8.033 | **8.722** |
+> | Mức `128k` | 121 | **722** |
+> | Mức `64k` | 912 | **1.000** |
+> | `token_num` trung vị · p95 · max | 10.826 · 38.719 · 99.376 | 11.840 · **69.581** · 99.951 |
+> | **Nhóm ≥16k và dùng chung** | 732 nhóm · 3.496 query | **914 nhóm · 3.352 query** |
+> | Query/nhóm max | 30 | **50** |
+>
+> Java có **gấp 6 lần** số mẫu mức `128k` và p95 độ dài cao gần gấp đôi. Ba split nhất quán:
+> `cross_file_first` 914 nhóm · `cross_file_random` 912 · `in_file` 896.
+>
+> Gộp Python + Java, riêng `cross_file_first`: **1.646 fixed context ≥16k, 6.848 query.**
+>
+> Giả định "Java chỉ làm tăng số lượng" **sai** — nó dịch hẳn phân bố độ dài lên trên. Nếu
+> chỉ chạy một ngôn ngữ cho thí nghiệm long-context thì nên chọn **Java**, không phải Python.
+>
+> ### Đã đo hết
+>
+> Không còn khoảng trống nào trong ba bộ dữ liệu.
+>
+> ---
+>
 > Phần bên dưới giữ nguyên làm hồ sơ những gì đã kết luận ngày 15/8. **Mọi con số về độ dài
 > và tỉ lệ dùng chung của RepoBench trong đó đều đã bị thay thế bởi bảng trên.** Phần
 > CrossCodeEval chưa đo lại — có thể mắc cùng hai lỗi này.

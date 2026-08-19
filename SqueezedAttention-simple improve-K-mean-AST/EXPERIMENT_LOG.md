@@ -56,55 +56,43 @@ Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablati
 
 ---
 
-### Phase 1 — Chuẩn bị dữ liệu code · 🟡
+### Phase 1 — Chuẩn bị dữ liệu code · ✅ **GATE PASS**
 
-Protocol ghi "đã xong" nhưng thực tế mới có phần LongBench. Cần đúng cấu trúc *một fixed context → nhiều user query* thì premise của SA mới áp dụng.
+Cần đúng cấu trúc *một fixed context → nhiều user query* thì premise của SA mới áp dụng.
 
 | # | Việc | Trạng thái | Chi tiết |
 |---|---|---|---|
 | 1.1 | LongBench LCC + RepoBench-P | ✅ | Có sẵn trong pipeline, metric `code_sim_score`, so trực tiếp được với Table 2 |
-| 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 | **Đo lại 19/8: RepoBench v1.1 DÙNG ĐƯỢC ở dạng nguyên bản.** 732 nhóm `(repo, bộ context)` vừa dài ≥16k vừa dùng chung, 3.496 query, context trung vị 17.886 token. Khảo sát 15/8 sai do đọc shard 0 + nhóm sai khoá — xem đính chính ở [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Còn lại: viết loader. CrossCodeEval chưa đo lại |
-| 1.3 | Chuẩn hoá split `fixed_context` / `user_input` | 🟡 | Cơ chế có (`{dataset}_prompt` + `truncate_fn`) nhưng **lệch định nghĩa protocol** — xem quyết định D2 mục 7 |
-| 1.4 | Lưu offset ký tự từng token | ✅ LongChat · 🟡 Qwen | **Đã chạy thật trên LongChat**: 500/500 LCC, `0/500` lệch token id (xem mục 6, 16/8). Với Qwen thì chưa — offset phụ thuộc tokenizer nên **phải chạy lại** cho mỗi model. Là bước [1] của `phase1_gate.sh` |
-| 1.5 | Model chính Qwen2.5-Coder-7B-Instruct | 🟡 | **Code xong, chưa chạy GPU.** Port SA sang `models/qwen2/`, mở `pred.py`/`offline_clustering.py` cho model ngoài Llama. `model2maxlen` để **31500** như LongChat (không phải 128K) — cùng độ dài context thì so ablation mới sạch, mà chi phí K-means scale bậc hai theo S. **Đã sửa 2 bug chặn** ngày 17/8, xem mục 6 |
-| 1.6 | GQA: chọn key per-head, khớp cấu hình QUEST (Appendix G) | 🟡 | **Code xong**. Appendix G: mỗi query head **tự chọn key riêng**. Cài bằng `repeat_interleave` centroid/label từ 4 head KV lên 28 head Q. `run_global_threshold` cũng có nhánh GQA, no-op khi MHA. Test 20/20 pass ([scripts/test_gqa_port.py](scripts/test_gqa_port.py)) — nhưng test **chép lại** hàm từ `modeling_qwen2.py` chứ không import, nên nó kiểm bản sao. Đúng/sai thật chỉ gate GPU trả lời được |
-| 1.7 | Gate cho bản port (mới) | ✅ | [scripts/phase1_gate.sh](scripts/phase1_gate.sh) + [scripts/check_phase1.py](scripts/check_phase1.py). Table 2 **không có Qwen** nên tiêu chí là nội tại: Sq-70% không được thấp hơn All-KV quá ±2.0 — đúng thứ Phase 0 đã xác nhận cho đường LLaMA (+1.25) |
-| — | ⏸️ RepoPreFixQA (đóng góp benchmark, làm song song) | ⏸️ | 30-50 repo Python/Java từ GitHub 2025+ (tránh contamination), mỗi repo cắt fixed context 20-150K token; sinh query theo pipeline PreFixQA (Section E), filter self-consistency 5 lần + LLM-as-judge, tái dùng prompt Appendix E.3. **Thực chất trùng việc với 1.2** — xem quyết định D4 |
+| 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 | **Đo lại đầy đủ 19/8, cả ba bộ.** RepoBench v1.1 **dùng được ở dạng nguyên bản**: 1.646 fixed context ≥16k dùng chung (Py+Java), tới 99,9K token. RepoEval **khớp premise tốt nhất**: 200 query/context, repo 192K–1,19M token. CrossCodeEval **loại** — 9/9 biến thể đều trần ~10,2K token. Khảo sát 15/8 sai do đọc shard 0 + nhóm sai khoá. Xem [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Còn lại: viết loader |
+| 1.3 | Chuẩn hoá split `fixed_context` / `user_input` | ✅ | Chốt theo D2: giữ định nghĩa LongBench. Kiểm 19/8: **LCC vốn đã khớp protocol** (`{context}` = toàn bộ code trước con trỏ), xung đột chỉ ở `repobench-p`. Gate Phase 0 chạy LCC nên không ảnh hưởng |
+| 1.4 | Lưu offset ký tự từng token | ✅ | LongChat 500/500 LCC · Qwen 20/20, **0 lệch token id** ở cả hai. Offset phụ thuộc tokenizer nên mỗi model một bộ riêng; `prepare_code_data.py` từ chối ghi đè bộ của model khác |
+| 1.5 | Model chính **Qwen2.5-Coder-7B (base)** | ✅ | Chạy thật trên A100. **Đổi từ Instruct sang base** sau khi đo: Instruct 17,60 vs base **65,35** cùng dữ liệu. `model2maxlen` = 31500 (không phải 128K) — xem D5. Đã sửa 3 bug chặn, xem mục 6 |
+| 1.6 | GQA: chọn key per-head (QUEST Appendix G) | ✅ | `repeat_interleave` centroid/label từ 4 head KV lên 28 head Q. **Xác nhận trên GPU**: `num_key_value_heads=4`, assert `shared_prefix_length` qua cả 20 mẫu, 14/20 mẫu cho prediction y hệt All-KV |
+| 1.7 | Gate cho bản port | ✅ | [scripts/phase1_gate.sh](scripts/phase1_gate.sh) + [scripts/check_phase1.py](scripts/check_phase1.py). Tiêu chí là **paired test** trên hiệu số từng mẫu, không phải ngưỡng điểm cố định — ±2,0 gọi cả ca hỏng (−42,30) lẫn ca chạy được (−2,80) là FAIL |
+| — | ⏸️ RepoPreFixQA | ⏸️ | **Nhiều khả năng không cần nữa.** RepoBench + RepoEval cho fixed context dài với **nhãn thật**, không phải nhãn LLM sinh. Xem D4 |
 | — | ⏸️ Model cross-check | ⏸️ | DeepSeek-Coder-V2-Lite hoặc CodeLlama-13B |
 
-**Còn lại: đúng một lệnh trên pod.**
+**Kết quả gate** (Qwen2.5-Coder-7B base, LCC, 20 mẫu):
 
-```bash
-bash scripts/phase1_gate.sh              # 20 mẫu đầu LCC, ước tính ~45 phút (~$1)
-bash scripts/phase1_gate.sh --data-only  # chỉ bước [1], không cần GPU
-```
+| | Điểm | |
+|---|---:|---|
+| All-KV | **65,35** | trần accuracy, cao hơn LongChat 54,83 |
+| Sq-70% | **62,55** | hiệu −2,80 · `p = 0,22` · KTC95 `[−7,12, +1,52]` |
+| Mẫu prediction y hệt nhau | **14/20** | bỏ 70% key mà 70% mẫu vẫn ra đúng chữ |
 
-Sáu bước, xếp **rẻ trước đắt sau**, hỏng ở đâu dừng ở đó:
+Cả hai cấu hình 0% dòng chấm rỗng. Chênh lệch **không có ý nghĩa thống kê**.
 
-| # | Bước | Trả lời câu hỏi gì | Chi phí |
-|---|---|---|---|
-| 1 | `prepare_code_data.py` (1.4 cho Qwen) | tokenizer nhanh/chậm của Qwen có ra cùng token id? | ~1 phút, CPU |
-| 2 | `offline_clustering.py --limit 20` | hook trả key **4 head** (trước `repeat_kv`)? cuML chạy? | ~10 phút |
-| 3 | `check_cluster_integrity.py` | file centroid CRC đúng, đủ bộ ba? | vài giây |
-| 4 | `pred.py` All-KV | đường không-centroid của Qwen sinh output thật? | ~5 phút |
-| 5 | `pred.py` Sq-70% | đường centroid + GQA lookup chạy? | ~5 phút |
-| 6 | `check_phase1.py` | Sq-70% ≈ All-KV → **tra đúng nhóm centroid**? | tức thì |
+**Ba việc còn treo, không chặn Phase 2:**
 
-Bước 1 đặt trước tiên vì nó rẻ nhất *và* dễ hỏng nhất khi đổi model: LongChat dùng
-sentencepiece, Qwen2 dùng BPE kiểu GPT-2 (`vocab.json` + `merges.txt`) và bản chậm là
-Python thuần. Lệch một token là mọi offset của Phase 2 gán sai key vector.
-`prepare_code_data.py` đã `assert` sẵn và `exit 1`.
+1. **Viết loader RepoBench** gom theo `(repo_name, bộ context)` → chặn Phase 6.
+2. **Chạy 500 mẫu** để thu hẹp khoảng tin cậy. Phase 6 cần dù sao nên không phải chi phí thêm.
+3. **Mẫu 7 tụt 41 điểm** (98,0 → 57,0) chưa giải thích. `sp_len` = 3554. Đáng chạy
+   `inspect_centroids.py --dataidx 7` xem có phải cluster suy biến không — nếu đúng thì đó
+   là ca mẫu cụ thể cho Idea 1.
 
-**Sau khi gate pass:** 1.2 / D4 (chặn Phase 6, không chặn Phase 5).
-
-**Vì sao chỉ 20 mẫu.** Gate này không đo accuracy, nó hỏi *đường GQA có tra đúng nhóm
-centroid không*. Tra nhầm nhóm làm Sq-70% tụt vài điểm — 20 mẫu quá đủ để thấy. Muốn số
-để báo cáo thì `--full`, nhưng đó là việc của Phase 5/6.
-
-**Ghi chú 1.4 — ba điều Phase 2 phải biết:**
-1. Offset tính trên **prompt cuối cùng sau truncation**. Phase 2 vì vậy cũng phải parse AST trên chuỗi đó, không phải trên file source gốc.
-2. Sample bị truncate mất phần giữa → code **không còn đúng cú pháp**, tree-sitter sẽ sinh node `ERROR` quanh chỗ nối. Trường `truncated` trong meta đánh dấu sẵn để Phase 2 quyết định bỏ qua hay chấp nhận.
-3. `offline_clustering.py` dùng tokenizer **chậm** (không hỗ trợ `offset_mapping`), script này dùng tokenizer **nhanh** để lấy offset rồi **assert hai bên ra cùng token id**. Lệch là báo lỗi và exit 1, thay vì lặng lẽ sinh dữ liệu sai — vì offset lệch nghĩa là `unit_id` gán sai key vector.
+**Khác chiều với LongChat.** Phase 0 ra +1,25, bài gốc +0,29, Qwen ra −2,80. Chưa có ý nghĩa
+thống kê nên chưa kết luận được, nhưng nếu ở 500 mẫu vẫn âm và có ý nghĩa thì đó là khác
+biệt giữa hai họ model, phải giải thích trong bài.
 
 ---
 
