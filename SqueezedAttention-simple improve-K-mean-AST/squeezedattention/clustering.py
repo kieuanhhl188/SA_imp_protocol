@@ -151,21 +151,35 @@ def run_global_threshold(
         queries_obs_window = queries[:, -observation_window:, :].float() # only obs window queries
         attn_scores_centroids = torch.matmul(queries_obs_window, centroids_tensor.transpose(1, 2)) / math.sqrt(keys.shape[-1])
 
-        # initialize score
-        shape = (keys_shared_prefix.shape[0], keys_shared_prefix.shape[1], observation_window)
-        scores = torch.zeros(shape, device=keys_shared_prefix.device)
+        # (khong con khoi tao `scores` bang zeros: ban vector hoa ben duoi sinh thang ra no)
 
-        # loop over centroid and copy centroid scores onto the centroids
-        for k in range(K):
-            label_mask = centroids_labels == k
-            current_attn_scores_centroids = attn_scores_centroids[:,:,k].unsqueeze(-2)
-            scores = scores + label_mask.unsqueeze(-1) * current_attn_scores_centroids
+        # === Vector hoa hai vong `for k in range(K)` ===
+        # Ban goc lap Python qua K x num_layers = 789-1141 x 32 ~ 25.000-36.000 vong moi
+        # mau tren RepoBench-P, moi vong thao tac tren tensor [H, S, obs]. Do la nut that
+        # lam clustering RepoBench-P ton ~5 phut/mau (uoc ~37 gio cho 500 mau).
+        #
+        # Ca hai vong deu la phep co san, va thay the CHINH XAC TUNG BIT — khong phai xap xi:
+        #
+        #  1. scores[h,s,w] = attn_scores_centroids[h, w, labels[h,s]]
+        #     Voi moi (h,s,w) chi dung MOT k khop label, nen tong qua K co duy nhat mot so
+        #     hang khac 0, cong vao `scores` von khoi tao bang 0.0 -> ket qua y het gather.
+        #
+        #  2. num_keys_per_cluster[h,k] = so token cua head h mang nhan k -> scatter_add.
+        #     Tong cac so 1.0 trong float32 la chinh xac tuyet doi den 2^24 = 16.7M, con S
+        #     lon nhat o day ~23K.
+        H_ = centroids_labels.shape[0]
+        # [H, obs, K] -> [H, K, obs] roi lay theo nhan: out[h,s,w] = A[h, labels[h,s], w]
+        _A = attn_scores_centroids.transpose(1, 2)
+        scores = _A[torch.arange(H_, device=centroids_labels.device)[:, None], centroids_labels]
 
         # compute number of keys per cluster
-        num_keys_per_cluster = torch.zeros((keys_shared_prefix.shape[0], K), device=keys_shared_prefix.device)
-        for k in range(K):
-            label_mask = centroids_labels == k
-            num_keys_per_cluster[:,k] = torch.sum(label_mask, dim=-1)
+        num_keys_per_cluster = torch.zeros(
+            (keys_shared_prefix.shape[0], K), device=keys_shared_prefix.device
+        )
+        num_keys_per_cluster.scatter_add_(
+            1, centroids_labels,
+            torch.ones_like(centroids_labels, dtype=num_keys_per_cluster.dtype),
+        )
 
         # === On dinh so hoc: TRU MAX TRUOC KHI exp ===
         # Ban goc goi torch.exp thang tren logit tho. Do la softmax chua chuan hoa:

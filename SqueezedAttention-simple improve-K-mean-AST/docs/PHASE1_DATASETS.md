@@ -1,5 +1,58 @@
 # Phase 1.2 — Khảo sát CrossCodeEval / RepoBench
 
+> ## ⚠️ ĐÍNH CHÍNH 19/8/2026 — kết luận cũ về RepoBench SAI
+>
+> Khảo sát 15/8 kết luận RepoBench "context quá ngắn" và "context không dùng chung", rồi
+> khuyến nghị **không** dùng bộ này ở dạng nguyên bản. **Cả hai vế đều sai**, do hai lỗi
+> phương pháp độc lập:
+>
+> **Lỗi 1 — đọc nửa dữ liệu.** Chỉ đọc `cross_file_first` **shard 0**, mà shard đó sắp theo
+> `level` nên chứa toàn mẫu ngắn. Thực tế split này có **2 shard, 8.033 dòng**.
+>
+> **Lỗi 2 — nhóm sai khoá.** Nhóm theo `repo_name` rồi hỏi "mọi sample của repo có dùng chung
+> MỘT context không". Quá chặt: một repo có thể có vài bộ context, mỗi bộ được nhiều query
+> dùng chung. Phải nhóm theo `(repo_name, bộ context)`.
+>
+> ### Số đo lại, toàn bộ dữ liệu (19/8)
+>
+> | | Đo 15/8 (shard 0) | **Đo lại (đủ)** |
+> |---|---:|---:|
+> | Số dòng `cross_file_first` | 4.017 | **8.033** |
+> | Nhóm `level` | chỉ tới `16k` | **`2k…16k, 24k, 32k, 64k, 128k`** |
+> | `token_num` trung vị | 3.614 | **10.826** |
+> | `token_num` max | 14.177 | **99.376** |
+>
+> Phân bố `level` đầy đủ của `cross_file_first`:
+> `2k=1000 · 4k=1000 · 8k=1000 · 12k=1000 · 16k=1000 · 24k=1000 · 32k=1000 · 64k=912 · 128k=121`
+>
+> ### Context CÓ dùng chung — nhóm theo `(repo, bộ context)`
+>
+> | `cross_file_first` | |
+> |---|---:|
+> | Nhóm có ≥2 query | **1.308** |
+> | Query trong các nhóm đó | **4.830 (60,1% toàn bộ)** |
+> | **Nhóm vừa dài ≥16k vừa dùng chung** | **732 nhóm · 3.496 query** |
+> | Context nhóm dài: trung vị · max | **17.886 · 99.376 token** |
+> | Query/nhóm: trung vị · max | 3 · **30** |
+>
+> `cross_file_random` tương tự: 699 nhóm ≥16k, 3.096 query.
+>
+> ### Kết luận mới
+>
+> **RepoBench v1.1 dùng được ở dạng nguyên bản.** Không cần clone repo, không cần dựng
+> benchmark mới, không cần pipeline LLM sinh câu hỏi. Chỉ cần loader gom theo
+> `(repo_name, bộ context)` → mỗi nhóm là một `fixed_context` với nhiều `user_input`.
+>
+> Hai điều vẫn phải ghi vào bài:
+> - **Trung vị 3 query/context** (PreFixQA của bài có ~24) → mức khấu hao chi phí clustering
+>   thấp hơn nhiều, không được nói quá.
+> - **Contamination**: `created_at` toàn 2023, Qwen2.5-Coder train tới ~2024.
+>
+> Phần bên dưới giữ nguyên làm hồ sơ những gì đã kết luận ngày 15/8. **Mọi con số về độ dài
+> và tỉ lệ dùng chung của RepoBench trong đó đều đã bị thay thế bởi bảng trên.** Phần
+> CrossCodeEval chưa đo lại — có thể mắc cùng hai lỗi này.
+
+
 Khảo sát thực hiện 15/8/2026 trên dữ liệu tải thật, không phải theo mô tả trong paper.
 
 - CrossCodeEval: `git clone --depth 1 https://github.com/amazon-science/cceval` →

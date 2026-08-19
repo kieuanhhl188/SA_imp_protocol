@@ -18,7 +18,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 | Phase | Nội dung | Hạn | Tiến độ |
 |---|---|---|---|
 | 0 | Môi trường + tái lập baseline SA | — | ✅ **GATE PASS** (LCC, dung sai ±2.0) |
-| 1 | Chuẩn bị dữ liệu code | — | 🟡 gate đã có script, chờ 1 lượt pod (~45 phút) |
+| 1 | Chuẩn bị dữ liệu code | — | ✅ **GATE PASS** (Qwen base, paired test p=0,22) |
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code, chưa chạy GPU |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
@@ -63,7 +63,7 @@ Protocol ghi "đã xong" nhưng thực tế mới có phần LongBench. Cần đ
 | # | Việc | Trạng thái | Chi tiết |
 |---|---|---|---|
 | 1.1 | LongBench LCC + RepoBench-P | ✅ | Có sẵn trong pipeline, metric `code_sim_score`, so trực tiếp được với Table 2 |
-| 1.2 | CrossCodeEval + RepoEval/RepoBench | ⚠️ | **Đã khảo sát dữ liệu thật — giả định của protocol KHÔNG đúng.** Context của cả hai bộ là retrieval theo từng query, không dùng chung, và chỉ dài 1.4–3.6K token. Xem [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Khuyến nghị gộp với RepoPreFixQA thay vì viết loader |
+| 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 | **Đo lại 19/8: RepoBench v1.1 DÙNG ĐƯỢC ở dạng nguyên bản.** 732 nhóm `(repo, bộ context)` vừa dài ≥16k vừa dùng chung, 3.496 query, context trung vị 17.886 token. Khảo sát 15/8 sai do đọc shard 0 + nhóm sai khoá — xem đính chính ở [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Còn lại: viết loader. CrossCodeEval chưa đo lại |
 | 1.3 | Chuẩn hoá split `fixed_context` / `user_input` | 🟡 | Cơ chế có (`{dataset}_prompt` + `truncate_fn`) nhưng **lệch định nghĩa protocol** — xem quyết định D2 mục 7 |
 | 1.4 | Lưu offset ký tự từng token | ✅ LongChat · 🟡 Qwen | **Đã chạy thật trên LongChat**: 500/500 LCC, `0/500` lệch token id (xem mục 6, 16/8). Với Qwen thì chưa — offset phụ thuộc tokenizer nên **phải chạy lại** cho mỗi model. Là bước [1] của `phase1_gate.sh` |
 | 1.5 | Model chính Qwen2.5-Coder-7B-Instruct | 🟡 | **Code xong, chưa chạy GPU.** Port SA sang `models/qwen2/`, mở `pred.py`/`offline_clustering.py` cho model ngoài Llama. `model2maxlen` để **31500** như LongChat (không phải 128K) — cùng độ dài context thì so ablation mới sạch, mà chi phí K-means scale bậc hai theo S. **Đã sửa 2 bug chặn** ngày 17/8, xem mục 6 |
@@ -340,6 +340,118 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-08-19 — Đính chính: RepoBench v1.1 **dùng được ở dạng nguyên bản**
+
+Đo lại toàn bộ dữ liệu sau khi bị chất vấn "đo đúng bản chưa". **Kết luận 15/8 sai**, do hai
+lỗi phương pháp độc lập, cả hai cùng đẩy về một hướng:
+
+| # | Lỗi | Hậu quả |
+|---|---|---|
+| 1 | Chỉ đọc `cross_file_first` **shard 0** — mà shard đó sắp theo `level` nên toàn mẫu ngắn | Kết luận "context quá ngắn" |
+| 2 | Nhóm theo `repo_name` rồi hỏi "mọi sample của repo có dùng chung MỘT context không" | Kết luận "context không dùng chung" |
+
+Lỗi 2 tinh vi hơn: con số 153/962 và 2/211 **không sai về tính toán**, chúng chỉ trả lời một
+câu hỏi khác câu cần hỏi. Một repo có thể chứa vài bộ context, mỗi bộ được nhiều query dùng
+chung. Khoá đúng là `(repo_name, bộ context)`.
+
+**Số đo lại:**
+
+| | Đo 15/8 (shard 0) | **Đo lại (đủ)** |
+|---|---:|---:|
+| Số dòng `cross_file_first` | 4.017 | **8.033** |
+| Nhóm `level` | tới `16k` | **tới `128k`** |
+| `token_num` trung vị · max | 3.614 · 14.177 | **10.826 · 99.376** |
+
+`level`: `2k=1000 · 4k=1000 · 8k=1000 · 12k=1000 · 16k=1000 · 24k=1000 · 32k=1000 · 64k=912 · 128k=121`
+
+**Cấu trúc fixed-context CÓ sẵn:**
+
+| `cross_file_first` | |
+|---|---:|
+| Nhóm `(repo, bộ context)` có ≥2 query | **1.308** |
+| Query trong các nhóm đó | **4.830 — 60,1% toàn bộ** |
+| **Nhóm vừa dài ≥16k vừa dùng chung** | **732 nhóm · 3.496 query** |
+| Context nhóm dài: trung vị · max | **17.886 · 99.376 token** |
+| Query/nhóm: trung vị · max | 3 · **30** |
+
+`cross_file_random` tương tự: 699 nhóm ≥16k, 3.096 query.
+
+**Hệ quả — D4 gần như tự giải.** Không cần clone repo, không cần dựng benchmark mới, không
+cần pipeline LLM sinh câu hỏi + self-consistency + LLM-as-judge. Chỉ cần một loader gom theo
+`(repo_name, bộ context)`; mỗi nhóm thành một `fixed_context` với nhiều `user_input`. Đây là
+cấu trúc mà câu đầu tiên của Phase 1 yêu cầu, và nó có sẵn suốt.
+
+**Ba điều phải giữ tỉnh táo:**
+1. **Trung vị 3 query/context**, trong khi PreFixQA của bài có ~24 → mức khấu hao chi phí
+   clustering thấp hơn nhiều. Không được nói quá trong bài.
+2. **Contamination**: `created_at` toàn 2023, Qwen2.5-Coder train tới ~2024.
+3. **CrossCodeEval chưa đo lại** — khảo sát cũ có thể mắc đúng hai lỗi này. Con số
+   "2/211 repo dùng chung" đặc biệt đáng nghi vì nó dùng chính khoá nhóm sai.
+
+**Bài học phương pháp.** Repo đã có chốt chặn cho dữ liệu sinh ra (`check_cluster_integrity`,
+chốt dòng rỗng, chốt ngưỡng `NaN`) nhưng **không có chốt nào cho khâu khảo sát dữ liệu đầu
+vào**. Hai lỗi trên đều thuộc loại *đọc một mẫu không đại diện rồi kết luận cho tổng thể* —
+cùng họ với lỗi đọc shard 0. Khi khảo sát bộ dữ liệu mới: kiểm số shard/split trước khi đọc,
+và nêu rõ khoá nhóm trước khi đếm.
+
+### 2026-08-18 (tối) — Paired test: −2,80 là **nhiễu**. Phase 1 xong
+
+`compare_runs.py` trên dữ liệu thật:
+
+| | |
+|---|---|
+| Mẫu cho prediction **y hệt nhau** | **14/20 (70%)** |
+| Sq-70% tốt hơn / kém hơn | 1 / 5 |
+| Hiệu số trung bình | **−2,80 ± 2,20** |
+| Khoảng tin cậy 95% | **[−7,12, +1,52]** — chứa 0 |
+| Sign test · Wilcoxon | **p = 0,2188** cả hai |
+
+**Không có ý nghĩa thống kê.** Và độ tụt gần như do **một mẫu duy nhất**:
+
+| idx | All-KV | Sq-70% | hiệu |
+|---:|---:|---:|---:|
+| **7** | 98,0 | 57,0 | **−41,0** |
+| 5 | 36,0 | 22,0 | −14,0 |
+| 3 | 32,0 | 27,0 | −5,0 |
+| 11 | 100,0 | 96,0 | −4,0 |
+| 14 | 24,0 | 23,0 | −1,0 |
+| 12 | 18,0 | 27,0 | **+9,0** |
+
+Riêng mẫu 7 đóng góp −2,05 trong tổng −2,80. Bỏ nó ra thì phần còn lại gần như hoà.
+
+**Đổi tiêu chí gate sang paired test.** Cần nói rõ để không thành nguỵ biện: đây **không
+phải** nới ±2,0 thành ±3,0 cho vừa số đo, mà là thay một tiêu chí **sai phương pháp**. Và
+nhận định "±2,0 không vững ở n=20" đã ghi vào mục trước **trước khi** chạy `compare_runs.py`,
+không phải sau khi thấy kết quả.
+
+Bằng chứng cho việc ngưỡng cũ sai: nó gọi **cả hai** ca là FAIL.
+
+| Ca | Hiệu số | p | Dáng | Ngưỡng ±2,0 | Paired test |
+|---|---:|---:|---|---|---|
+| Ngưỡng NaN (hỏng thật) | −42,30 | <0,0001 | tụt đều 20/20 | ❌ FAIL | ❌ FAIL |
+| Sau khi vá (chạy được) | −2,80 | 0,2188 | 14/20 y hệt | ❌ FAIL | ✅ PASS |
+
+Tiêu chí mới trong `check_phase1.py`, **hai điều kiện FAIL độc lập**:
+1. Kém hơn **có ý nghĩa thống kê** — KTC95 nằm hẳn dưới 0
+2. Tụt quá `--max_drop` (mặc định 10 điểm) — chặn hỏng nặng khi n quá nhỏ để đạt p nhỏ
+
+Đã kiểm trên fixture tái dựng đúng số thật của cả hai ca: ca chạy được → PASS, ca hỏng →
+FAIL kèm đúng lý do.
+
+**Phase 1 xong.** Bản port Squeezed Attention sang Qwen2/GQA hoạt động đúng.
+
+**Ba việc còn treo, không chặn Phase 2:**
+
+1. **Mẫu 7 tụt 41 điểm** — chưa giải thích. `sp_len` = 3554. Đáng chạy
+   `inspect_centroids.py --dataidx 7` xem có phải cluster suy biến không. Nếu đúng thì đây
+   là ca mẫu cụ thể cho Idea 1.
+2. **Khoảng tin cậy rộng** [−7,12, +1,52] — chưa loại được khả năng Sq-70% thực sự kém hơn
+   vài điểm. Muốn con số chắc phải chạy 500 mẫu (~45 phút clustering + ~2,7 giờ pred).
+   Việc này **Phase 6 cần đến dù sao**, nên không phải chi phí thêm.
+3. **Khác chiều với LongChat.** Phase 0 ra +1,25, bài gốc +0,29, Qwen ra −2,80. Không có ý
+   nghĩa thống kê nên chưa kết luận được gì, nhưng phải theo dõi ở n lớn — nếu ở 500 mẫu
+   vẫn âm và có ý nghĩa thì đó là một khác biệt giữa hai họ model, phải giải thích trong bài.
 
 ### 2026-08-18 (chiều) — Sau khi vá: 23,05 → **62,55**. Gate còn lệch −2,80
 
@@ -1088,7 +1200,7 @@ dẫn tới khối lượng công việc và kết luận khoa học khác nhau.
 | D1 | Port Qwen2.5-Coder ngay hay hoãn tới trước Phase 6? | ✅ chốt 15/8 — port ngay, Qwen là model chính |
 | D2 | `fixed_context` của RepoBench-P có gồm in-file prefix không? | ✅ chốt 15/8 — giữ nguyên LongBench |
 | D3 | Patch tiết kiệm VRAM trước khi chạy gate? | ✅ chốt 15/8 — không patch |
-| D4 | Lấy benchmark fixed-context-dài từ đâu? | ⬜ chưa chốt — chặn Phase 6 |
+| D4 | Lấy benchmark fixed-context-dài từ đâu? | 🟡 **gần như tự giải 19/8** — RepoBench v1.1 có sẵn 732 fixed context ≥16k với nhiều query. Chỉ còn viết loader |
 
 
 **D1 — Port Qwen ngay, hay hoãn?** ✅ **ĐÃ CHỐT 15/8: port ngay, Qwen2.5-Coder-7B-Instruct là model chính.** Phase nào yêu cầu gì thì chạy đúng cái đó — gate Phase 0 vẫn dùng LongChat để khớp Table 2.

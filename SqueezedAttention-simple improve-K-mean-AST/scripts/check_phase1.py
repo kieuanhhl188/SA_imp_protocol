@@ -8,7 +8,14 @@ check_gate.py so voi Table 2 cua bai. Table 2 chi co LongChat / LLaMA-2-32K / LW
 **khong co Qwen2.5-Coder**. Khong co so doi chieu ngoai, nen gate Phase 1 phai dua vao
 mot tieu chi NOI TAI:
 
-    Sq-70% tren Qwen khong duoc te hon All-KV tren Qwen qua `--tolerance` diem.
+    Sq-70% tren Qwen khong duoc kem hon All-KV MOT CACH CO Y NGHIA THONG KE.
+
+Tieu chi la PAIRED TEST tren hieu so tung mau, khong phai nguong diem co dinh. Ly do
+(do 18/8, n=20): ban port hong cho -42.30 voi p<0.0001 va tut deu 20/20 mau; ban port
+dung cho -2.80 voi p=0.22 va 14/20 mau y het nhau. Mot nguong +-2.0 goi CA HAI la FAIL.
+Tren 20 mau, SE cua rieng mot diem trung binh da vuot 5 diem — doc hieu cua hai trung
+binh nhu mot con so tuyet doi la sai phuong phap. Van giu them chan `--max_drop` cho
+truong hop hong nang ma n qua nho de dat y nghia thong ke.
 
 Do la dung dieu Phase 0 da xac nhan cho duong LLaMA (Sq-70% 56.08 vs All-KV 54.83,
 +1.25). Neu ban port GQA tra nham nhom centroid — loi de xay ra nhat, va la loi
@@ -59,6 +66,55 @@ def load_score(pred_dir, dirname, task):
     return res.get(task), path
 
 
+def paired_diff(pred_dir, dir_a, dir_b, task):
+    """So THEO CAP tu result_detail.json. Tra ve dict hoac None neu thieu du lieu.
+
+    Nguong diem co dinh (vd +-2.0) khong phan biet duoc nhieu voi loi khi n nho: tren
+    20 mau, SE cua rieng mot diem trung binh da vuot 5 diem. Nhung hai lan chay dung
+    CUNG tap mau, CUNG model, chi khac co use_centroids -> thiet ke ghep cap, va dai
+    luong dung la phan bo HIEU SO TUNG MAU.
+
+    Do 18/8: ban port hong cho -42.30 voi p<0.0001 (tut deu 20/20); ban port dung cho
+    -2.80 voi p=0.22 va 14/20 mau y het nhau. Nguong +-2.0 goi ca hai la FAIL.
+    """
+    import math
+
+    def load(d):
+        path = os.path.join(pred_dir, d, "result_detail.json")
+        if not os.path.exists(path):
+            return None
+        try:
+            with open(path, encoding="utf-8") as f:
+                blk = json.load(f).get(task) or {}
+            per = blk.get("per_sample") or {}
+            return {int(k): float(v) for k, v in per.items()} or None
+        except Exception:
+            return None
+
+    pa, pb = load(dir_a), load(dir_b)
+    if not pa or not pb:
+        return None
+    common = sorted(set(pa) & set(pb))
+    if len(common) < 2:
+        return None
+
+    diffs = [pb[i] - pa[i] for i in common]
+    n = len(diffs)
+    mean = sum(diffs) / n
+    sd = math.sqrt(sum((d - mean) ** 2 for d in diffs) / (n - 1))
+    se = sd / math.sqrt(n)
+    pos = sum(1 for d in diffs if d > 1e-9)
+    neg = sum(1 for d in diffs if d < -1e-9)
+    k, m = min(pos, neg), pos + neg
+    pval = min(1.0, 2 * sum(math.comb(m, i) for i in range(k + 1)) / (2 ** m)) if m else 1.0
+    return {
+        "n": n, "same": n - pos - neg, "better": pos, "worse": neg,
+        "mean": 100 * mean, "se": 100 * se,
+        "ci_lo": 100 * (mean - 1.96 * se), "ci_hi": 100 * (mean + 1.96 * se),
+        "p": pval,
+    }
+
+
 def degenerate_ratio(pred_dir, dirname, task):
     """Ti le mau ma metric cham vao mot dong RONG.
 
@@ -103,8 +159,9 @@ def append_md_log(md_path, args, rows, verdict, env, meta):
         lines += [f"> {args.run_note}", ""]
 
     lines += [
-        f"- Tiêu chí: Sq-70% **không tệ hơn** All-KV quá ±{args.tolerance} điểm "
-        f"(Table 2 không có Qwen nên không có mốc ngoài)",
+        f"- Tiêu chí: **paired test** trên hiệu số từng mẫu — FAIL nếu KTC95 nằm hẳn "
+        f"dưới 0, hoặc tụt quá {args.max_drop} điểm. Table 2 không có Qwen nên không có "
+        f"mốc ngoài; ngưỡng điểm cố định thì không phân biệt được nhiễu với lỗi ở n nhỏ",
         f"- Task `{args.task}`, phạm vi: **{scope}**",
         f"- pred_dir: `{args.pred_dir}`",
     ]
@@ -134,6 +191,14 @@ def append_md_log(md_path, args, rows, verdict, env, meta):
         lines.append(f"**Sq-70% − All-KV = {meta['delta']:+.2f} điểm** "
                      f"(Phase 0 trên LongChat: +1.25)")
         lines.append("")
+    pd = meta.get("paired")
+    if pd:
+        lines.append(f"| Mẫu y hệt | Sq tốt hơn | Sq kém hơn | Hiệu số | KTC 95% | sign test |")
+        lines.append("|---:|---:|---:|---:|---|---:|")
+        lines.append(f"| {pd['same']}/{pd['n']} | {pd['better']} | {pd['worse']} | "
+                     f"{pd['mean']:+.2f} ± {pd['se']:.2f} | "
+                     f"[{pd['ci_lo']:+.2f}, {pd['ci_hi']:+.2f}] | p = {pd['p']:.4f} |")
+        lines.append("")
 
     lines.append("Gate này chỉ chứng minh đường GQA nạp và tra đúng nhóm centroid. "
                  "Nó **không** so Qwen với LongChat và **không** thay cho Phase 5/6.")
@@ -158,6 +223,9 @@ def main():
     ap.add_argument("--tolerance", type=float, default=2.0,
                     help="Sq-70% duoc phep thap hon All-KV toi da bao nhieu diem. "
                          "Mac dinh 2.0, cung muc da chot o Phase 0")
+    ap.add_argument("--max_drop", type=float, default=10.0,
+                    help="tut qua bao nhieu diem thi FAIL bat ke y nghia thong ke. Chan "
+                         "truong hop hong nang ma n qua nho de dat p nho")
     ap.add_argument("--max_degenerate", type=float, default=0.25,
                     help="ti le toi da mau co dong-duoc-cham RONG. Vuot nguong nay thi "
                          "FAIL truoc khi so diem, vi diem khong con y nghia")
@@ -228,7 +296,28 @@ def main():
     else:
         delta = sq - base
         meta["delta"] = delta
-        ok = delta >= -args.tolerance
+
+        # Tieu chi: PAIRED TEST khi co du lieu tung mau, khong phai nguong diem co dinh.
+        #   FAIL neu (a) kem hon co Y NGHIA THONG KE  -> khoang tin cay 95% nam han duoi 0
+        #        hoac (b) tut qua --max_drop diem     -> chan hong nang du n qua nho de
+        #                                                dat y nghia thong ke
+        pd = paired_diff(args.pred_dir, d_base, d_sq, args.task)
+        meta["paired"] = pd
+        if pd:
+            print(f"  So theo cap: {pd['same']}/{pd['n']} mau y het | "
+                  f"{pd['better']} tot hon | {pd['worse']} kem hon")
+            print(f"  Hieu so {pd['mean']:+.2f} +- {pd['se']:.2f}  "
+                  f"KTC95 [{pd['ci_lo']:+.2f}, {pd['ci_hi']:+.2f}]  sign test p={pd['p']:.4f}")
+            print()
+            sig_worse = pd["ci_hi"] < 0
+            catastrophic = pd["mean"] < -args.max_drop
+            ok = not (sig_worse or catastrophic)
+        else:
+            print(f"  (thieu result_detail.json -> quay ve nguong diem +-{args.tolerance})")
+            print()
+            sig_worse = catastrophic = False
+            ok = delta >= -args.tolerance
+
         verdict = "PASS" if ok else "FAIL"
         rows.append(("All KV", args.task, base, "trần accuracy"))
         rows.append(("Sq-70%", args.task, sq,
@@ -237,9 +326,20 @@ def main():
         print()
         if ok:
             print("  ✅ PASS — duong GQA nap va tra dung nhom centroid.")
-            print("     Sq-70% khong tut so voi All-KV, cung chieu voi Phase 0 tren LongChat.")
+            if pd and pd["mean"] < 0:
+                print(f"     Sq-70% thap hon {-pd['mean']:.2f} diem nhung KHONG co y nghia "
+                      f"thong ke (p={pd['p']:.3f}, KTC95 chua 0).")
+                print(f"     {pd['same']}/{pd['n']} mau cho prediction y het nhau.")
+                print("     Muon ket luan chac thi tang so mau, dung doc con so nay nhu that.")
         else:
-            print(f"  ❌ FAIL — Sq-70% thap hon All-KV {-delta:.2f} diem (> {args.tolerance}).")
+            if pd and catastrophic:
+                print(f"  ❌ FAIL — tut {-pd['mean']:.2f} diem, vuot muc hong nang "
+                      f"({args.max_drop}).")
+            elif pd:
+                print(f"  ❌ FAIL — kem hon CO Y NGHIA THONG KE: KTC95 "
+                      f"[{pd['ci_lo']:+.2f}, {pd['ci_hi']:+.2f}] nam han duoi 0.")
+            else:
+                print(f"  ❌ FAIL — Sq-70% thap hon All-KV {-delta:.2f} diem (> {args.tolerance}).")
             print("     Nghi pham theo thu tu de kiem:")
             print("       1. repeat_interleave vs repeat -> tra nham nhom centroid")
             print("         (scripts/test_gqa_port.py bat duoc ca nay tren CPU)")
