@@ -73,9 +73,13 @@ pytest
 # ============================================================================
 # KHÔNG dùng tree-sitter-languages: gói đó không build được trên nhiều môi trường.
 # struct_clustering.py viết theo API tree_sitter mới + gói ngôn ngữ riêng từng thứ tiếng.
+# tree-sitter-c-sharp KHÔNG được bỏ: LCC có 158/500 mẫu C# (và mẫu dataidx=0 chính là C#),
+# RepoBench-P có 264/500 mẫu Java. Từ khi Phase 1.4 lấy ngôn ngữ theo TỪNG MẪU thay vì
+# hardcode "python", thiếu gói nào là `get_parser()` ném ModuleNotFoundError ngay mẫu đầu.
 tree-sitter>=0.22
 tree-sitter-python
 tree-sitter-java
+tree-sitter-c-sharp
 tree-sitter-javascript
 
 # ============================================================================

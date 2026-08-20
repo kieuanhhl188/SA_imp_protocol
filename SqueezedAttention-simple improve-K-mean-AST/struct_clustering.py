@@ -118,13 +118,43 @@ def get_parser(language: str):
     return parser
 
 
+def byte_to_char_index(code: str) -> Optional[List[int]]:
+    """
+    Bảng tra `b2c[i]` = chỉ số KÝ TỰ của byte thứ i trong `code`. Trả None nếu code thuần
+    ASCII (khi đó byte và ký tự trùng nhau, khỏi tốn bộ nhớ).
+
+    VÌ SAO CẦN: tree-sitter đánh địa chỉ theo BYTE (`node.start_byte`), còn offset của
+    Phase 1.4 là KÝ TỰ (`return_offsets_mapping` của tokenizer nhanh). Cộng thẳng hai loại
+    vào nhau thì mọi span sau ký tự non-ASCII đầu tiên đều lệch, và độ lệch cộng dồn.
+    Đo trên dữ liệu thật: LCC 0/500 mẫu có non-ASCII (không ảnh hưởng), RepoBench-P
+    **88/500 mẫu (17,6%)** có — tức gần 1/5 dataset sẽ gán token sai unit nếu không quy đổi.
+    """
+    code_bytes = code.encode("utf-8")
+    n_bytes = len(code_bytes)
+    if n_bytes == len(code):
+        return None
+    b2c = [0] * (n_bytes + 1)
+    b = 0
+    for ci, ch in enumerate(code):
+        w = len(ch.encode("utf-8"))
+        for k in range(w):
+            b2c[b + k] = ci
+        b += w
+    b2c[n_bytes] = len(code)
+    return b2c
+
+
 def parse_units(
     code: str,
     language: str = "python",
     level: str = "function",
 ) -> Tuple[List[Tuple[int, int]], Dict[str, int]]:
     """
-    Trả về các span [start_byte, end_byte) của đơn vị cấu trúc ở `level`, cộng thống kê.
+    Trả về các span [start_char, end_char) của đơn vị cấu trúc ở `level`, cộng thống kê.
+
+    ĐƠN VỊ LÀ KÝ TỰ, không phải byte — để khớp thẳng với offset Phase 1.4. tree-sitter làm
+    việc theo byte, hàm này quy đổi lại qua `byte_to_char_index`. Với code thuần ASCII hai
+    đơn vị trùng nhau nên không có chi phí gì.
 
     Level thô hơn được gộp vào: level="function" cũng nhận class (một class không có method
     vẫn là một đơn vị), level="block" nhận cả function/class, v.v. Nhờ vậy mọi token đều có
@@ -137,7 +167,7 @@ def parse_units(
 
     code_bytes = code.encode("utf-8")
     if level == "file":
-        return [(0, len(code_bytes))], {"num_error_nodes": 0, "num_units": 1}
+        return [(0, len(code))], {"num_error_nodes": 0, "num_units": 1}
 
     if language not in NODE_TYPES:
         raise ValueError(f"chưa hỗ trợ ngôn ngữ '{language}', có: {sorted(NODE_TYPES)}")
@@ -162,9 +192,14 @@ def parse_units(
             spans.append((node.start_byte, node.end_byte))
         stack.extend(node.children)
 
+    # byte -> ký tự, để khớp với offset của Phase 1.4
+    b2c = byte_to_char_index(code)
+    if b2c is not None:
+        spans = [(b2c[s], b2c[e]) for s, e in spans]
+
     # luôn có span phủ toàn bộ file, để token ngoài mọi unit (import rời, code top-level)
     # vẫn có đơn vị bao — không token nào bị bỏ rơi.
-    spans.append((0, len(code_bytes)))
+    spans.append((0, len(code)))
 
     return spans, {"num_error_nodes": n_error, "num_units": len(spans)}
 
@@ -218,10 +253,73 @@ def compact_unit_ids(unit_ids: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor
 # 3. PHÂN BỔ NGÂN SÁCH CENTROID
 # =====================================================================
 
+class BudgetExceeded(ValueError):
+    """
+    Số unit cấu trúc vượt ngân sách centroid — mẫu này KHÔNG biểu diễn được ở level và
+    ngân sách hiện tại.
+
+    Là exception riêng (không phải ValueError trần) để người gọi phân biệt được "mẫu không
+    khả thi" với "code có bug", và quyết định chính sách: bỏ qua-và-ghi-nhận, hay gộp unit.
+    Mặc định của Phase 2 là BỎ QUA: gộp rồi báo cáo như không có gì xảy ra sẽ biến một giới
+    hạn ngân sách thành một kết luận về cấu trúc.
+    """
+
+    def __init__(self, msg, num_units=None, budget=None):
+        super().__init__(msg)
+        self.num_units = num_units
+        self.budget = budget
+
+
+def merge_units_to_budget(
+    unit_ids: torch.Tensor,
+    target_units: int,
+) -> Tuple[torch.Tensor, Dict[str, object]]:
+    """
+    Gộp unit LIỀN KỀ THEO VỊ TRÍ trong code cho tới khi còn `target_units` unit.
+
+    CHỈ dùng cho nhánh biến thể có-ràng-buộc-ngân-sách, KHÔNG dùng trong thí nghiệm chính.
+    Người gọi phải ghi lại `frac_units_merged` và báo cáo — gộp 60% số unit rồi vẫn gọi đó
+    là "statement level" là sai sự thật.
+
+    Cách gộp giống hệt nhánh "merge" của `build_l1_groups`: sắp unit theo lần xuất hiện đầu
+    tiên trong chuỗi token, rồi cắt thành `target_units` đoạn liền kề cân theo số token.
+    Tất định tuyệt đối, không RNG. Nhờ liền kề theo vị trí, unit gộp vẫn là một vùng code
+    liền mạch chứ không phải một tập rời rạc.
+    """
+    unit_ids, _ = compact_unit_ids(unit_ids)
+    U = int(unit_ids.max()) + 1
+    if target_units >= U:
+        return unit_ids, {"merged": False, "u_before": U, "u_after": U,
+                          "frac_units_merged": 0.0}
+    if target_units < 1:
+        raise ValueError(f"target_units phải >= 1, nhận {target_units}")
+
+    sizes = torch.bincount(unit_ids, minlength=U)
+    first_pos = torch.tensor([int((unit_ids == u).nonzero()[0]) for u in range(U)])
+    order = torch.argsort(first_pos)          # unit theo thứ tự xuất hiện trong code
+    sizes_ord = sizes[order]
+    total = float(sizes_ord.sum())
+    quota = total / target_units
+
+    group_of_unit = torch.zeros(U, dtype=torch.long)
+    g, acc = 0, 0.0
+    for i, u in enumerate(order.tolist()):
+        group_of_unit[u] = min(g, target_units - 1)
+        acc += float(sizes_ord[i])
+        # sang nhóm mới khi đủ hạn ngạch, nhưng phải chừa đủ unit cho các nhóm còn lại
+        if (acc >= quota * (g + 1) and g < target_units - 1
+                and (U - i - 1) >= (target_units - g - 1)):
+            g += 1
+
+    out, _ = compact_unit_ids(group_of_unit[unit_ids])
+    u_after = int(out.max()) + 1
+    return out, {"merged": True, "u_before": U, "u_after": u_after,
+                 "frac_units_merged": (U - u_after) / U}
+
 def allocate_centroids(
     unit_sizes: torch.Tensor,
     num_centroids_total: int,
-    max_k_per_unit: int = 64,
+    max_k_per_unit: Optional[int] = None,
     caps: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """
@@ -230,26 +328,39 @@ def allocate_centroids(
     Ràng buộc (protocol 2.3):
       - mỗi unit ít nhất 1 centroid  ("unit nhỏ (< ngưỡng) -> 1 centroid")
       - không quá số token của unit  (K-means không thể có nhiều cluster hơn điểm)
-      - không quá max_k_per_unit     (giữ chi phí bucket có biên)
+      - không quá max_k_per_unit     (nếu đặt; xem bên dưới)
       - TỔNG đúng bằng num_centroids_total, để so công bằng với SA ở cùng budget
 
-    Nếu số unit > ngân sách thì không thể cho mỗi unit 1 centroid — hàm sẽ raise, vì im
-    lặng cắt bớt sẽ làm hỏng tính "cùng budget" của thí nghiệm.
+    `max_k_per_unit=None` (MẶC ĐỊNH) nghĩa là chỉ chặn bởi số token của unit.
+
+    VÌ SAO MẶC ĐỊNH KHÔNG CÒN LÀ 64: trần cứng 64 làm `sum(cap)` có thể NHỎ HƠN ngân sách
+    khi context dài mà ít unit — lúc đó hàm không tiêu hết ngân sách và raise, dù ngân sách
+    còn thừa mênh mông. Đo trên dữ liệu thật (5% budget): LCC **236/499 mẫu** ở level=class
+    và **22/499** ở level=function rơi vào đúng nhánh này. Đó là hằng số cài đặt chặn thí
+    nghiệm, không phải ràng buộc của phương pháp. Bỏ trần thì `sum(cap) = sum(unit_sizes)
+    = n_ctx`, mà ngân sách chỉ là vài phần trăm của `n_ctx`, nên nhánh đó không chạm tới
+    được nữa. Vẫn giữ tham số để chặn chi phí padding khi cần.
+
+    Nếu số unit > ngân sách thì không thể cho mỗi unit 1 centroid — hàm raise
+    `BudgetExceeded`, vì im lặng cắt bớt sẽ làm hỏng tính "cùng budget" của thí nghiệm.
+    Người gọi quyết định làm gì tiếp (bỏ qua mẫu, hay gộp unit): xem `merge_units_to_budget`.
     """
     U = unit_sizes.numel()
     if num_centroids_total < U:
-        raise ValueError(
+        raise BudgetExceeded(
             f"ngân sách {num_centroids_total} centroid < {U} unit. Mỗi unit cần tối thiểu "
-            f"1 centroid. Dùng level thô hơn (function thay vì statement) hoặc tăng "
-            f"percent_clusters."
+            f"1 centroid. Dùng level thô hơn (function thay vì statement), tăng "
+            f"percent_clusters, hoặc gộp unit bằng merge_units_to_budget().",
+            num_units=U, budget=num_centroids_total,
         )
 
     # `caps` cho phép caller đặt trần riêng cho từng unit. build_l1_groups cần: một unit cha
     # chỉ tách được tối đa bằng số unit con của nó, không liên quan tới số token.
-    if caps is None:
-        cap = torch.minimum(unit_sizes, torch.full_like(unit_sizes, max_k_per_unit))
+    base = unit_sizes if caps is None else caps
+    if max_k_per_unit is None:
+        cap = base.clone()
     else:
-        cap = torch.minimum(caps, torch.full_like(caps, max_k_per_unit))
+        cap = torch.minimum(base, torch.full_like(base, max_k_per_unit))
     k = torch.ones(U, dtype=torch.long)
 
     remaining = num_centroids_total - U
@@ -265,9 +376,11 @@ def allocate_centroids(
             headroom = cap - k
             cand = torch.nonzero(headroom > 0, as_tuple=True)[0]
             if cand.numel() == 0:
-                raise ValueError(
+                raise BudgetExceeded(
                     f"không phân bổ hết {remaining} centroid: mọi unit đã chạm trần "
-                    f"(max_k_per_unit={max_k_per_unit} hoặc số token). Tăng max_k_per_unit."
+                    f"(max_k_per_unit={max_k_per_unit} hoặc số token). Đặt "
+                    f"max_k_per_unit=None để chỉ chặn theo số token.",
+                    num_units=U, budget=num_centroids_total,
                 )
             take = cand[torch.argsort(unit_sizes[cand], descending=True)][:remaining]
             k[take] += 1
@@ -298,7 +411,7 @@ def hard_boundary_kmeans(
     unit_ids: torch.Tensor,
     num_centroids_total: int,
     n_iter: int = 10,
-    max_k_per_unit: int = 64,
+    max_k_per_unit: Optional[int] = None,
     max_batch_elems: int = 64_000_000,
     device: Optional[torch.device] = None,
     token_weights: Optional[torch.Tensor] = None,
@@ -514,8 +627,11 @@ def compute_token_type_weights(
     code_bytes = code.encode("utf-8")
     parser = get_parser(language)
     tree = parser.parse(code_bytes)
+    # `token_starts` là offset KÝ TỰ (Phase 1.4) còn tree-sitter đếm byte -> quy đổi,
+    # giống hệt lý do ở `parse_units`.
+    b2c = byte_to_char_index(code)
 
-    # Duyệt leaf node, gán trọng số cho mọi token nằm trong khoảng byte của leaf đó.
+    # Duyệt leaf node, gán trọng số cho mọi token nằm trong khoảng của leaf đó.
     stack = [tree.root_node]
     while stack:
         node = stack.pop()
@@ -525,8 +641,10 @@ def compute_token_type_weights(
         if node.end_byte <= node.start_byte:
             continue
         cls = classify_leaf(node.type)
-        lo = int(torch.searchsorted(token_starts, torch.tensor(node.start_byte), right=False))
-        hi = int(torch.searchsorted(token_starts, torch.tensor(node.end_byte), right=False))
+        s_char = node.start_byte if b2c is None else b2c[node.start_byte]
+        e_char = node.end_byte if b2c is None else b2c[node.end_byte]
+        lo = int(torch.searchsorted(token_starts, torch.tensor(s_char), right=False))
+        hi = int(torch.searchsorted(token_starts, torch.tensor(e_char), right=False))
         if hi > lo:
             out[lo:hi] = float(w[cls])
     return out

@@ -42,6 +42,11 @@ def parse_code_to_scopes(code: str, language: str = "python") -> List[Tuple[int,
     """
     Parse code, trả về list các scope (function, class, block).
 
+    ⚠️ File này là bản CŨ, Phase 2 KHÔNG dùng (xem `struct_clustering.py`). Nó trả toạ độ
+    BYTE của tree-sitter rồi so thẳng với `offset_mapping` của tokenizer — vốn là KÝ TỰ.
+    Hai đơn vị chỉ trùng nhau khi code thuần ASCII; với mẫu có Unicode (17,6% RepoBench-P)
+    span sẽ lệch dần. `struct_clustering.byte_to_char_index` xử lý đúng chỗ này.
+
     Returns: list of (start_byte, end_byte, scope_type)
              - scope_type: 'function' | 'class' | 'block'
 

@@ -56,16 +56,121 @@ Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablati
 
 ---
 
-### Phase 1 — Chuẩn bị dữ liệu code · ✅ **GATE PASS**
+### Phase 1 — Chuẩn bị dữ liệu code · ✅ **GATE PASS** · dữ liệu ✅ **PASS 19/8 (500+500 mẫu)**
 
 Cần đúng cấu trúc *một fixed context → nhiều user query* thì premise của SA mới áp dụng.
+
+#### Gate dữ liệu 5 bước — [scripts/check_phase1_data.py](scripts/check_phase1_data.py), chạy 19/8
+
+Gate cũ (`check_phase1.py`) kiểm **bản port** và cần GPU. Gate này kiểm **dữ liệu Phase 2 sẽ
+đọc**, chạy trên CPU trong ~2 phút mỗi dataset. Kết quả:
+
+| Bước | Nội dung | LCC | RepoBench-P |
+|---|---|---|---|
+| 1 | ngôn ngữ đúng ở **từng mẫu** | ✅ `python 182 · java 160 · csharp 158` | ✅ `python 236 · java 264` |
+| 2 | đủ mẫu (meta + npz) | ✅ 500/500 | ✅ 500/500 |
+| 3 | offset: fast==slow, không giảm, phủ kín, không lệch byte/ký tự | ✅ 0 lệch · 1.559.310 token | ✅ 0 lệch · 4.882.207 token |
+| 4 | fixed_context: `sp_len` khớp, `n_ctx>0`, context không mất | ✅ 0 mẫu mất context · 1/500 truncate | ✅ 0 mẫu mất context · 8/500 truncate |
+| 5 | tổng kết | ✅ **PASS** | ✅ **PASS** (1 cảnh báo) |
+
+**Ba lỗi đã sửa để đạt PASS** (trước đó gate này chưa tồn tại, ba lỗi đều im lặng):
+
+1. **`language` bị hardcode `"python"`** cho mọi mẫu ([prepare_code_data.py](scripts/prepare_code_data.py)).
+   LongBench có sẵn trường `language` mỗi mẫu, mà 63,6% LCC và 53% RepoBench-P **không phải
+   Python**. Đo hậu quả trước khi sửa: **59,5% mẫu LCC chỉ còn ≤2 unit** ở `level=function`
+   (Java 160/160), tức `hard_boundary_kmeans` chạy trên một unit duy nhất = **đúng bằng
+   baseline SA**. Ablation Idea 1 sẽ ra "không khác gì SA" mà không crash, không cảnh báo.
+   Sau khi sửa: unit trung vị **2 → 15** (LCC), **2 → 100** (RepoBench-P); mẫu suy biến còn
+   2,4% và 0%; node ERROR trung vị **139 → 0**.
+2. **Trộn byte với ký tự**: `parse_units` trả span theo *byte* của tree-sitter, còn offset
+   Phase 1.4 là *ký tự*. LCC thuần ASCII nên không lộ; RepoBench-P có **107/500 mẫu chứa
+   Unicode** trong vùng code → span lệch dần và cộng dồn. Đã thêm `byte_to_char_index` vào
+   [struct_clustering.py](struct_clustering.py), áp cho cả `parse_units` lẫn
+   `compute_token_type_weights`. Kiểm bằng **phép thử vi sai** (thay non-ASCII bằng `x`:
+   số ký tự giữ nguyên, số byte đổi → span phải giống hệt): 107/500 khớp tuyệt đối.
+3. **Bất biến kiểm tra sai** (lỗi của chính gate, ghi lại để không lặp): bản đầu đòi token
+   nằm *trọn* trong unit và các lát offset *rời nhau*. Cả hai đều quá chặt. Token cuối một
+   hàm nuốt luôn ký tự xuống dòng ngay sau hàm (0,48% token ở LCC) — hệ quả bình thường của
+   việc gán theo điểm bắt đầu. Và BPE byte-level tách một ký tự CJK thành nhiều token, các
+   token con **chồng** offset lên nhau (31/500 mẫu RepoBench-P) chứ không mất ký tự nào.
+   Bất biến đúng là: start nằm trong span, và offset **không để khoảng trống**.
+
+#### D6 — Chính sách khi số unit vượt ngân sách centroid · ✅ chốt 20/8
+
+Đo đầy đủ trên 991 mẫu (đã bỏ mẫu truncate), ngân sách 5%. **Hai** đường chặn khác nhau, chứ
+không phải một:
+
+| level | U > ngân sách · LCC | RepoBench-P | trần `max_k=64` chặn · LCC | RB-P |
+|---|---:|---:|---:|---:|
+| class | 0/499 | 0/492 | **236/499 (47%)** | 65/492 |
+| **function** | **0/499** | **2/492 (0,4%)** | **22/499 (4,4%)** | 2/492 |
+| block | 13/499 (2,6%) | 52/492 (10,6%) | 11/499 | 0/492 |
+| statement | 386/499 (77,4%) | 441/492 (89,6%) | 2/499 | 0/492 |
+
+**Đường 2 không phải vấn đề ngân sách** mà là hằng số cài đặt: `max_k_per_unit=64` làm
+`sum(cap)` nhỏ hơn ngân sách khi context dài mà ít unit, nên không tiêu hết được ngân sách
+dù còn thừa gấp nhiều lần. Đã đổi mặc định thành **không trần** (chỉ chặn theo số token của
+unit) — khi đó `sum(cap) = n_ctx` luôn ≥ ngân sách 5%. Tham số vẫn còn để ghìm bộ nhớ.
+
+**Đường 1 là chính sách, đã chốt:** mặc định `--on_budget_exceeded skip` — bỏ mẫu, ghi vào
+`feasibility_<dataset>_<method>_<level>_pc<N>.json`, chạy tiếp. **Không** `raise` (chết cả
+run, mất GPU time của mọi mẫu sau) và **không** tự gộp.
+
+Thứ tự chạy Phase 2:
+
+1. **function** — chạy trước, gần như không mẫu nào bị bỏ (0% / 0,4%).
+2. **block** — chạy, **ghi số mẫu phải bỏ** (2,6% LCC · 10,6% RB-P; hai dataset báo riêng).
+3. **statement** — **không gộp** trong thí nghiệm chính, chỉ ghi bao nhiêu mẫu infeasible.
+
+Rồi mới quyết định có cần biến thể budget-constrained (`--on_budget_exceeded merge`) không.
+
+Lý do không gộp mặc định: ở statement phải gộp **32–67% số unit** của **77–90% số mẫu**.
+Thứ được gọi là "statement" khi đó đã bị làm thô về cỡ block, nên đầu mịn của level sweep sẽ
+phẳng ra **do chính thao tác gộp**, không phải do cấu trúc code — đúng họ với lỗi hardcode
+`python`: một quyết định cài đặt hoá trang thành một phát hiện.
+
+**Hệ quả bắt buộc ghi vào bài:** bỏ mẫu làm tập còn lại thiên lệch (mẫu bị bỏ thường dài,
+cấu trúc mịn). Không được so điểm statement trên ~23% mẫu với điểm function trên 100% mẫu.
+Phải so trên **tập giao** các mẫu khả thi ở mọi level — đó là lý do `feasibility_*.json` ghi
+đúng danh sách `dataidx` chứ không chỉ ghi số đếm. `offline_clustering_struct.py` in cảnh
+báo lớn khi tỉ lệ bỏ vượt 10%.
+
+`merge_units_to_budget` (dùng cho biến thể, không dùng mặc định) gộp unit **liền kề theo vị
+trí trong code**, cân theo số token, tất định — đúng cơ chế `build_l1_groups` đã dùng và đã
+có test. Tổng centroid không đổi nên so cùng budget vẫn hợp lệ; 9 test mới trong
+[test_struct_clustering.py](scripts/test_struct_clustering.py) (86/86 PASS).
+
+**Kiểm chứng trên 991 mẫu thật** (chạy đúng logic quyết định của `offline_clustering_struct`,
+CPU, không cần GPU) — số mẫu Phase 6 sẽ thực sự có ở mỗi level:
+
+| level | LCC chạy được | RepoBench-P | raise vì trần `max_k` |
+|---|---:|---:|---:|
+| class | 499/499 | 492/492 | **0** (trước khi sửa: 236 + 65) |
+| function | **499/499** | **490/492** | **0** (trước: 22 + 2) |
+| block | 486/499 | 440/492 | 0 |
+| statement | **113/499** | **51/492** | 0 |
+
+Nhánh merge (chỉ khi gọi tường minh) chạy được 100% số mẫu bị bỏ, nhưng ở statement nó phải
+gộp tới **99% số unit** của một số mẫu — con số đó tự nó là lý do không đặt merge làm mặc
+định.
+
+Lệnh tái lập (CPU, ~2 phút mỗi dataset, không cần GPU cũng không cần model weight):
+```bash
+D=phase1_data/qwen2.5-coder-7b
+python scripts/prepare_code_data.py qwen2.5-coder-7b --dataset lcc         --output_path $D
+python scripts/prepare_code_data.py qwen2.5-coder-7b --dataset repobench-p --output_path $D
+python scripts/check_phase1_data.py qwen2.5-coder-7b --dataset lcc
+python scripts/check_phase1_data.py qwen2.5-coder-7b --dataset repobench-p
+```
+Gate này đã được nối vào [scripts/phase1_gate.sh](scripts/phase1_gate.sh) thành bước **[1b]**,
+chạy trước mọi bước dùng GPU và dừng cả gate nếu FAIL.
 
 | # | Việc | Trạng thái | Chi tiết |
 |---|---|---|---|
 | 1.1 | LongBench LCC + RepoBench-P | ✅ | Có sẵn trong pipeline, metric `code_sim_score`, so trực tiếp được với Table 2 |
 | 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 | **Đo lại đầy đủ 19/8, cả ba bộ.** RepoBench v1.1 **dùng được ở dạng nguyên bản**: 1.646 fixed context ≥16k dùng chung (Py+Java), tới 99,9K token. RepoEval **khớp premise tốt nhất**: 200 query/context, repo 192K–1,19M token. CrossCodeEval **loại** — 9/9 biến thể đều trần ~10,2K token. Khảo sát 15/8 sai do đọc shard 0 + nhóm sai khoá. Xem [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Còn lại: viết loader |
 | 1.3 | Chuẩn hoá split `fixed_context` / `user_input` | ✅ | Chốt theo D2: giữ định nghĩa LongBench. Kiểm 19/8: **LCC vốn đã khớp protocol** (`{context}` = toàn bộ code trước con trỏ), xung đột chỉ ở `repobench-p`. Gate Phase 0 chạy LCC nên không ảnh hưởng |
-| 1.4 | Lưu offset ký tự từng token | ✅ | LongChat 500/500 LCC · Qwen 20/20, **0 lệch token id** ở cả hai. Offset phụ thuộc tokenizer nên mỗi model một bộ riêng; `prepare_code_data.py` từ chối ghi đè bộ của model khác |
+| 1.4 | Lưu offset ký tự từng token | ✅ | **Qwen 500/500 LCC + 500/500 RepoBench-P (19/8)**, 0 lệch token id; trước đó LongChat 500/500 LCC · Qwen 20/20. Ngôn ngữ nay lấy từ **trường `language` của từng mẫu**, không còn hardcode. Dữ liệu ở `phase1_data/<model>/`; `load_phase1` của Phase 2 kiểm tên model và **số mẫu**, thiếu là dừng chứ không [WARN] rồi bỏ qua |
 | 1.5 | Model chính **Qwen2.5-Coder-7B (base)** | ✅ | Chạy thật trên A100. **Đổi từ Instruct sang base** sau khi đo: Instruct 17,60 vs base **65,35** cùng dữ liệu. `model2maxlen` = 31500 (không phải 128K) — xem D5. Đã sửa 3 bug chặn, xem mục 6 |
 | 1.6 | GQA: chọn key per-head (QUEST Appendix G) | ✅ | `repeat_interleave` centroid/label từ 4 head KV lên 28 head Q. **Xác nhận trên GPU**: `num_key_value_heads=4`, assert `shared_prefix_length` qua cả 20 mẫu, 14/20 mẫu cho prediction y hệt All-KV |
 | 1.7 | Gate cho bản port | ✅ | [scripts/phase1_gate.sh](scripts/phase1_gate.sh) + [scripts/check_phase1.py](scripts/check_phase1.py). Tiêu chí là **paired test** trên hiệu số từng mẫu, không phải ngưỡng điểm cố định — ±2,0 gọi cả ca hỏng (−42,30) lẫn ca chạy được (−2,80) là FAIL |
@@ -82,17 +187,52 @@ Cần đúng cấu trúc *một fixed context → nhiều user query* thì premi
 
 Cả hai cấu hình 0% dòng chấm rỗng. Chênh lệch **không có ý nghĩa thống kê**.
 
-**Ba việc còn treo, không chặn Phase 2:**
+**Việc còn treo, không chặn Phase 2** (cập nhật 20/8):
 
-1. **Viết loader RepoBench** gom theo `(repo_name, bộ context)` → chặn Phase 6.
-2. **Chạy 500 mẫu** để thu hẹp khoảng tin cậy. Phase 6 cần dù sao nên không phải chi phí thêm.
-3. **Mẫu 7 tụt 41 điểm** (98,0 → 57,0) chưa giải thích. `sp_len` = 3554. Đáng chạy
-   `inspect_centroids.py --dataidx 7` xem có phải cluster suy biến không — nếu đúng thì đó
-   là ca mẫu cụ thể cho Idea 1.
+| # | Việc | Cần GPU? | Chặn gì |
+|---|---|---|---|
+| 1 | **Chạy port gate 500 mẫu** thay vì 20 — thu hẹp KTC95 `[−7,12, +1,52]` | ✅ pod | không chặn gì; Phase 6 cần dù sao |
+| 2 | **`phase1_gate.sh` end-to-end trên pod** — bước [2]–[6] chưa từng chạy với code hiện tại, [1b] mới thêm | ✅ pod (trừ [1]/[1b] là CPU) | không chặn Phase 2 |
+| 3 | **Mẫu 7 tụt 41 điểm** (98,0 → 57,0, `sp_len`=3554) — chạy `inspect_centroids.py --dataidx 7` | ⚠️ chỉ cần file `.pt` từ pod, `torch.load` được trên CPU | không chặn |
+| 4 | **Loader RepoBench v1.1** gom theo `(repo_name, bộ context)` | ❌ CPU | chặn **Phase 6** (không chặn Phase 5) |
+| 5 | ~~Ghi limitation về premise~~ | ❌ | ✅ **xong 20/8**, xem khối bên dưới |
 
 **Khác chiều với LongChat.** Phase 0 ra +1,25, bài gốc +0,29, Qwen ra −2,80. Chưa có ý nghĩa
 thống kê nên chưa kết luận được, nhưng nếu ở 500 mẫu vẫn âm và có ý nghĩa thì đó là khác
 biệt giữa hai họ model, phải giải thích trong bài.
+
+#### ⚠️ GIỚI HẠN PHẢI GHI VÀO BÀI — dữ liệu Phase 1 chưa kiểm chứng premise của SA
+
+Premise của Squeezed Attention là **một fixed context, NHIỀU user query**: chi phí clustering
+offline chỉ đáng bỏ ra khi nó được khấu hao qua nhiều truy vấn trên cùng một context.
+
+**LCC và RepoBench-P của LongBench KHÔNG có cấu trúc đó.** Mỗi mẫu là một cặp
+`(context, next_line)` độc lập — một context ứng với đúng một query. Đo cụ thể trên bộ đang
+dùng: `shared_prefix_length` chiếm gần trọn prompt, phần "user input" của LCC chỉ là chuỗi
+chỉ dẫn `"Next line of code:\n"` (~6 token). Nghĩa là tỉ lệ khấu hao thực tế là **1 query
+trên 1 lần clustering**, không phải ~24 như PreFixQA của bài gốc.
+
+Hệ quả cho từng claim:
+
+- **C2 (Phase 5, recall@budget) KHÔNG bị ảnh hưởng.** Nó đo chất lượng tập key được chọn cho
+  *một* query so với tập lý tưởng, nên một-query-một-context là đủ. Đây cũng là lý do
+  protocol xếp Phase 5 chạy trước.
+- **C1 (Phase 6, accuracy@budget) KHÔNG bị ảnh hưởng về mặt so sánh**, vì mọi method đều
+  chịu cùng điều kiện.
+- **C3 (chi phí khấu hao) THÌ BỊ.** Không thể dùng LCC/RepoBench-P để nói "chi phí clustering
+  không đáng kể vì được chia cho nhiều query" — trên hai bộ này nó không được chia cho gì cả.
+
+Chính bài gốc thừa nhận khoảng trống này (Section 5: *"there is currently no benchmark
+designed to test this scenario"*) và tự dựng PreFixQA vì thế.
+
+**Cách xử lý đã chốt:** không sửa LCC/RepoBench-P, mà bổ sung ở Phase 6 bằng **RepoBench
+v1.1** (gom theo `(repo_name, bộ context)` → 1.646 fixed context ≥16k, 6.848 query, trung vị
+**3 query/context**) và/hoặc **RepoEval** (200 query/context, repo 192K–1,19M token). Việc
+còn lại là viết loader — CPU, không cần GPU, không chặn Phase 2 và **không chặn Phase 5**.
+
+Khi báo cáo phải nói rõ hai điều, không được nói quá: trung vị 3 query/context của RepoBench
+thấp hơn nhiều so với ~24 của PreFixQA; và mọi số trên LCC/RepoBench-P là ở chế độ
+**1 query/context**, tức trường hợp xấu nhất cho chi phí khấu hao của SA.
 
 ---
 

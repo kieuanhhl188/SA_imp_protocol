@@ -7,3 +7,8 @@ logs/
 LongBench/pred/**/*.jsonl
 phase0_results/
 logs
+
+# Offset Phase 1.4 — artefact sinh lại được trong ~2 phút bằng scripts/prepare_code_data.py,
+# và phụ thuộc tokenizer nên mỗi model một bộ. Đưa 10 MB nhị phân vào git không đáng.
+# Muốn có trên pod thì scp, hoặc để phase1_gate.sh bước [1] tự sinh.
+phase1_data/

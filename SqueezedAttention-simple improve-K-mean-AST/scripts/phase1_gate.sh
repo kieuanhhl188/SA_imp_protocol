@@ -127,6 +127,24 @@ TOK_SUMMARY="$(grep -E 'token id fast|sample bi truncate|template khong' "$PHASE
 echo ""
 echo "    Tom tat: $TOK_SUMMARY"
 
+# ---------- 1b. Gate du lieu 5 buoc (CPU) ----------
+# Chay NGAY sau khi sinh offset, TRUOC moi buoc dung GPU. Bat bon thu ma buoc [1] khong
+# bat: ngon ngu tung mau co dung khong, du mau khong, span AST co lech byte/ky tu khong,
+# fixed_context co mat khuc nao khong. Tat ca deu la loi IM LANG — khong crash, chi lam
+# ket qua sai. Xem scripts/check_phase1_data.py.
+echo ""
+echo ">>> [1b] Gate du lieu Phase 1 (CPU, khong can GPU)"
+python scripts/check_phase1_data.py "$MODEL" \
+    --dataset "$DATASET" \
+    --phase1_dir "$SQA_PHASE1_DIR" \
+    $LIMIT_ARG 2>&1 | tee "$LOG_DIR/${TS}_phase1_data_gate.log"
+DATA_GATE_RC="${PIPESTATUS[0]}"
+if [ "$DATA_GATE_RC" -ne 0 ]; then
+  echo ""
+  echo ">>> [1b] FAIL — dung lai, khong tra tien GPU cho du lieu hong."
+  exit 1
+fi
+
 if [ "$DATA_ONLY" -eq 1 ]; then
   echo ""
   echo ">>> --data-only: dung tai day, khong dung GPU."

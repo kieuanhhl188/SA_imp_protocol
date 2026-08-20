@@ -18,6 +18,31 @@ BA NHÁNH ABLATION (protocol 2.5), tách bạch hoàn toàn:
 Giữ nguyên Si/threshold/kernel (protocol 2.6): threshold vẫn do
 `run_global_threshold` tính, y hệt mọi nhánh.
 
+KHI SỐ UNIT VƯỢT NGÂN SÁCH CENTROID (`--on_budget_exceeded`)
+------------------------------------------------------------
+Ở level mịn, số unit cấu trúc có thể nhiều hơn số centroid mà ngân sách cho phép — mỗi unit
+cần tối thiểu 1 centroid nên mẫu đó KHÔNG biểu diễn được. Đo ở 5% budget:
+
+    level        LCC            RepoBench-P
+    class        0/499          0/492
+    function     0/499          2/492   (0,4%)
+    block        13/499 (2,6%)  52/492  (10,6%)
+    statement    386/499 (77%)  441/492 (90%)
+
+Mặc định là **skip**: bỏ mẫu, ghi vào `feasibility_*.json`, chạy tiếp. KHÔNG raise (chết cả
+run, mất GPU time của mọi mẫu sau) và KHÔNG tự gộp. Gộp rồi báo cáo như không có gì xảy ra
+sẽ biến một giới hạn NGÂN SÁCH thành một kết luận về CẤU TRÚC: ở statement, gộp nghĩa là
+gộp 32–67% số unit của 77–90% số mẫu, tức thứ được gọi là "statement" thực chất đã bị làm
+thô về cỡ block, và đầu mịn của level sweep sẽ phẳng ra do chính thao tác đó.
+
+Thứ tự chạy đã chốt: function trước (gần như không mẫu nào bị bỏ) -> block, ghi số mẫu bị
+bỏ -> statement, KHÔNG gộp ở thí nghiệm chính, chỉ ghi bao nhiêu mẫu infeasible. Sau đó mới
+quyết định có cần một biến thể budget-constrained (`--on_budget_exceeded merge`) hay không.
+
+Bỏ mẫu làm tập còn lại THIÊN LỆCH (mẫu bị bỏ thường dài và cấu trúc mịn), nên điểm của
+level này không so thẳng được với level khác chạy trên số mẫu khác. `feasibility_*.json`
+ghi đúng danh sách dataidx để Phase 6 so trên tập giao.
+
 Cần chạy `scripts/prepare_code_data.py` trước để có offset token.
 
 Ví dụ:
@@ -47,27 +72,58 @@ from squeezedattention.utils import truncate_fn  # noqa: E402
 from struct_clustering import (  # noqa: E402
     LEVELS, parse_units, assign_token_units, compact_unit_ids,
     hard_boundary_kmeans, struct_hierarchy_l1, build_l1_groups,
-    compute_token_type_weights,
+    compute_token_type_weights, merge_units_to_budget,
 )
 
 METHODS = ("sa", "hard_boundary", "struct_hierarchy")
 
 
-def load_phase1(phase1_dir, dataset):
-    """Đọc offset token do scripts/prepare_code_data.py sinh ra."""
-    meta_path = os.path.join(phase1_dir, f"{dataset}_meta.jsonl")
-    npz_path = os.path.join(phase1_dir, f"{dataset}_offsets.npz")
-    if not (os.path.exists(meta_path) and os.path.exists(npz_path)):
+def load_phase1(phase1_dir, dataset, model, expect_n=None):
+    """
+    Đọc offset token do scripts/prepare_code_data.py sinh ra.
+
+    Ưu tiên thư mục con theo model (`<phase1_dir>/<model>/`) — đó là nơi
+    `scripts/phase1_gate.sh` ghi — rồi mới tới `<phase1_dir>/`.
+
+    Hai lần kiểm bắt buộc, vì cả hai lỗi này đều KHÔNG crash mà chỉ cho ra kết quả sai:
+      - offset của model khác: offset phụ thuộc tokenizer, dùng nhầm là mọi unit AST đều
+        gán sai token.
+      - thiếu mẫu: bản cũ chỉ in [WARN] rồi bỏ qua, nên một run tưởng là 500 mẫu có thể
+        thực chất chỉ chạy 20 mẫu mà không ai nhận ra cho tới lúc đọc bảng kết quả.
+    """
+    cand = [os.path.join(phase1_dir, model), phase1_dir]
+    for d in cand:
+        meta_path = os.path.join(d, f"{dataset}_meta.jsonl")
+        npz_path = os.path.join(d, f"{dataset}_offsets.npz")
+        if os.path.exists(meta_path) and os.path.exists(npz_path):
+            break
+    else:
         raise SystemExit(
-            f"[ERROR] thiếu dữ liệu Phase 1.4 tại {phase1_dir}.\n"
-            f"        Chạy trước: python scripts/prepare_code_data.py <model> "
-            f"--dataset {dataset}"
+            f"[ERROR] thiếu dữ liệu Phase 1.4, đã tìm ở: {cand}\n"
+            f"        Chạy trước: python scripts/prepare_code_data.py {model} "
+            f"--dataset {dataset} --output_path {os.path.join(phase1_dir, model)}"
         )
     meta = {}
     with open(meta_path, encoding="utf-8") as f:
         for line in f:
             d = json.loads(line)
             meta[d["dataidx"]] = d
+
+    models = {r.get("model") for r in meta.values()}
+    if models != {model}:
+        raise SystemExit(
+            f"[ERROR] {meta_path} chứa offset của {models}, còn run này là '{model}'.\n"
+            f"        Offset phụ thuộc tokenizer nên hai bộ KHÔNG dùng thay nhau được."
+        )
+    if expect_n is not None:
+        missing = [i for i in range(expect_n) if i not in meta]
+        if missing:
+            raise SystemExit(
+                f"[ERROR] Phase 1.4 chỉ có {len(meta)} mẫu, run này cần {expect_n} "
+                f"(thiếu {len(missing)}, ví dụ {missing[:5]}).\n"
+                f"        Sinh lại đủ rồi chạy scripts/check_phase1_data.py trước."
+            )
+    print(f">>> Phase 1.4: {meta_path} ({len(meta)} mẫu, model={model})")
     return meta, np.load(npz_path)
 
 
@@ -143,7 +199,15 @@ def main():
                     help="phần trăm cho L1 khi hierarchical (bài: L1=1%%, L2=5%%)")
     ap.add_argument("--observation_window", type=int, default=100)
     ap.add_argument("--n_iter", type=int, default=10)
-    ap.add_argument("--max_k_per_unit", type=int, default=64)
+    ap.add_argument("--max_k_per_unit", type=int, default=0,
+                    help="trần centroid cho MỖI unit; 0 = chỉ chặn theo số token (mặc định). "
+                         "Đặt số dương chỉ để ghìm bộ nhớ: trần quá thấp làm không tiêu hết "
+                         "ngân sách và mẫu bị tính là infeasible dù ngân sách còn thừa")
+    ap.add_argument("--on_budget_exceeded", choices=["skip", "merge", "fail"], default="skip",
+                    help="khi số unit > ngân sách centroid. skip (MẶC ĐỊNH, dùng cho thí "
+                         "nghiệm chính): bỏ mẫu, ghi vào feasibility_*.json, chạy tiếp. "
+                         "merge: gộp unit liền kề cho vừa ngân sách — CHỈ dùng cho biến thể "
+                         "budget-constrained và phải báo cáo riêng. fail: dừng cả run")
     ap.add_argument("--device", type=int, default=0)
     ap.add_argument("--limit", type=int, default=-1)
     args = ap.parse_args()
@@ -181,7 +245,9 @@ def main():
     prompt_only_format = dataset2prompt[args.dataset + "_prompt"]
     data = load_dataset("THUDM/LongBench", args.dataset, split="test")
 
-    meta, offsets_npz = load_phase1(args.phase1_dir, args.dataset)
+    n_planned = len(data) if args.limit <= 0 else min(args.limit, len(data))
+    meta, offsets_npz = load_phase1(args.phase1_dir, args.dataset, args.model,
+                                    expect_n=n_planned)
 
     # hook thu q/k giống offline_clustering.py.
     # `state` là hộp chứa để hook đọc được sp_len của sample hiện tại — dùng biến cục bộ
@@ -202,13 +268,19 @@ def main():
     os.makedirs(args.output_path, exist_ok=True)
     n = len(data) if args.limit <= 0 else min(args.limit, len(data))
     agg = {"error_nodes": 0, "truncated": 0, "units": [], "k1": []}
+    # Sổ khả thi: Phase 6 CẦN file này để so các level trên cùng một tập mẫu. Bỏ mẫu là
+    # làm tập còn lại thiên lệch (mẫu bị bỏ thường là file dài, cấu trúc mịn), nên điểm
+    # của statement trên tập còn lại KHÔNG so thẳng được với function trên toàn bộ.
+    feas = {"dataset": args.dataset, "method": args.method, "level": args.level,
+            "percent_clusters": args.percent_clusters,
+            "on_budget_exceeded": args.on_budget_exceeded,
+            "n_requested": None, "feasible": [], "infeasible": [], "merged": []}
 
     for dataidx in tqdm(range(n)):
         d = data[dataidx]
         rec = meta.get(dataidx)
-        if rec is None:
-            print(f"[WARN] dataidx {dataidx} không có trong meta Phase 1.4, bỏ qua")
-            continue
+        if rec is None:  # load_phase1 đã chặn từ đầu; còn lại đây làm chốt an toàn
+            raise SystemExit(f"[ERROR] dataidx {dataidx} không có trong meta Phase 1.4")
 
         prompt = prompt_format.format(**d)
         prompt_only = prompt_only_format.format(**d)
@@ -243,12 +315,32 @@ def main():
             agg["truncated"] += int(st["truncated"])
             agg["units"].append(st["num_units"])
 
+            # ---- CHÍNH SÁCH KHI SỐ UNIT VƯỢT NGÂN SÁCH CENTROID ----
+            # Mặc định `skip`: mẫu này KHÔNG biểu diễn được ở level + ngân sách hiện tại,
+            # ghi vào sổ rồi đi tiếp. KHÔNG raise (chết cả run, mất GPU time của các mẫu
+            # sau) và KHÔNG tự gộp (biến một giới hạn ngân sách thành kết luận về cấu trúc).
+            U_now = int(unit_ids.max()) + 1
+            if U_now > num_centroids:
+                feas["infeasible"].append(
+                    {"dataidx": dataidx, "num_units": U_now, "budget": num_centroids,
+                     "n_ctx": n_ctx, "language": rec["language"]})
+                if args.on_budget_exceeded == "fail":
+                    raise SystemExit(
+                        f"[ERROR] dataidx {dataidx}: {U_now} unit > {num_centroids} centroid.")
+                if args.on_budget_exceeded == "skip":
+                    continue
+                # merge: chỉ dùng cho biến thể budget-constrained, phải báo cáo riêng
+                unit_ids, mst = merge_units_to_budget(unit_ids, num_centroids)
+                feas["merged"].append({"dataidx": dataidx, **mst})
+            feas["feasible"].append(dataidx)
+
             cent, lab = {}, {}
             for li in range(len(all_k)):
                 k = all_k[li].squeeze(0).float()[:, :n_ctx, :]
                 c, l, _ = hard_boundary_kmeans(
                     k, unit_ids, num_centroids, n_iter=args.n_iter,
-                    max_k_per_unit=args.max_k_per_unit, device=DEV, token_weights=tw)
+                    max_k_per_unit=(args.max_k_per_unit or None), device=DEV,
+                    token_weights=tw)
                 cent[li], lab[li] = c, l
 
         thr = run_global_threshold(all_k, all_q, cent, lab, num_centroids,
@@ -300,6 +392,37 @@ def main():
         k1 = np.array(agg["k1"])
         print(f"    K1 thực tế: min={k1.min()} tb={k1.mean():.1f} max={k1.max()} "
               f"(danh nghĩa {args.percent_clusters_l2}% context)")
+
+    # ---- sổ khả thi ----
+    if args.method != "sa":
+        feas["n_requested"] = n
+        feas_path = (f"{args.output_path}/feasibility_{args.dataset}_{args.method}"
+                     f"_{args.level}_pc{args.percent_clusters}.json")
+        with open(feas_path, "w", encoding="utf-8") as f:
+            json.dump(feas, f, ensure_ascii=False, indent=2)
+
+        n_inf, n_mrg = len(feas["infeasible"]), len(feas["merged"])
+        ratio = n_inf / max(n, 1)
+        print(f"\n    KHẢ THI ({args.level}, ngân sách {args.percent_clusters}%):")
+        print(f"      chạy được       : {len(feas['feasible'])}/{n}")
+        print(f"      vượt ngân sách  : {n_inf}/{n} = {100 * ratio:.1f}%"
+              f"   (chính sách: {args.on_budget_exceeded})")
+        if n_mrg:
+            fr = [m["frac_units_merged"] for m in feas["merged"]]
+            print(f"      đã gộp          : {n_mrg} mẫu, gộp {100 * min(fr):.0f}–"
+                  f"{100 * max(fr):.0f}% số unit của từng mẫu")
+        print(f"      sổ khả thi      : {feas_path}")
+
+        if ratio > 0.10:
+            print()
+            print("  " + "!" * 66)
+            print(f"  !! {100 * ratio:.1f}% MẪU KHÔNG BIỂU DIỄN ĐƯỢC ở level={args.level}, "
+                  f"ngân sách {args.percent_clusters}%.")
+            print("  !! Tập mẫu còn lại THIÊN LỆCH (mẫu bị bỏ thường dài và cấu trúc mịn).")
+            print("  !! KHÔNG so điểm của level này với level khác trên số mẫu khác nhau.")
+            print("  !! Phải so trên TẬP GIAO các mẫu khả thi ở mọi level, hoặc chỉ báo cáo")
+            print("  !! level này dưới dạng thống kê infeasibility.")
+            print("  " + "!" * 66)
 
 
 if __name__ == "__main__":

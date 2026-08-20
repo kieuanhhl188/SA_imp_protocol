@@ -146,7 +146,8 @@ echo ">>> [7] Dependency còn lại (bẫy #5 — ghim datasets + pyarrow)"
 $PY -m pip install -q "datasets==2.20.0" "pyarrow>=16.1,<16.2" \
     scikit-learn hf_transfer pytest tqdm rouge jieba fuzzywuzzy python-Levenshtein \
     einops sentencepiece protobuf accelerate matplotlib pandas \
-    tree-sitter tree-sitter-python tree-sitter-java tree-sitter-javascript
+    tree-sitter tree-sitter-python tree-sitter-java tree-sitter-javascript \
+    tree-sitter-c-sharp
 
 # ---------- 8. transformers fork — PHẢI cài SAU CÙNG ----------
 echo ""
@@ -174,6 +175,11 @@ echo ">>> [9] Kiểm tra môi trường"
 $PY - <<'PY'
 import numpy, torch, triton, cupy, flash_attn, transformers, datasets, pyarrow, tree_sitter
 from cuml.cluster import KMeans
+# Gói ngôn ngữ phải import ĐÍCH DANH: `import tree_sitter` chạy được không có nghĩa là
+# parser C#/Java có mặt. Thiếu một gói thì Phase 2 chết giữa run (LCC mẫu 0 là C#), lúc đó
+# đã trả tiền GPU rồi. Kiểm ở đây để hỏng thì hỏng lúc setup.
+import tree_sitter_python, tree_sitter_java, tree_sitter_c_sharp   # noqa: F401
+print("    tree-sitter: python + java + c_sharp OK")
 print(f"    numpy {numpy.__version__} | pyarrow {pyarrow.__version__} | datasets {datasets.__version__}")
 print(f"    torch {torch.__version__} | triton {triton.__version__} | flash_attn {flash_attn.__version__}")
 print(f"    cupy {cupy.__version__} | cuml OK | transformers {transformers.__version__}")

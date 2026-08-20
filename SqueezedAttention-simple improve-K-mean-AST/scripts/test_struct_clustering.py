@@ -27,6 +27,7 @@ from struct_clustering import (  # noqa: E402
     LEVELS, parse_units, assign_token_units, compact_unit_ids,
     allocate_centroids, hard_boundary_kmeans, struct_hierarchy_l1,
     compute_token_type_weights, classify_leaf, DEFAULT_TYPE_WEIGHTS,
+    BudgetExceeded, merge_units_to_budget,
 )
 
 OK = True
@@ -167,6 +168,69 @@ def test_allocate():
         check("ngân sách vượt sức chứa phải raise", False)
     except ValueError:
         check("ngân sách vượt sức chứa phải raise", True)
+
+
+def test_budget_policy():
+    print("\n=== 5b. Trần centroid mặc định + chính sách vượt ngân sách ===")
+
+    # Ca thật đã đo trên LCC: context dài, ÍT unit -> trần cứng 64/unit làm không tiêu hết
+    # ngân sách và raise, dù ngân sách còn thừa mênh mông (236/499 mẫu ở level=class).
+    few_big = torch.tensor([5000, 4000, 3000])      # 12.000 token, ngân sách 5% = 600
+    try:
+        allocate_centroids(few_big, 600, max_k_per_unit=64)   # 3*64 = 192 < 600
+        check("trần 64 làm hỏng ca ít-unit-context-dài (tái hiện lỗi cũ)", False)
+    except BudgetExceeded:
+        check("trần 64 làm hỏng ca ít-unit-context-dài (tái hiện lỗi cũ)", True)
+
+    k = allocate_centroids(few_big, 600)             # mặc định: không trần
+    check("mặc định không trần -> phân bổ được", int(k.sum()) == 600, k.tolist())
+    check("vẫn không vượt số token của unit", bool((k <= few_big).all()), k.tolist())
+
+    # Ngân sách < số unit vẫn phải là BudgetExceeded, và mang theo số liệu để caller ghi sổ
+    try:
+        allocate_centroids(torch.tensor([10, 10, 10, 10]), 3)
+        check("ngân sách < số unit -> BudgetExceeded", False)
+    except BudgetExceeded as e:
+        check("ngân sách < số unit -> BudgetExceeded", True)
+        check("exception mang theo num_units/budget", (e.num_units, e.budget) == (4, 3),
+              f"({e.num_units}, {e.budget})")
+
+    print("\n=== 5c. merge_units_to_budget ===")
+    # 8 unit, mỗi unit 10 token, xếp liền nhau theo vị trí
+    uid = torch.arange(8).repeat_interleave(10)
+    out, st = merge_units_to_budget(uid, 3)
+    U2 = int(out.max()) + 1
+    check("gộp đúng về số unit mục tiêu", U2 == 3, f"U={U2}")
+    check("thống kê ghi đúng tỉ lệ gộp", st["u_before"] == 8 and st["merged"]
+          and abs(st["frac_units_merged"] - 5 / 8) < 1e-9, str(st))
+    check("giữ đủ token, không mất cái nào", out.numel() == uid.numel())
+    # mỗi nhóm phải là một DÃY LIỀN KỀ theo vị trí — nếu không thì "vùng code liền mạch" sai
+    contiguous = all(
+        (idx := (out == g).nonzero().flatten()).numel() == int(idx[-1] - idx[0]) + 1
+        for g in range(U2))
+    check("mỗi nhóm là một dãy token liền kề", contiguous)
+    # không bao giờ tách một unit gốc ra hai nhóm
+    no_split = all(int(out[uid == u].unique().numel()) == 1 for u in range(8))
+    check("không tách unit gốc thành hai nhóm", no_split)
+    # gộp xong thì allocate_centroids phải chạy được ở đúng ngân sách đó
+    sizes2 = torch.bincount(out)
+    check("sau khi gộp thì phân bổ được ở ngân sách cũ",
+          int(allocate_centroids(sizes2, 3).sum()) == 3)
+
+    out2, st2 = merge_units_to_budget(uid, 20)
+    check("mục tiêu >= số unit hiện có -> không đổi gì",
+          bool((out2 == uid).all()) and not st2["merged"], str(st2))
+
+    # tất định: gọi lại phải ra y hệt (không RNG, không phụ thuộc thứ tự dict)
+    a, _ = merge_units_to_budget(uid, 3)
+    b, _ = merge_units_to_budget(uid, 3)
+    check("tất định, gọi lại ra kết quả y hệt", bool((a == b).all()))
+
+    # unit id KHÔNG theo thứ tự vị trí (đúng như parse_units sinh ra) vẫn phải gộp theo vị trí
+    shuffled = torch.tensor([7, 7, 3, 3, 5, 5, 1, 1])
+    o3, _ = merge_units_to_budget(shuffled, 2)
+    check("gộp theo vị trí, không theo giá trị unit_id",
+          o3.tolist() == [0, 0, 0, 0, 1, 1, 1, 1], o3.tolist())
 
 
 def test_hard_boundary():
@@ -407,6 +471,7 @@ def main():
     test_parse()
     test_assign()
     test_allocate()
+    test_budget_policy()
     test_hard_boundary()
     test_hierarchy()
     test_l1_groups()

@@ -4,7 +4,9 @@ prepare_code_data.py — Phase 1.4: sinh và lưu offset ký tự cho từng tok
 
 VÌ SAO CẦN FILE NÀY
 -------------------
-Protocol Phase 1 yêu cầu "lưu kèm byte offset của từng token trong source". Không thể
+Protocol Phase 1 yêu cầu "lưu kèm byte offset của từng token trong source". Ở đây lưu
+offset KÝ TỰ (đơn vị của `return_offsets_mapping`), không phải byte — `parse_units` của
+Phase 2 đã đổi span AST sang cùng đơn vị ký tự nên hai bên khớp nhau. Không thể
 tính offset trên source gốc, vì `squeezedattention/utils.py::truncate_fn` cắt **giữa**
 prompt rồi decode-lại-encode:
 
@@ -35,7 +37,7 @@ offline_clustering thu được -> script báo lỗi thay vì lặng lẽ cho ra
 OUTPUT
 ------
     <out>/<dataset>_meta.jsonl    metadata mỗi sample, một dòng một sample
-    <out>/<dataset>_offsets.npz   mảng offset [num_tokens, 2] theo key "offsets_<dataidx>"
+    <out>/<dataset>_offsets.npz   mảng offset KÝ TỰ [num_tokens, 2], key "offsets_<dataidx>"
 
 USAGE
 -----
@@ -59,13 +61,59 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(HERE)
 sys.path.insert(0, REPO_ROOT)
 
-# Task code của LongBench và ngôn ngữ mặc định để parse AST ở Phase 2.
-# LCC gồm nhiều ngôn ngữ (Python/Java/C#); RepoBench-P là Python/Java.
-# Ngôn ngữ thật nên suy ra từ nội dung, ở đây chỉ ghi mặc định để Phase 2 ghi đè.
+# NGÔN NGỮ — đọc từ trường `language` của TỪNG MẪU, không hardcode theo dataset.
+#
+# LongBench có sẵn trường `language` cho mọi mẫu code, giá trị trùng khít với khoá của
+# `struct_clustering.NODE_TYPES`:
+#     lcc          python 182 · java 160 · csharp 158
+#     repobench-p  python 236 · java 264
+#
+# Bản trước ghi "python" cho tất cả. Hậu quả đo được (500 mẫu, level=function, budget 5%):
+# parse Java/C# bằng parser Python cho **59,5% mẫu LCC chỉ còn ≤2 unit** — tức không còn
+# ranh giới cấu trúc nào, `hard_boundary_kmeans` thoái hoá thành K-means thuần = đúng
+# baseline SA. Ablation sẽ ra "Idea 1 không có tác dụng" mà không hề crash. Dùng đúng ngôn
+# ngữ: trung vị unit 2 -> 15 (LCC), 2 -> 100 (RepoBench-P), số node ERROR trung vị 139 -> 0.
 DATASET_LANG_DEFAULT = {
     "lcc": "python",
     "repobench-p": "python",
 }
+
+# Ngôn ngữ Phase 2 parse được (struct_clustering.NODE_TYPES). Gặp giá trị lạ thì dừng,
+# KHÔNG âm thầm rơi về python — đó chính là lỗi cũ.
+SUPPORTED_LANGS = {"python", "java", "csharp", "javascript", "typescript"}
+
+# Chuẩn hoá vài cách viết khác của cùng một ngôn ngữ.
+LANG_ALIAS = {
+    "c#": "csharp", "cs": "csharp", "c_sharp": "csharp",
+    "py": "python", "js": "javascript", "ts": "typescript",
+}
+
+
+def resolve_language(sample, dataset, override=None):
+    """
+    Ngôn ngữ của MỘT mẫu, theo thứ tự ưu tiên: --language > trường `language` của mẫu >
+    mặc định theo dataset.
+
+    Trả về (language, source) với source thuộc {'override', 'dataset_field', 'default'}
+    để `_meta.jsonl` ghi lại được ngôn ngữ đến từ đâu — Phase 2 và người đọc log phân biệt
+    được "biết chắc" với "đoán".
+    """
+    if override:
+        lang = override
+        src = "override"
+    else:
+        raw = (sample.get("language") or "").strip().lower()
+        if raw:
+            lang, src = LANG_ALIAS.get(raw, raw), "dataset_field"
+        else:
+            lang, src = DATASET_LANG_DEFAULT.get(dataset, "python"), "default"
+    if lang not in SUPPORTED_LANGS:
+        raise SystemExit(
+            f"[ERROR] ngôn ngữ '{lang}' (nguồn: {src}) không nằm trong {sorted(SUPPORTED_LANGS)}.\n"
+            f"        Phase 2 sẽ không parse được. Bổ sung node type vào "
+            f"struct_clustering.NODE_TYPES trước, hoặc lọc mẫu này ra."
+        )
+    return lang, src
 
 # truncate_fn bỏ qua build_chat với các dataset này -> không chạm bug `model_name`
 # chưa định nghĩa ở squeezedattention/utils.py:44
@@ -229,6 +277,10 @@ def run(args):
     import numpy as np
     from tqdm import tqdm
 
+    import collections
+    lang_count = collections.Counter()
+    lang_src_count = collections.Counter()
+
     offsets_store = {}
     n_mismatch = 0
     n_truncated = 0
@@ -237,6 +289,9 @@ def run(args):
     with open(meta_path, "w", encoding="utf-8") as fmeta:
         for dataidx in tqdm(range(n)):
             d = data[dataidx]
+            lang, lang_src = resolve_language(d, args.dataset, args.language)
+            lang_count[lang] += 1
+            lang_src_count[lang_src] += 1
             prompt_raw = prompt_format.format(**d)
             prompt_only = prompt_only_format.format(**d)
 
@@ -270,7 +325,8 @@ def run(args):
                 "dataidx": dataidx,
                 "dataset": args.dataset,
                 "model": args.model,
-                "language": args.language or DATASET_LANG_DEFAULT.get(args.dataset, "python"),
+                "language": lang,
+                "language_source": lang_src,
                 "num_tokens": len(ids_fast),
                 "shared_prefix_length": int(sp_len),
                 "truncated": bool(truncated),
@@ -298,6 +354,14 @@ def run(args):
     print(f"    sample bị truncate:            {n_truncated}/{n}")
     print(f"    template không định vị được:   {n_template_miss}/{n}")
     print(f"    token id fast != slow:         {n_mismatch}/{n}")
+    print(f"    ngôn ngữ:                      "
+          + ", ".join(f"{k}={v}" for k, v in sorted(lang_count.items())))
+    print(f"    nguồn ngôn ngữ:                "
+          + ", ".join(f"{k}={v}" for k, v in sorted(lang_src_count.items())))
+    if lang_src_count.get("default"):
+        print()
+        print("  [!] Có mẫu KHÔNG có trường `language` -> rơi về mặc định theo dataset.")
+        print("      Kiểm tra lại: đoán sai ngôn ngữ làm Phase 2 mất hết ranh giới cấu trúc.")
 
     if n_mismatch:
         print()
@@ -397,6 +461,21 @@ def self_test():
     n_in_code2, n_fixed2 = summarize_alignment(offsets, s, e, sp_len=3)
     check("sp_len giới hạn được phần fixed", n_fixed2 <= 3 and n_fixed2 <= n_in_code2,
           f"n_fixed={n_fixed2}")
+
+    print("\n=== resolve_language ===")
+    check("lấy đúng ngôn ngữ của mẫu",
+          resolve_language({"language": "java"}, "lcc") == ("java", "dataset_field"))
+    check("chuẩn hoá alias C# -> csharp",
+          resolve_language({"language": "C#"}, "lcc") == ("csharp", "dataset_field"))
+    check("--language ép đè trường của mẫu",
+          resolve_language({"language": "java"}, "lcc", "python") == ("python", "override"))
+    check("thiếu trường language -> mặc định theo dataset",
+          resolve_language({}, "lcc") == ("python", "default"))
+    try:
+        resolve_language({"language": "brainfuck"}, "lcc")
+        check("ngôn ngữ lạ phải dừng chương trình", False)
+    except SystemExit:
+        check("ngôn ngữ lạ phải dừng chương trình", True)
 
     print("\n=== round-trip: offset -> chuỗi con ===")
     # đây là bất biến Phase 2 sẽ dựa vào: token thứ i phủ prompt[offsets[i][0]:offsets[i][1]]
