@@ -165,12 +165,18 @@ def main():
     # BƯỚC 1 — ngôn ngữ
     # ---------------------------------------------------------------
     print("\n=== BƯỚC 1 — ngôn ngữ ===")
-    lang_meta = collections.Counter(r["language"] for r in meta.values())
-    lang_data = collections.Counter(data[i]["language"] for i in range(n_total))
+    # So trên CÙNG TẬP CHỈ SỐ. Bản đầu so phân bố của meta (có thể chỉ 20 mẫu vì --limit)
+    # với phân bố của cả 500 mẫu dataset -> FAIL giả, trong khi dữ liệu hoàn toàn đúng.
+    idx_cmp = sorted(meta.keys())
+    lang_meta = collections.Counter(meta[i]["language"] for i in idx_cmp)
+    lang_data = collections.Counter(data[i]["language"] for i in idx_cmp)
     src = collections.Counter(r.get("language_source", "?") for r in meta.values())
-    print(f"  meta   : {dict(sorted(lang_meta.items()))}")
-    print(f"  dataset: {dict(sorted(lang_data.items()))}")
+    print(f"  meta   : {dict(sorted(lang_meta.items()))}   ({len(idx_cmp)} mẫu)")
+    print(f"  dataset: {dict(sorted(lang_data.items()))}   (cùng {len(idx_cmp)} dataidx đó)")
     print(f"  nguồn  : {dict(sorted(src.items()))}")
+    if len(idx_cmp) < n_total:
+        full = collections.Counter(data[i]["language"] for i in range(n_total))
+        print(f"  (toàn bộ dataset {n_total} mẫu: {dict(sorted(full.items()))})")
     rep.check(1, "ngôn ngữ trong meta khớp trường `language` của dataset",
               lang_meta == lang_data)
     rep.check(1, "mọi ngôn ngữ đều parse được ở Phase 2",
