@@ -102,18 +102,34 @@ def rebuild_prompts(model, dataset, idxs):
     try:
         from transformers import AutoTokenizer
         from datasets import load_dataset
-    except ImportError as e:
-        import transformers as _tf
-        raise SystemExit(
-            f"[ERROR] khong import duoc: {e}\n"
-            f"        transformers.__file__ = {getattr(_tf, '__file__', None)}\n"
-            f"        transformers.__path__ = {list(getattr(_tf, '__path__', []))}\n"
-            f"        sys.path[:5] = {sys.path[:5]}\n"
-            f"        Neu __file__ la None thi Python dang lay THU MUC NGUON cua fork\n"
-            f"        ({os.path.join(REPO_ROOT, 'transformers')}) lam namespace package.\n"
-            f"        Cach chay khong vuong: cd sang thu muc khac roi goi bang duong dan\n"
-            f"        tuyet doi, vd  cd /tmp && python {os.path.abspath(__file__)} ..."
-        )
+    except ImportError:
+        # Go REPO_ROOT ra khong giup -> khoi phuc roi thu lai. Bat duoc ca hai kieu hong:
+        # (a) namespace package che mat ban cai   -> lan thu dau thanh cong
+        # (b) chua kich hoat venv, khong co goi nao -> lan thu hai cung hong, bao ro
+        for p in _saved:
+            sys.path.insert(0, p)
+        _saved = []
+        for m in [k for k in sys.modules if k == "transformers" or k.startswith("transformers.")]:
+            del sys.modules[m]
+        try:
+            from transformers import AutoTokenizer
+            from datasets import load_dataset
+        except ImportError as e2:
+            import shutil
+            raise SystemExit(
+                f"[ERROR] khong import duoc transformers/datasets: {e2}\n"
+                f"        python dang dung : {sys.executable}\n"
+                f"        phien ban        : {sys.version.split()[0]}\n"
+                f"        sys.path[:4]     : {sys.path[:4]}\n"
+                f"\n"
+                f"        Nguyen nhan thuong gap nhat: CHUA KICH HOAT VENV.\n"
+                f"        Dau nhac phai co tien to (venv310). Chay truoc:\n"
+                f"            source /workspace/env.sh\n"
+                f"        roi kiem:\n"
+                f"            python -c \"import transformers; print(transformers.__version__)\"\n"
+                f"        (phai ra 4.40.0.dev0, khong phai ban tren PyPI)\n"
+                + ("" if shutil.which("python") else "")
+            )
     finally:
         for p in _saved:
             sys.path.insert(0, p)
