@@ -1,0 +1,20 @@
+{"pred": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", "answers": ["\t\t\t\tParticipant p = (Participant)m_Participants[i];"], "all_classes": null, "length": 5243}
+{"pred": " ```", "answers": ["\t\t\tZ_.add_edge(e_u, e_v, **data.copy())"], "all_classes": null, "length": 1069}
+{"pred": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", "answers": ["        rfd, fd, cfilename   = open_tmp_file('rwseektest.wav')"], "all_classes": null, "length": 844}
+{"pred": " ```", "answers": ["            if e.text == language:"], "all_classes": null, "length": 462}
+{"pred": " ```\nobj['next_line']\n```", "answers": ["\t\t\t\t\tOLStyleValue styleValue = (OLStyleValue) value;"], "all_classes": null, "length": 570}
+{"pred": " ```\n\n\n```", "answers": ["        longest = max(self.answers)"], "all_classes": null, "length": 1229}
+{"pred": " ```\nobj['next_line']\n```", "answers": ["                    mob.Target = new SR_NewRuneTarget(RuneAcc);"], "all_classes": null, "length": 907}
+{"pred": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", "answers": ["            for (int i = 0; i < chain.length; i++)"], "all_classes": null, "length": 1820}
+{"pred": "```\nsp = new JESpace(name, path);\n```", "answers": ["            sp = new JESpace(name, path);"], "all_classes": null, "length": 1096}
+{"pred": "```\npos = btnEnergizeAll.bottom();\n```", "answers": ["\t\t\t\t\tpos = btnEnergizeAll.bottom();"], "all_classes": null, "length": 567}
+{"pred": " ```", "answers": ["        length = int(environ['CONTENT_LENGTH'])"], "all_classes": null, "length": 1670}
+{"pred": "", "answers": ["        mark = \"setRepeated('%s');\" % status_id"], "all_classes": null, "length": 686}
+{"pred": ":action_extract_archive(self, login, password, status_id, params, session):", "answers": ["            return {\"error\": False}"], "all_classes": null, "length": 958}
+{"pred": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", "answers": ["\t\t\tIPermission result = a.Union (b);"], "all_classes": null, "length": 778}
+{"pred": ":\n\n", "answers": ["        certs = []"], "all_classes": null, "length": 713}
+{"pred": "```\nrequest.setAttribute(\"domainInfo\", manager.getDomainInfo(domain));\n```", "answers": ["        User user = getUser(request);"], "all_classes": null, "length": 847}
+{"pred": "", "answers": ["            self.__tmp_dir, 'datastream.%s.pipe' % uuid.uuid4().hex)"], "all_classes": null, "length": 1276}
+{"pred": "```\nif (option1) {\n```", "answers": ["\t\t\t\tif(! option1) {"], "all_classes": null, "length": 957}
+{"pred": "```\nobj['next_line']\n```", "answers": ["        if ((args == null) || (args.length == 0)) {"], "all_classes": null, "length": 1570}
+{"pred": " ```\nobj['next_line']\n```", "answers": ["\t\t\t\tfirms = loadFromFile();"], "all_classes": null, "length": 515}
