@@ -73,6 +73,58 @@ Gate cũ (`check_phase1.py`) kiểm **bản port** và cần GPU. Gate này ki�
 | 4 | fixed_context: `sp_len` khớp, `n_ctx>0`, context không mất | ✅ 0 mẫu mất context · 1/500 truncate | ✅ 0 mẫu mất context · 8/500 truncate |
 | 5 | tổng kết | ✅ **PASS** | ✅ **PASS** (1 cảnh báo) |
 
+**Xác nhận lại trên pod A100 (20/8):** cả hai dataset PASS, và **mọi con số trùng khít** với
+lần chạy trên máy Windows — không lệch một token:
+
+| | LCC | RepoBench-P |
+|---|---:|---:|
+| token kiểm | 1.559.310 | 4.882.207 |
+| token vắt biên unit | 0,48% | 1,06% |
+| unit/mẫu (trung vị · min · max) | 15 · 2 · 280 | 100 · 4 · 669 |
+| mẫu suy biến (U≤2) | 12/500 (2,4%) | 0/500 |
+| truncate | 1/500 | 8/500 |
+| **mẫu Unicode — phép thử vi sai** | 0/500 (không áp dụng) | **107/500, span khớp tuyệt đối** |
+
+Đường dữ liệu Phase 1 tất định, không phụ thuộc môi trường (Windows CPU vs pod Linux A100).
+Bản vá byte→ký tự chỉ được kiểm thật trên RepoBench-P, vì LCC thuần ASCII.
+
+Thời gian thật đo trên pod: LCC 500 mẫu **37 giây** (13,4 it/s), RepoBench-P **4 phút 51**
+(1,7 it/s — context dài gấp ~3,7 lần). Gate kiểm lại thêm 2 phút.
+
+#### ⏱️ Số đo chi phí đầu tiên (C3) — đường Sq-70% chậm gấp 8,4 lần All-KV
+
+Trích từ log gate 20 mẫu LCC, Qwen2.5-Coder-7B base, A100-80GB. **Ba lần chạy độc lập
+(17/8, 18/8 ×2) cho cùng kết quả**, không phải nhiễu một lần:
+
+| Bước | 20 mẫu | s/mẫu | so với All-KV |
+|---|---|---:|---:|
+| [2] offline clustering | 1:44 – 1:46 | 5,2 | — (chi phí một lần) |
+| [4] pred All-KV | 0:45 – 0:47 | 2,3 | 1,0× |
+| **[5] pred Sq-70%** | **6:21 – 6:33** | **19,3** | **8,4×** |
+
+**Chi phí nằm ở decode, không phải prefill.** Bằng chứng: cùng pipeline, bản **instruct**
+chỉ mất 1:36 ở bước [5] (2,8×) thay vì 6:25 — vì instruct sinh prediction gần như rỗng
+(điểm 17,60) nên decode rất ít token. Chi phí tỉ lệ với **số token sinh ra**, tức nằm ở vòng
+tra centroid + so ngưỡng + gom KV thưa mỗi bước decode.
+
+Ba điều phải nói cho đúng khi báo cáo:
+
+1. Đây là **wall-clock của bản cài đặt tham chiếu**, không phải phát biểu về độ phức tạp của
+   phương pháp. Bản gốc tối ưu cho ngữ cảnh dài hơn nhiều.
+2. LCC có `n_ctx` trung vị **2.194 token** — nhiều khả năng nằm **dưới điểm hoà vốn**: phần
+   attention tiết kiệm được không bù nổi chi phí tra cứu. Bài gốc đo ở 32K+.
+3. Nó **ăn khớp** với việc Qwen ra −2,80 còn LongChat ra +1,25: ở ngữ cảnh ngắn, bỏ 70% key
+   vừa chậm hơn vừa không lợi gì về chất lượng.
+
+Việc cần làm ở Phase 7: đo lại chi phí này theo `n_ctx` để tìm điểm hoà vốn, và tách riêng
+prefill với decode. Phase 5 (C2, recall@budget) **không** đi qua đường decode nên không chịu
+chi phí này — thêm một lý do chạy Phase 5 trước.
+
+⚠️ Một lỗi của chính gate, đã sửa: khi chạy với `--limit`, bản đầu so phân bố ngôn ngữ của
+meta (20 mẫu) với phân bố của **cả 500 mẫu** dataset → FAIL giả. Nay so trên cùng tập chỉ số.
+Cùng họ với lỗi D6 cảnh báo (so hai số đo trên hai tập mẫu khác nhau), lần này nạn nhân là
+cái gate. Phép kiểm per-sample ngay cạnh đó vẫn báo đúng, nên bắt được ngay.
+
 **Ba lỗi đã sửa để đạt PASS** (trước đó gate này chưa tồn tại, ba lỗi đều im lặng):
 
 1. **`language` bị hardcode `"python"`** cho mọi mẫu ([prepare_code_data.py](scripts/prepare_code_data.py)).
@@ -245,9 +297,44 @@ thấp hơn nhiều so với ~24 của PreFixQA; và mọi số trên LCC/RepoBe
 | 2.1 | Parse AST bằng tree-sitter, có byte offset | ✅ | `parse_units` — 5 level (`file`/`class`/`function`/`block`/`statement`), 5 ngôn ngữ. Dùng API tree_sitter mới, **không cần** `tree_sitter_languages` (gói đó không cài được). Level thô gộp vào level mịn nên mọi token đều có unit bao |
 | 2.2 | Gán `unit_id` cho từng key token ở từng level | ✅ | `assign_token_units` — sắp span theo kích thước giảm dần rồi ghi đè bằng `searchsorted`, O(U log S) thay cho O(S×U) của bản cũ. Offset lấy từ Phase 1.4 nên không đụng lỗi `use_fast=False` |
 | 2.3 | **Hard boundary** — K-means độc lập trong từng unit, unit nhỏ → 1 centroid, tổng K vẫn ~5% | 🟡 | **Code xong + đã nối pipeline** (`--method hard_boundary`). Test bất biến: không cluster nào vắt qua hai unit. Chờ chạy GPU |
-| 2.4 | **StructHierarchy** — L2 = trong-function, L1 = trung bình theo function/file | 🟡 | **Code xong + đã nối pipeline** (`--method struct_hierarchy`). `build_l1_groups` ép K1 về đúng 1% context, ghi K1 thực tế ra `k1_stats_*.pt`. `weighted=True` mặc định: L1 centroid đúng bằng trung bình toàn bộ key của nhóm |
+| 2.4 | **StructHierarchy** — L2 = trong-function, L1 = trung bình theo function/file | 🟡 | **Code xong + đã chạy smoke GPU 20/8** (`--method struct_hierarchy`). `build_l1_groups` ép K1 về 1% context **khi làm được**, ghi K1 thực tế ra `k1_stats_*.pt`. ⚠️ Trên LCC thường KHÔNG làm được — xem ghi chú dưới bảng |
 | 2.5 | Ablation tách bạch: SA / +HardBoundary / +StructHierarchy | ✅ | `offline_clustering_struct.py --method {sa,hard_boundary,struct_hierarchy}`. Nhánh `sa` gọi thẳng `run_clustering` gốc để mọi nhánh đi qua cùng một đường code |
 | 2.6 | Giữ nguyên Si, threshold, kernel | ✅ | `struct_clustering.py` **chỉ** sinh centroid + label, cùng layout `[1,H,K,D]`/`[1,H,S]` với `run_clustering`. Token-type weighting (Hướng 2(b) sẵn có trong repo) giữ lại làm cờ `token_weights`, **mặc định tắt**; test xác nhận tắt cờ ra kết quả trùng bit-for-bit |
+
+#### Smoke GPU 20/8 — cả ba nhánh chạy được, và một phát hiện về tầng L1
+
+`offline_clustering_struct.py --limit 3` trên A100, cả `sa` / `hard_boundary` /
+`struct_hierarchy` đều xong: `heads Q=28 KV=4` (hook đúng chỗ, trước `repeat_kv`), đủ bộ ba
+`.pt` mỗi mẫu, `feasibility_*.json` ghi `"infeasible": []`. Sau mẫu đầu (~130s warm-up) thì
+chỉ ~2–4 s/mẫu → ước **30–45 phút cho 500 mẫu mỗi nhánh**, rẻ hơn nhiều so với bước pred.
+
+**⚠️ Tầng L1 không phải "class" như cờ `--level_l1` gợi ý.** `k1_stats_*.pt` của 3 mẫu smoke:
+
+    k1_raw=2  k1_target=113  k1_actual=51   mode=split
+    k1_raw=4  k1_target=26   k1_actual=23   mode=split
+    k1_raw=4  k1_target=20   k1_actual=20   mode=split
+
+`k1_raw` = số unit cấp class trong file, chỉ **2–4**. Ngân sách L1 (1% context) cho phép
+20–113 nhóm, nhiều hơn hẳn, nên `build_l1_groups` đi nhánh *split* và chẻ tới trần = **số
+unit L2**, tức mỗi nhóm L1 = đúng một function. Đo trên toàn bộ dữ liệu:
+
+| | K1 bị chặn ở số function (`--level_l1` vô hiệu) | K1 thực tế / n_ctx |
+|---|---:|---:|
+| LCC | **364/499 = 72,9%** | trung vị **0,66%** |
+| RepoBench-P | 145/492 = 29,5% | trung vị **0,99%** |
+
+Ba hệ quả:
+
+1. **Không được ghi "L1 = 1% context"** trong bài. Trên LCC nó là 0,66%; con số phải lấy từ
+   `k1_stats_*.pt`, không lấy từ danh nghĩa. Budget vẫn hợp lệ (K1 nhỏ hơn danh nghĩa, không
+   lớn hơn), nhưng báo cáo sai con số là chuyện khác.
+2. **`struct_hierarchy` ở `level=function` thực chất là "L1 = trung bình theo function"** —
+   đúng chữ của protocol (*"Level-1 centroid = trung bình theo function/file"*), nhưng cờ
+   `--level_l1` không hề tham gia. Đừng mô tả nó như một hierarchy 3 tầng class→function→token.
+3. **Muốn khảo sát `--level_l1` thì phải làm trên RepoBench-P** (70% mẫu đi nhánh *merge*,
+   nơi cờ đó thực sự quyết định cách gộp), hoặc trên LCC với L2 ở level mịn hơn (`block`).
+   Quét `--level_l1` trên LCC ở `level=function` sẽ cho ra **cùng một kết quả cho mọi giá
+   trị** — nếu không biết trước, rất dễ đọc thành "hierarchy không nhạy với level".
 
 **Vấn đề kỹ thuật phải xử lý khi viết lại:**
 - Hiệu năng: `weighted_kmeans` lặp Python `for h in range(H): for k in range(K)` — với H=32, K≈1500 là ~48K vòng/layer × 32 layer × 10 iter. Thực tế treo máy. Baseline dùng cuML KMeans trên GPU. Thay bằng `torch.searchsorted` cho mapping và `scatter_add_` cho centroid update.
