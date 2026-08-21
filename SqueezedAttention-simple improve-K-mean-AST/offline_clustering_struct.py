@@ -210,6 +210,9 @@ def main():
                          "budget-constrained và phải báo cáo riêng. fail: dừng cả run")
     ap.add_argument("--device", type=int, default=0)
     ap.add_argument("--limit", type=int, default=-1)
+    ap.add_argument("--overwrite", action="store_true",
+                    help="tinh lai ca nhung mau da co du file tren dia. Mac dinh BO QUA "
+                         "chung, de job dut giua chung chay tiep duoc")
     args = ap.parse_args()
 
     DEV = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
@@ -268,6 +271,7 @@ def main():
     os.makedirs(args.output_path, exist_ok=True)
     n = len(data) if args.limit <= 0 else min(args.limit, len(data))
     agg = {"error_nodes": 0, "truncated": 0, "units": [], "k1": []}
+    n_skipped = 0
     # Sổ khả thi: Phase 6 CẦN file này để so các level trên cùng một tập mẫu. Bỏ mẫu là
     # làm tập còn lại thiên lệch (mẫu bị bỏ thường là file dài, cấu trúc mịn), nên điểm
     # của statement trên tập còn lại KHÔNG so thẳng được với function trên toàn bộ.
@@ -293,6 +297,28 @@ def main():
                 f"Chạy lại prepare_code_data.py với cùng model/config."
             )
 
+        n_ctx = shared_prefix_length - args.observation_window
+        num_centroids = max(1, int(args.percent_clusters / 100.0 * n_ctx))
+
+        # ---- BỎ QUA MẪU ĐÃ XONG ----
+        # Giống `offline_clustering.py`, nhưng kiểm ĐỦ BỘ chứ không chỉ một file: pod đã
+        # tự dựng lại 3 lần trong ngày 20-21/8, và một lần đứt đúng lúc ghi đã để lại 2 file
+        # 0 byte. Kiểm một file thì mẫu hỏng dở sẽ bị coi là xong và không bao giờ sinh lại.
+        # Chỉ so sánh sự tồn tại + kích thước > 0; tính toàn vẹn CRC để
+        # `scripts/check_cluster_integrity.py` lo.
+        tag = f"{dataidx}_{num_centroids}"
+        need = [f"{args.output_path}/centroids_tensor_dict_{tag}.pt",
+                f"{args.output_path}/centroids_labels_dict_{tag}.pt",
+                f"{args.output_path}/global_threshold_{tag}.pt"]
+        if args.method == "struct_hierarchy":
+            # K1 chưa biết trước khi tính, nên chỉ cần có ÍT NHẤT một bộ L1 của dataidx này
+            need.append(f"{args.output_path}/k1_stats_{dataidx}.pt")
+        if (not args.overwrite
+                and all(os.path.exists(f) and os.path.getsize(f) > 0 for f in need)):
+            n_skipped += 1
+            feas["feasible"].append(dataidx)
+            continue
+
         state["sp_len"] = shared_prefix_length
         input_ids = tokenizer(prompt, truncation=False, return_tensors="pt").input_ids.to(DEV)
         all_q.clear()
@@ -300,9 +326,6 @@ def main():
         with torch.no_grad():
             model.generate(input_ids, do_sample=False, max_new_tokens=1,
                            use_cache=False, output_attentions=True)
-
-        n_ctx = shared_prefix_length - args.observation_window
-        num_centroids = max(1, int(args.percent_clusters / 100.0 * n_ctx))
 
         if args.method == "sa":
             cent, lab = run_clustering(all_k, num_centroids,
@@ -412,6 +435,8 @@ def main():
             print(f"      đã gộp          : {n_mrg} mẫu, gộp {100 * min(fr):.0f}–"
                   f"{100 * max(fr):.0f}% số unit của từng mẫu")
         print(f"      sổ khả thi      : {feas_path}")
+        if n_skipped:
+            print(f"      bỏ qua (đã có)  : {n_skipped}/{n} — dùng --overwrite để tính lại")
 
         if ratio > 0.10:
             print()
