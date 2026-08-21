@@ -161,12 +161,32 @@ def main():
         print()
         print(f">>> {len(corrupt)}/{len(files)} file HONG")
         if args.delete:
+            # Phai xoa CA BO BA cua mau hong, khong chi rieng file hong.
+            # Ly do: offline_clustering.py bo qua mau da co `global_threshold_<idx>_<K>.pt`.
+            # Neu file hong la centroids_labels/tensor ma ta chi xoa no, thi threshold van
+            # con -> luot sau skip luon mau do -> file thieu KHONG BAO GIO duoc sinh lai,
+            # va lan kiem sau lai bao hong y het. Gap that 21/8: 2 file 0 byte do container
+            # bi dung lai giua luc ghi.
+            PREFIXES = ("centroids_labels_dict", "centroids_tensor_dict", "global_threshold")
+            tags = set()
             for path, _ in corrupt:
-                os.remove(path)
-                print(f"  [da xoa] {os.path.basename(path)}")
+                base = os.path.basename(path)[:-3]          # bo duoi .pt
+                for p in PREFIXES:
+                    if base.startswith(p + "_"):
+                        tags.add(base[len(p) + 1:])         # con lai "<dataidx>_<K>"
+                        break
+                else:
+                    os.remove(path)                          # ten la -> xoa rieng
+                    print(f"  [da xoa] {base}.pt")
+            for tag in sorted(tags):
+                for p in PREFIXES:
+                    f = os.path.join(args.cluster_dir, f"{p}_{tag}.pt")
+                    if os.path.exists(f):
+                        os.remove(f)
+                        print(f"  [da xoa] {p}_{tag}.pt")
             print()
             print("  Chay lai offline_clustering.py voi dung tham so cu de sinh lai.")
-            print("  No bo qua moi mau da co global_threshold nen chi tinh lai phan thieu.")
+            print("  Da xoa ca bo ba nen luot sau se thuc su tinh lai nhung mau nay.")
         else:
             print("  Dung --delete de xoa roi chay lai offline_clustering.py sinh lai.")
     else:

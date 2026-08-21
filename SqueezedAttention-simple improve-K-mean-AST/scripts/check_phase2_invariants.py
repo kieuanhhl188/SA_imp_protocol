@@ -214,7 +214,9 @@ def main():
     ap.add_argument("--percent_clusters", type=int, default=5)
     ap.add_argument("--reference_dir", default=None,
                     help="thu muc centroid do offline_clustering.py sinh — de kiem bat bien D")
-    ap.add_argument("--rtol", type=float, default=1e-5)
+    ap.add_argument("--rtol_set", type=float, default=0.05,
+                    help="nguong khoang cach tap hop (chuan hoa) cho bat bien D. "
+                         "K-means co the khong tat dinh nen dung nguong long, khong doi bang 0")
     args = ap.parse_args()
 
     import numpy as np
@@ -282,10 +284,13 @@ def main():
             print(f"    dataidx {idx:3d}: centroids {tuple(c0.shape)} {'✅' if okc else '❌'}"
                   f" · labels {tuple(l0.shape)} (mong {n_ctx}) {'✅' if okl else '❌'}")
 
-        if name not in HARD:
-            continue
-
-        print(f"\n[A] Ranh gioi cung — {name}")
+        # Kiem A cho MOI nhanh, ke ca `sa`. Nhanh `sa` la NHOM DOI CHUNG: K-means tu do
+        # phai vat qua bien o gan nhu moi cluster. Khong co con so do thi "0 vi pham" cua
+        # hard_boundary chua chung minh duoc gi — biet dau du lieu nay von it unit den muc
+        # moi cach cluster deu khong vat bien.
+        expect0 = name in HARD
+        print(f"\n[A] Ranh gioi cung — {name}"
+              + ("" if expect0 else "   (NHOM DOI CHUNG — mong doi vat bien NHIEU)"))
         if not prompts:
             print("    (dung lai prompt sau truncation — can dataset + tokenizer)")
             prompts.update(rebuild_prompts(
@@ -309,10 +314,16 @@ def main():
             nb, nt, worst = check_hard_boundary(lab, uid, K)
             if nb is None:
                 print(f"    dataidx {idx}: [!] {worst}"); rc = 1; continue
-            ok = nb == 0
-            rc |= 0 if ok else 1
-            print(f"    dataidx {idx:3d}: {nt:7d} cluster · vat qua >1 unit: {nb:5d}"
-                  f"  {'✅' if ok else '❌'}  (U={int(uid.max())+1})")
+            pct = 100.0 * nb / nt if nt else 0.0
+            if expect0:
+                ok = nb == 0
+                rc |= 0 if ok else 1
+                mark = "✅" if ok else "❌"
+            else:
+                # nhanh doi chung: KHONG tinh vao ma thoat, chi de doi chieu
+                mark = "(doi chung)"
+            print(f"    dataidx {idx:3d}: {nt:7d} cluster · vat qua >1 unit: {nb:6d}"
+                  f" ({pct:5.1f}%)  {mark}  (U={int(uid.max())+1})")
             if worst:
                 lyr, h, k, lo, hi = worst
                 print(f"        vi du: layer {lyr} head {h} cluster {k} chua unit {lo}..{hi}")
@@ -328,17 +339,30 @@ def main():
                 print(f"    dataidx {idx:3d}: (khong co ban goc de doi chieu)"); continue
             a = torch.load(fa, map_location="cpu")
             b = torch.load(fb, map_location="cpu")
-            diffs = []
+            # Centroid la TAP HOP, khong phai day co thu tu: K-means danh so cluster tuy y,
+            # nen hai lan chay cho cung phan hoach van xep centroid khac thu tu. So theo vi
+            # tri se luon lech du hai ben giong het nhau ve mat toan hoc.
+            # Do dung: voi moi centroid ben A, tim centroid GAN NHAT ben B, lay max cac
+            # khoang cach do — bat bien voi hoan vi.
+            worst_rel = 0.0
+            shape_bad = False
             for lyr in a:
                 x, y = a[lyr].float(), b[lyr].float()
                 if x.shape != y.shape:
-                    diffs.append(float("inf")); break
-                d = (x - y).abs().max() / y.abs().max().clamp_min(1e-12)
-                diffs.append(float(d))
-            m = max(diffs) if diffs else float("inf")
-            ok = m <= args.rtol
+                    shape_bad = True
+                    break
+                x2, y2 = x.reshape(-1, x.shape[-2], x.shape[-1]), y.reshape(-1, y.shape[-2], y.shape[-1])
+                for h in range(x2.shape[0]):
+                    d = torch.cdist(x2[h], y2[h])          # [K, K]
+                    nearest = d.min(dim=1).values.max()     # Hausdorff mot chieu
+                    scale = y2[h].norm(dim=-1).median().clamp_min(1e-12)
+                    worst_rel = max(worst_rel, float(nearest / scale))
+            if shape_bad:
+                print(f"    dataidx {idx:3d}: SHAPE LECH  ❌"); rc = 1; continue
+            ok = worst_rel <= args.rtol_set
             rc |= 0 if ok else 1
-            print(f"    dataidx {idx:3d}: lech tuong doi max {m:.3e}  {'✅' if ok else '❌'}")
+            print(f"    dataidx {idx:3d}: khoang cach tap hop (chuan hoa) {worst_rel:.3e}"
+                  f"  {'✅' if ok else '❌'}")
 
     print("\n" + "=" * 72)
     print("  ✅ MOI BAT BIEN QUA" if rc == 0 else "  ❌ CO BAT BIEN BI VI PHAM")
