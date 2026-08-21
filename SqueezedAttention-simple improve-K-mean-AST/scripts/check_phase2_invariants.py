@@ -91,8 +91,34 @@ def rebuild_prompts(model, dataset, idxs):
     meta phinh len ~20 MB. Nen phai dung lai, theo dung tung buoc cua check_phase1_data.py
     de ra chuoi y het: tokenizer CHAM + truncate_fn.
     """
-    from transformers import AutoTokenizer
-    from datasets import load_dataset
+    # REPO_ROOT chua thu muc `transformers/` — do la CAY NGUON cua fork (package that nam o
+    # transformers/src/transformers), khong co __init__.py o cap do. Python coi no la
+    # namespace package va che mat ban da cai:
+    #     ImportError: cannot import name 'AutoTokenizer' from 'transformers' (unknown location)
+    # Nen phai tam go REPO_ROOT khoi sys.path dung luc import hai goi ngoai.
+    _saved = [p for p in sys.path if p and os.path.abspath(p) == os.path.abspath(REPO_ROOT)]
+    for p in _saved:
+        sys.path.remove(p)
+    try:
+        from transformers import AutoTokenizer
+        from datasets import load_dataset
+    except ImportError as e:
+        import transformers as _tf
+        raise SystemExit(
+            f"[ERROR] khong import duoc: {e}\n"
+            f"        transformers.__file__ = {getattr(_tf, '__file__', None)}\n"
+            f"        transformers.__path__ = {list(getattr(_tf, '__path__', []))}\n"
+            f"        sys.path[:5] = {sys.path[:5]}\n"
+            f"        Neu __file__ la None thi Python dang lay THU MUC NGUON cua fork\n"
+            f"        ({os.path.join(REPO_ROOT, 'transformers')}) lam namespace package.\n"
+            f"        Cach chay khong vuong: cd sang thu muc khac roi goi bang duong dan\n"
+            f"        tuyet doi, vd  cd /tmp && python {os.path.abspath(__file__)} ..."
+        )
+    finally:
+        for p in _saved:
+            sys.path.insert(0, p)
+
+    # cai nay thi CAN REPO_ROOT trong sys.path
     from squeezedattention.utils import truncate_fn
 
     cfg = os.path.join(REPO_ROOT, "LongBench", "config")
