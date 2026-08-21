@@ -281,8 +281,19 @@ def main():
             okc = c0.dim() == 4 and c0.shape[0] == 1 and c0.shape[2] == K
             okl = l0.dim() == 3 and l0.shape[0] == 1 and l0.shape[2] == n_ctx
             rc |= 0 if (okc and okl) else 1
+            # NGAN SACH HIEU DUNG: dem o centroid toan 0 (cuML cap phat du K hang nhung
+            # khong dung het). "Cung K danh nghia" khong keo theo "cung so cluster thuc
+            # dung" — neu hai nhanh lang phi khac nhau thi so sanh accuracy da lech san.
+            nz = 0
+            tot = 0
+            for lyr in cen:
+                v = cen[lyr].float()
+                n = v.reshape(-1, v.shape[-1]).norm(dim=-1)
+                nz += int((n == 0).sum()); tot += n.numel()
+            zpct = 100.0 * nz / max(tot, 1)
             print(f"    dataidx {idx:3d}: centroids {tuple(c0.shape)} {'✅' if okc else '❌'}"
-                  f" · labels {tuple(l0.shape)} (mong {n_ctx}) {'✅' if okl else '❌'}")
+                  f" · labels {tuple(l0.shape)} (mong {n_ctx}) {'✅' if okl else '❌'}"
+                  f" · o rong {zpct:.1f}%")
 
         # Kiem A cho MOI nhanh, ke ca `sa`. Nhanh `sa` la NHOM DOI CHUNG: K-means tu do
         # phai vat qua bien o gan nhu moi cluster. Khong co con so do thi "0 vi pham" cua
@@ -344,8 +355,21 @@ def main():
             # tri se luon lech du hai ben giong het nhau ve mat toan hoc.
             # Do dung: voi moi centroid ben A, tim centroid GAN NHAT ben B, lay max cac
             # khoang cach do — bat bien voi hoan vi.
+            # O CENTROID RONG: cuML cap phat du K hang nhung khong phai hang nao cung duoc
+            # dung; hang khong dung o lai toan 0. Do that tren Qwen2 (dataidx 0): lop 27 co
+            # 21.7% hang zero, lop 0 co 3.3%, cac lop khac 0% — VA CA HAI BEN deu vay, tuc
+            # day la hanh vi cua code goc chu khong phai loi cua ban port.
+            #
+            # Hai he qua:
+            #   1. Khong duoc dua hang zero vao phep so: chung khong mang thong tin, va neu
+            #      mot head co qua nua hang zero thi median-norm = 0 -> chia cho 1e-12 ->
+            #      "khoang cach" nhay len 1e13 va bao FAIL gia. Chinh la ca gap 21/8.
+            #   2. Ty le hang zero LA MOT SO LIEU CAN BAO CAO: ngan sach danh nghia K khong
+            #      bang ngan sach hieu dung. Neu hai nhanh lang phi khac nhau thi so sanh
+            #      "cung budget" da lech san truoc khi do accuracy.
             worst_rel = 0.0
             shape_bad = False
+            n_zero_a = n_zero_b = n_row = 0
             for lyr in a:
                 x, y = a[lyr].float(), b[lyr].float()
                 if x.shape != y.shape:
@@ -353,16 +377,25 @@ def main():
                     break
                 x2, y2 = x.reshape(-1, x.shape[-2], x.shape[-1]), y.reshape(-1, y.shape[-2], y.shape[-1])
                 for h in range(x2.shape[0]):
-                    d = torch.cdist(x2[h], y2[h])          # [K, K]
-                    nearest = d.min(dim=1).values.max()     # Hausdorff mot chieu
-                    scale = y2[h].norm(dim=-1).median().clamp_min(1e-12)
+                    na, nb = x2[h].norm(dim=-1), y2[h].norm(dim=-1)
+                    ma, mb = na > 0, nb > 0
+                    n_zero_a += int((~ma).sum()); n_zero_b += int((~mb).sum())
+                    n_row += ma.numel()
+                    if int(ma.sum()) == 0 or int(mb.sum()) == 0:
+                        continue                      # head rong hoan toan, khong so duoc
+                    xa, yb = x2[h][ma], y2[h][mb]
+                    d = torch.cdist(xa, yb)                  # [na, nb]
+                    nearest = d.min(dim=1).values.max()      # Hausdorff mot chieu
+                    scale = nb[mb].median().clamp_min(1e-12)
                     worst_rel = max(worst_rel, float(nearest / scale))
             if shape_bad:
                 print(f"    dataidx {idx:3d}: SHAPE LECH  ❌"); rc = 1; continue
             ok = worst_rel <= args.rtol_set
             rc |= 0 if ok else 1
+            za = 100.0 * n_zero_a / max(n_row, 1)
+            zb = 100.0 * n_zero_b / max(n_row, 1)
             print(f"    dataidx {idx:3d}: khoang cach tap hop (chuan hoa) {worst_rel:.3e}"
-                  f"  {'✅' if ok else '❌'}")
+                  f"  {'✅' if ok else '❌'}   o centroid rong: sa {za:.1f}% · goc {zb:.1f}%")
 
     print("\n" + "=" * 72)
     print("  ✅ MOI BAT BIEN QUA" if rc == 0 else "  ❌ CO BAT BIEN BI VI PHAM")
