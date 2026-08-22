@@ -51,6 +51,10 @@ def parse_args(args=None):
     parser.add_argument("--percentile", type=float, default=0.5)
     parser.add_argument("--percentile_lower", type=float, default=0.7)
     parser.add_argument("--obs_window", type=int, default=100)
+    parser.add_argument("--force_chat", action="store_true",
+                        help="AP chat template cho ca lcc/repobench-p. LongBench co y BO "
+                             "template o hai task nay; bat len la de KIEM CHUNG gia thuyet "
+                             "'Instruct hong vi thieu template', khong phai cau hinh mac dinh")
     parser.add_argument("--task", type=str, default=None)
     parser.add_argument("--seed", type=int, default=42,
                         help="random seed; protocol yêu cầu mean±std qua >=3 seed cho số accuracy chính")
@@ -77,7 +81,9 @@ def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_
         prompt_noquery = prompt_only_format.format(**json_obj)
 
         # perform truncation
-        prompt, truncated_shared_prefix_length = truncate_fn(prompt, prompt_noquery, tokenizer, max_length, dataset, device)
+        prompt, truncated_shared_prefix_length = truncate_fn(
+            prompt, prompt_noquery, tokenizer, max_length, dataset, device,
+            model_name=model_name, force_chat=config_params.get('force_chat', False))
         model.model.shared_prefix_length = truncated_shared_prefix_length
         model.model.different_prefix_index = different_prefix_index
 
@@ -210,6 +216,7 @@ if __name__ == '__main__':
     config_params['percentile_lower'] = args.percentile_lower
     config_params['obs_window'] = args.obs_window
     config_params['seed'] = args.seed
+    config_params['force_chat'] = args.force_chat
 
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
     dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))

@@ -22,7 +22,13 @@ def build_chat(prompt, model_name, noquery=False):
             prompt = conv.get_prompt()
     return prompt
 
-def truncate_fn(prompt, prompt_noquery, tokenizer, max_length, dataset, device):
+def truncate_fn(prompt, prompt_noquery, tokenizer, max_length, dataset, device,
+                model_name=None, force_chat=False):
+    # model_name/force_chat la THEM VAO, mac dinh giu nguyen hanh vi cu:
+    #   - moi loi goi cu khong truyen gi -> force_chat=False
+    #   - lcc/repobench-p nam trong danh sach loai tru -> nhanh chat khong chay
+    # Chung sinh ra de (a) sua bug `model_name` khong ton tai trong nhanh chat,
+    # va (b) cho phep BAT chat template co chu dich khi do model Instruct.
     # truncate to fit max_length (we suggest truncate in the middle, since the left and right side may contain crucial instructions)
     tokenized_prompt = tokenizer(prompt, truncation=False, return_tensors="pt").input_ids[0]
     tokenized_prompt_noquery = tokenizer(prompt_noquery, truncation=False, return_tensors="pt").input_ids[0]
@@ -40,7 +46,14 @@ def truncate_fn(prompt, prompt_noquery, tokenizer, max_length, dataset, device):
         tokens_removed = 0
 
     # incorporate chat template for shared prefix length
-    if dataset not in ["trec", "triviaqa", "samsum", "lcc", "repobench-p"]: # chat models are better off without build prompts on these tasks
+    if force_chat or dataset not in ["trec", "triviaqa", "samsum", "lcc", "repobench-p"]:
+        # BUG CU: `model_name` khong phai tham so cua ham va khong co trong scope ->
+        # nhanh nay ne'm NameError. Chua ai vap vi Phase 0/1 chi dung lcc/repobench-p,
+        # ca hai deu nam trong danh sach loai tru.
+        if model_name is None:
+            raise ValueError(
+                "truncate_fn: can `model_name` khi ap chat template "
+                f"(dataset={dataset}, force_chat={force_chat})")
         prompt = build_chat(prompt, model_name)
         prompt_noquery = build_chat(prompt_noquery, model_name, noquery=True)
 
