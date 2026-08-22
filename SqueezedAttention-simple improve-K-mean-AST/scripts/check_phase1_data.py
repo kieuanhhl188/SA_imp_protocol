@@ -20,7 +20,8 @@ NĂM BƯỚC
     [2] đủ 500 mẫu    meta phải phủ TOÀN BỘ dataset và npz phải có mảng offset cho từng
                       dataidx. Thiếu mẫu thì `offline_clustering_struct.py` chỉ in [WARN]
                       rồi bỏ qua -> chạy tưởng 500 mà thực ra 20.
-    [3] offset        offset là KÝ TỰ, không phải byte. Năm bất biến: fast==slow token id;
+    [3] offset        lưu CẢ HAI hệ: ký tự (`offsets_<i>`) và byte (`offsets_bytes_<i>`,
+                      đúng chữ của protocol). Sáu bất biến: fast==slow token id;
                       số offset == num_tokens; offset không giảm; offset phủ kín prompt
                       không để khoảng trống; và span AST tính theo ký tự không lệch trên mẫu
                       có Unicode — kiểm bằng phép thử vi sai (thay mọi ký tự non-ASCII bằng
@@ -83,6 +84,8 @@ def main():
     ap.add_argument("--phase1_dir",
                     default=os.environ.get("SQA_PHASE1_DIR",
                                            os.path.join(REPO_ROOT, "phase1_data")))
+    ap.add_argument("--fixed_context", choices=["protocol", "longbench"], default="protocol",
+                    help="che do fixed_context ma du lieu PHAI duoc sinh ra voi")
     ap.add_argument("--level", default="function",
                     help="level dùng để kiểm ranh giới cấu trúc (giống Phase 2)")
     ap.add_argument("--observation_window", type=int, default=100)
@@ -160,6 +163,13 @@ def main():
     rep.check(2, "meta chỉ chứa một model", len(models_in_meta) == 1, str(models_in_meta))
     rep.check(2, "model của meta khớp lệnh đang chạy", models_in_meta == {args.model},
               f"{models_in_meta} vs {args.model}")
+    modes = {r.get("fixed_context_mode", "(thieu)") for r in meta.values()}
+    rep.check(2, f"fixed_context của meta là '{args.fixed_context}'",
+              modes == {args.fixed_context},
+              f"{modes} — sinh lại với --fixed_context {args.fixed_context}")
+    mls = {r.get("max_length", "(thieu)") for r in meta.values()}
+    rep.check(2, f"max_length của meta khớp config hiện tại ({max_length})",
+              mls == {max_length}, f"{mls} vs {max_length}")
 
     # ---------------------------------------------------------------
     # BƯỚC 1 — ngôn ngữ
@@ -194,13 +204,16 @@ def main():
     print("\n=== BƯỚC 3 + 4 — offset và fixed_context (dựng lại prompt như Phase 2) ===")
     tok_slow = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     prompt_format = d2p[args.dataset]
-    prompt_only_format = d2p[args.dataset + "_prompt"]
+    key_only = (args.dataset + "_prompt_protocol" if args.fixed_context == "protocol"
+                else args.dataset + "_prompt")
+    prompt_only_format = d2p[key_only]
 
     bad_ids_match, bad_len, bad_sorted, bad_cover = [], [], [], []
     bad_sp, bad_nctx, bad_context_lost, bad_unit_span = [], [], [], []
     bad_unicode_span = []
     n_trunc, n_nonascii, degenerate, budget_short = 0, 0, [], []
     n_tok_cross, n_tok_total, n_unicode_code, n_overlap = 0, 0, 0, 0
+    bad_byte, n_no_byte = [], 0
     units_all = []
 
     for i in tqdm(range(n), disable=None):
@@ -243,6 +256,27 @@ def main():
         if any(int(a) < int(prev_b) for (a, _), (_, prev_b)
                in zip(offs[1:], offs[:-1])):
             n_overlap += 1
+
+        # OFFSET BYTE (protocol Phase 1 yêu cầu). Bất biến: cắt chuỗi byte theo
+        # offsets_bytes phải ra ĐÚNG chuỗi mà offsets ký tự cắt ra. Chỉ cần một mẫu sai là
+        # mọi công cụ làm việc theo byte (tree-sitter) sẽ gán token lệch unit.
+        key_b = f"offsets_bytes_{i}"
+        if key_b not in npz:
+            n_no_byte += 1
+        else:
+            ob = npz[key_b]
+            raw = prompt.encode("utf-8")
+            if len(ob) != len(offs):
+                bad_byte.append(i)
+            else:
+                # kiểm mẫu thưa cho nhanh: 200 token trải đều là đủ nhạy
+                step = max(1, len(offs) // 200)
+                for t in range(0, len(offs), step):
+                    c0, c1 = int(offs[t][0]), int(offs[t][1])
+                    b0, b1 = int(ob[t][0]), int(ob[t][1])
+                    if raw[b0:b1].decode("utf-8", "replace") != prompt[c0:c1]:
+                        bad_byte.append(i)
+                        break
 
         # ---------------- BƯỚC 4 ----------------
         if sp_len != rec["shared_prefix_length"]:
@@ -322,6 +356,12 @@ def main():
               not bad_unit_span,
               f"{len(bad_unit_span)} mẫu, ví dụ {bad_unit_span[:3]}" if bad_unit_span
               else f"{n_tok_total} token")
+    rep.check(3, "offset BYTE cắt ra đúng chuỗi như offset ký tự (yêu cầu protocol)",
+              not bad_byte and n_no_byte == 0,
+              f"{len(bad_byte)} mẫu lệch: {bad_byte[:5]}" if bad_byte
+              else (f"{n_no_byte}/{n} mẫu THIẾU offsets_bytes — sinh lại bằng "
+                    f"prepare_code_data.py bản mới" if n_no_byte
+                    else f"{n} mẫu, khớp tuyệt đối"))
     rep.check(3, "span AST không lệch trên mẫu Unicode (phép thử vi sai byte/ký tự)",
               not bad_unicode_span,
               f"{len(bad_unicode_span)} mẫu lệch: {bad_unicode_span[:5]}" if bad_unicode_span

@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 """
-prepare_code_data.py — Phase 1.4: sinh và lưu offset ký tự cho từng token.
+prepare_code_data.py — Phase 1.4: sinh và lưu offset BYTE và offset KÝ TỰ cho từng token.
 
 VÌ SAO CẦN FILE NÀY
 -------------------
-Protocol Phase 1 yêu cầu "lưu kèm byte offset của từng token trong source". Ở đây lưu
-offset KÝ TỰ (đơn vị của `return_offsets_mapping`), không phải byte — `parse_units` của
-Phase 2 đã đổi span AST sang cùng đơn vị ký tự nên hai bên khớp nhau. Không thể
-tính offset trên source gốc, vì `squeezedattention/utils.py::truncate_fn` cắt **giữa**
-prompt rồi decode-lại-encode:
+Protocol Phase 1 yêu cầu "lưu kèm byte offset của từng token trong source". Tokenizer nhanh
+chỉ trả offset KÝ TỰ (`return_offsets_mapping`), còn tree-sitter đánh địa chỉ theo BYTE.
+Script lưu **cả hai**, để không ai phải đoán đang dùng hệ nào:
+
+    offsets_<i>        offset ký tự — Phase 2 hiện chạy trong hệ này
+    offsets_bytes_<i>  offset byte  — đúng chữ của protocol
+
+Hai hệ chỉ trùng nhau khi văn bản thuần ASCII. Đo trên dữ liệu thật: LCC **0/500** mẫu có
+ký tự non-ASCII, RepoBench-P **107/500**. Với 107 mẫu đó, dùng nhầm hệ là mọi span sau ký
+tự non-ASCII đầu tiên đều lệch, và độ lệch cộng dồn.
+
+Không thể tính offset trên source gốc, vì `squeezedattention/utils.py::truncate_fn` cắt
+**giữa** prompt rồi decode-lại-encode:
 
     prompt = decode(tokens[:half]) + decode(tokens[-half:])
 
@@ -37,7 +45,9 @@ offline_clustering thu được -> script báo lỗi thay vì lặng lẽ cho ra
 OUTPUT
 ------
     <out>/<dataset>_meta.jsonl    metadata mỗi sample, một dòng một sample
-    <out>/<dataset>_offsets.npz   mảng offset KÝ TỰ [num_tokens, 2], key "offsets_<dataidx>"
+    <out>/<dataset>_offsets.npz   hai mảng [num_tokens, 2] cho mỗi mẫu:
+                                    "offsets_<i>"        offset KÝ TỰ
+                                    "offsets_bytes_<i>"  offset BYTE (protocol Phase 1)
 
 USAGE
 -----
@@ -190,6 +200,42 @@ def offsets_from_fast_tokenizer(prompt, tok_fast):
     return list(enc["offset_mapping"]), list(enc["input_ids"])
 
 
+def char_to_byte_index(text):
+    """
+    Bảng tra `c2b[i]` = chỉ số BYTE của ký tự thứ i trong `text` (dài len(text)+1).
+    Trả None nếu text thuần ASCII — khi đó byte và ký tự trùng nhau, khỏi tốn bộ nhớ.
+    """
+    if len(text.encode("utf-8")) == len(text):
+        return None
+    out = [0] * (len(text) + 1)
+    b = 0
+    for i, ch in enumerate(text):
+        out[i] = b
+        b += len(ch.encode("utf-8"))
+    out[len(text)] = b
+    return out
+
+
+def offsets_to_bytes(offsets, prompt):
+    """
+    Đổi offset KÝ TỰ sang offset BYTE.
+
+    VÌ SAO CÓ CẢ HAI: protocol Phase 1 yêu cầu "lưu kèm byte offset của từng token", còn
+    `return_offsets_mapping` của tokenizer nhanh trả về offset ký tự. tree-sitter thì đánh
+    địa chỉ theo byte. Hai hệ chỉ trùng nhau khi code thuần ASCII — đo trên dữ liệu thật:
+    LCC 0/500 mẫu có non-ASCII, RepoBench-P **107/500**.
+
+    Lưu cả hai để không ai phải đoán đang dùng hệ nào: `offsets_<i>` là ký tự,
+    `offsets_bytes_<i>` là byte. Phase 2 hiện chạy trong hệ KÝ TỰ (đã kiểm chứng bằng phép
+    thử vi sai trên 107 mẫu Unicode); byte offset dành cho công cụ làm việc trực tiếp với
+    tree-sitter mà không muốn quy đổi.
+    """
+    c2b = char_to_byte_index(prompt)
+    if c2b is None:
+        return offsets
+    return [(c2b[s], c2b[e]) for s, e in offsets]
+
+
 def summarize_alignment(offsets, code_start, code_end, sp_len):
     """Đếm token nằm trong vùng code và trong phần fixed context, để sanity-check."""
     n_in_code = 0
@@ -240,7 +286,12 @@ def run(args):
     dataset2prompt = json.load(open(os.path.join(REPO_ROOT, "LongBench/config/dataset2prompt.json"),
                                     encoding="utf-8"))
     prompt_format = dataset2prompt[args.dataset]
-    prompt_only_format = dataset2prompt[args.dataset + "_prompt"]
+    key_only = (args.dataset + "_prompt_protocol" if args.fixed_context == "protocol"
+                else args.dataset + "_prompt")
+    if key_only not in dataset2prompt:
+        raise SystemExit(f"[ERROR] dataset2prompt.json thieu khoa '{key_only}'")
+    prompt_only_format = dataset2prompt[key_only]
+    print(f">>> fixed_context={args.fixed_context}  (template: {key_only})")
     head, tail = split_prompt_template(prompt_format)
 
     data = load_dataset("THUDM/LongBench", args.dataset, split="test")
@@ -336,6 +387,11 @@ def run(args):
                 "num_tokens_in_code": int(n_in_code),
                 "num_fixed_tokens_in_code": int(n_fixed_in_code),
                 "fast_slow_ids_match": bool(ids_match),
+                "prompt_num_bytes": len(prompt.encode("utf-8")),
+                "prompt_num_chars": len(prompt),
+                "has_byte_offsets": True,
+                "fixed_context_mode": args.fixed_context,
+                "max_length": int(max_length),
                 "template_located": bool(template_ok),
             }
             if args.save_prompt:
@@ -343,6 +399,8 @@ def run(args):
             fmeta.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
             offsets_store[f"offsets_{dataidx}"] = np.asarray(offsets, dtype=np.int32)
+            offsets_store[f"offsets_bytes_{dataidx}"] = np.asarray(
+                offsets_to_bytes(offsets, prompt), dtype=np.int32)
             if args.save_prompt_npz:
                 offsets_store[f"prompt_{dataidx}"] = np.array(prompt, dtype=object)
 
@@ -462,6 +520,30 @@ def self_test():
     check("sp_len giới hạn được phần fixed", n_fixed2 <= 3 and n_fixed2 <= n_in_code2,
           f"n_fixed={n_fixed2}")
 
+    print("\n=== offset BYTE (yêu cầu của protocol) ===")
+    txt_ascii = "def f():\n    return 1\n"
+    off_ascii = [(0, 3), (4, 5), (12, 18)]
+    check("ASCII: byte == ký tự, không cấp phát bảng",
+          char_to_byte_index(txt_ascii) is None
+          and offsets_to_bytes(off_ascii, txt_ascii) == off_ascii)
+
+    # 'ú' 2 byte, 'ế' 3 byte -> byte index chạy nhanh hơn char index
+    txt_uni = "# chú ý\ndef f():\n    return 1\n"
+    c2b = char_to_byte_index(txt_uni)
+    check("Unicode: bảng dài len+1", c2b is not None and len(c2b) == len(txt_uni) + 1)
+    check("số byte cuối bảng khớp encode()",
+          c2b[len(txt_uni)] == len(txt_uni.encode("utf-8")),
+          f"{c2b[len(txt_uni)]} vs {len(txt_uni.encode('utf-8'))}")
+
+    # bất biến then chốt: cắt theo byte và cắt theo ký tự phải ra CÙNG một chuỗi
+    raw = txt_uni.encode("utf-8")
+    tok_char = [(i, i + 3) for i in range(0, len(txt_uni) - 3, 4)]
+    tok_byte = offsets_to_bytes(tok_char, txt_uni)
+    same = all(raw[b0:b1].decode("utf-8") == txt_uni[c0:c1]
+               for (c0, c1), (b0, b1) in zip(tok_char, tok_byte))
+    check("cắt theo byte ra đúng chuỗi như cắt theo ký tự", same)
+    check("offset byte KHÁC offset ký tự khi có Unicode", tok_byte != tok_char)
+
     print("\n=== resolve_language ===")
     check("lấy đúng ngôn ngữ của mẫu",
           resolve_language({"language": "java"}, "lcc") == ("java", "dataset_field"))
@@ -495,6 +577,11 @@ def main():
                     default=os.environ.get("SQA_PHASE1_DIR",
                                            os.path.join(REPO_ROOT, "phase1_data")))
     ap.add_argument("--limit", type=int, default=-1, help="chỉ xử lý N sample đầu; -1 = tất cả")
+    ap.add_argument("--fixed_context", choices=["protocol", "longbench"], default="protocol",
+                    help="dinh nghia fixed_context. protocol (MAC DINH): gom ca phan file "
+                         "hien tai truoc con tro, dung chu cua protocol Phase 1. longbench: "
+                         "chi gom {context}, giu nguyen quy uoc LongBench de so voi Table 2. "
+                         "Chi khac nhau o repobench-p; lcc thi hai che do trung nhau")
     ap.add_argument("--language", default=None, help="ghi đè ngôn ngữ mặc định của dataset")
     ap.add_argument("--save_prompt", action="store_true",
                     help="lưu luôn prompt cuối cùng vào jsonl (file to hơn nhiều)")

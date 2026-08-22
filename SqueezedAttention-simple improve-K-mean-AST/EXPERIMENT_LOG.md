@@ -73,6 +73,22 @@ Gate cũ (`check_phase1.py`) kiểm **bản port** và cần GPU. Gate này ki�
 | 4 | fixed_context: `sp_len` khớp, `n_ctx>0`, context không mất | ✅ 0 mẫu mất context · 1/500 truncate | ✅ 0 mẫu mất context · 8/500 truncate |
 | 5 | tổng kết | ✅ **PASS** | ✅ **PASS** (1 cảnh báo) |
 
+**Bổ sung 22/8 — offset BYTE theo đúng chữ của protocol.** Protocol Phase 1 viết *"lưu kèm
+byte offset của từng token"*, nhưng `return_offsets_mapping` của tokenizer nhanh trả offset
+**ký tự**. Nay lưu cả hai trong cùng một `.npz`:
+
+    offsets_<i>        offset ký tự — Phase 2 hiện chạy trong hệ này (đã kiểm chứng)
+    offsets_bytes_<i>  offset byte  — đúng yêu cầu protocol, cho công cụ làm việc thẳng
+                                      với tree-sitter mà không phải quy đổi
+
+Hai hệ chỉ trùng nhau khi thuần ASCII: LCC 0/500 mẫu có non-ASCII, RepoBench-P **107/500**.
+Gate Phase 1 thêm bất biến thứ sáu: cắt chuỗi byte theo `offsets_bytes` phải ra **đúng** chuỗi
+mà `offsets` ký tự cắt ra. Kiểm 200 token trải đều mỗi mẫu.
+
+⚠️ Bộ dữ liệu sinh trước 22/8 **không có** `offsets_bytes_*` → gate sẽ báo thiếu. Phải sinh
+lại (LCC 37 giây · RepoBench-P 5 phút). **Không ảnh hưởng centroid Phase 2 đã có**: offset ký
+tự và `shared_prefix_length` không đổi, chỉ thêm một mảng mới.
+
 **Xác nhận lại trên pod A100 (20/8):** cả hai dataset PASS, và **mọi con số trùng khít** với
 lần chạy trên máy Windows — không lệch một token:
 
@@ -222,7 +238,7 @@ chạy trước mọi bước dùng GPU và dừng cả gate nếu FAIL.
 | 1.1 | LongBench LCC + RepoBench-P | ✅ | Có sẵn trong pipeline, metric `code_sim_score`, so trực tiếp được với Table 2 |
 | 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 | **Đo lại đầy đủ 19/8, cả ba bộ.** RepoBench v1.1 **dùng được ở dạng nguyên bản**: 1.646 fixed context ≥16k dùng chung (Py+Java), tới 99,9K token. RepoEval **khớp premise tốt nhất**: 200 query/context, repo 192K–1,19M token. CrossCodeEval **loại** — 9/9 biến thể đều trần ~10,2K token. Khảo sát 15/8 sai do đọc shard 0 + nhóm sai khoá. Xem [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Còn lại: viết loader |
 | 1.3 | Chuẩn hoá split `fixed_context` / `user_input` | ✅ | Chốt theo D2: giữ định nghĩa LongBench. Kiểm 19/8: **LCC vốn đã khớp protocol** (`{context}` = toàn bộ code trước con trỏ), xung đột chỉ ở `repobench-p`. Gate Phase 0 chạy LCC nên không ảnh hưởng |
-| 1.4 | Lưu offset ký tự từng token | ✅ | **Qwen 500/500 LCC + 500/500 RepoBench-P (19/8)**, 0 lệch token id; trước đó LongChat 500/500 LCC · Qwen 20/20. Ngôn ngữ nay lấy từ **trường `language` của từng mẫu**, không còn hardcode. Dữ liệu ở `phase1_data/<model>/`; `load_phase1` của Phase 2 kiểm tên model và **số mẫu**, thiếu là dừng chứ không [WARN] rồi bỏ qua |
+| 1.4 | Lưu offset **byte + ký tự** từng token | ✅ | **Qwen 500/500 LCC + 500/500 RepoBench-P (19/8)**, 0 lệch token id; trước đó LongChat 500/500 LCC · Qwen 20/20. Ngôn ngữ nay lấy từ **trường `language` của từng mẫu**, không còn hardcode. Dữ liệu ở `phase1_data/<model>/`; `load_phase1` của Phase 2 kiểm tên model và **số mẫu**, thiếu là dừng chứ không [WARN] rồi bỏ qua |
 | 1.5 | Model chính **Qwen2.5-Coder-7B (base)** | ✅ | Chạy thật trên A100. **Đổi từ Instruct sang base** sau khi đo: Instruct 17,60 vs base **65,35** cùng dữ liệu. `model2maxlen` = 31500 (không phải 128K) — xem D5. Đã sửa 3 bug chặn, xem mục 6 |
 | 1.6 | GQA: chọn key per-head (QUEST Appendix G) | ✅ | `repeat_interleave` centroid/label từ 4 head KV lên 28 head Q. **Xác nhận trên GPU**: `num_key_value_heads=4`, assert `shared_prefix_length` qua cả 20 mẫu, 14/20 mẫu cho prediction y hệt All-KV |
 | 1.7 | Gate cho bản port | ✅ | [scripts/phase1_gate.sh](scripts/phase1_gate.sh) + [scripts/check_phase1.py](scripts/check_phase1.py). Tiêu chí là **paired test** trên hiệu số từng mẫu, không phải ngưỡng điểm cố định — ±2,0 gọi cả ca hỏng (−42,30) lẫn ca chạy được (−2,80) là FAIL |
@@ -288,7 +304,17 @@ thấp hơn nhiều so với ~24 của PreFixQA; và mọi số trên LCC/RepoBe
 
 ---
 
-### Phase 2 — Structure-aware clustering (Idea 1) · 🟡 · **hạn 22/8**
+### Phase 2 — Structure-aware clustering (Idea 1) · ✅ **XONG 22/8** · 500/500 mẫu LCC
+
+**Kết quả trung tâm:** K-means thuần (`sa`) vắt qua ranh giới AST ở **trung vị 44,5%** số
+cluster (p25 36,0% · p75 52,6% · max 88,0%, n=500), trong khi `hard_boundary` và
+`struct_hierarchy` đạt **0,0% ở đúng 500/500 mẫu**. Ranh giới cứng vừa được thi hành tuyệt
+đối, vừa ràng buộc vào một lượng rất lớn — tức can thiệp có liều thật, không phải no-op.
+
+Bảng đầy đủ: [docs/PHASE2_RESULTS.md](docs/PHASE2_RESULTS.md). Ba điều phải mang sang Phase 5/6:
+`hard_boundary` dùng hết ngân sách còn `sa` lãng phí 0,71% ô centroid; K1 thực tế của tầng L1
+là 18,2 chứ không phải 1% context (71% mẫu bị chặn ở số function); bất biến D còn 55/500 mẫu
+lệch >5% do cuML k-means không ghim seed.
 
 Ý tưởng: đặt ranh giới **cứng** theo AST, cluster embedding bên trong mỗi đơn vị cấu trúc. Hierarchy = token → statement/block → function → file.
 

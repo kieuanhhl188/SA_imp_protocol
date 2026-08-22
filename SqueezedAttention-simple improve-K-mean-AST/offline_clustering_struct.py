@@ -78,7 +78,7 @@ from struct_clustering import (  # noqa: E402
 METHODS = ("sa", "hard_boundary", "struct_hierarchy")
 
 
-def load_phase1(phase1_dir, dataset, model, expect_n=None):
+def load_phase1(phase1_dir, dataset, model, expect_n=None, expect_mode=None):
     """
     Đọc offset token do scripts/prepare_code_data.py sinh ra.
 
@@ -109,6 +109,16 @@ def load_phase1(phase1_dir, dataset, model, expect_n=None):
             d = json.loads(line)
             meta[d["dataidx"]] = d
 
+    if expect_mode is not None:
+        modes = {r.get("fixed_context_mode", "longbench") for r in meta.values()}
+        if modes != {expect_mode}:
+            raise SystemExit(
+                f"[ERROR] {meta_path} sinh voi fixed_context={modes}, run nay yeu cau "
+                f"'{expect_mode}'.\n"
+                f"        Hai che do cho shared_prefix_length khac nhau -> centroid khong "
+                f"dung chung duoc. Sinh lai bang prepare_code_data.py "
+                f"--fixed_context {expect_mode}"
+            )
     models = {r.get("model") for r in meta.values()}
     if models != {model}:
         raise SystemExit(
@@ -176,6 +186,8 @@ def main():
     ap.add_argument("--dataset", type=str, default="lcc",
                     choices=["lcc", "repobench-p"])
     ap.add_argument("--output_path", type=str, default="output_struct/")
+    ap.add_argument("--fixed_context", choices=["protocol", "longbench"], default="protocol",
+                    help="phai TRUNG voi che do da dung khi sinh du lieu Phase 1.4")
     ap.add_argument("--phase1_dir", type=str,
                     default=os.environ.get("SQA_PHASE1_DIR", "phase1_data"))
 
@@ -245,12 +257,15 @@ def main():
     layers = model.model.layers
     dataset2prompt = json.load(open("LongBench/config/dataset2prompt.json", encoding="utf-8"))
     prompt_format = dataset2prompt[args.dataset]
-    prompt_only_format = dataset2prompt[args.dataset + "_prompt"]
+    key_only = (args.dataset + "_prompt_protocol" if args.fixed_context == "protocol"
+                else args.dataset + "_prompt")
+    prompt_only_format = dataset2prompt[key_only]
+    print(f">>> fixed_context={args.fixed_context}  (template: {key_only})")
     data = load_dataset("THUDM/LongBench", args.dataset, split="test")
 
     n_planned = len(data) if args.limit <= 0 else min(args.limit, len(data))
     meta, offsets_npz = load_phase1(args.phase1_dir, args.dataset, args.model,
-                                    expect_n=n_planned)
+                                    expect_n=n_planned, expect_mode=args.fixed_context)
 
     # hook thu q/k giống offline_clustering.py.
     # `state` là hộp chứa để hook đọc được sp_len của sample hiện tại — dùng biến cục bộ
