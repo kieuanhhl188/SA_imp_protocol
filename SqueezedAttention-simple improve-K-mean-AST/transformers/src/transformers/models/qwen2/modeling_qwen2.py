@@ -157,6 +157,69 @@ class Qwen2RotaryEmbedding(nn.Module):
 
 
 # Copied from transformers.models.llama.modeling_llama.rotate_half
+# ============================================================================
+# RoPE scaling cho Qwen2 — them vao de dat ngu canh dai hon 32.768 native.
+#
+# VI SAO: protocol yeu cau model 128K, nhung config cua Qwen2.5-Coder-7B(-Instruct) co
+# `max_position_embeddings=32768` va `rope_scaling=None`. Ban 128K tren model card chi dat
+# duoc khi bat RoPE scaling. Fork nay von KHONG co nhanh scaling nao cho Qwen2 (LLaMA thi
+# co), nen dua token vuot 32.768 vao la ra ngoai dai RoPE -> ket qua la rac.
+#
+# DYNAMIC NTK LA PHEP DONG NHAT khi seq_len <= max_position_embeddings: xem dieu kien
+# `if seq_len > self.max_position_embeddings` ben duoi. Nghia la bat no KHONG lam doi bat
+# ky con so nao cua du lieu hien tai (LCC va RepoBench-P deu <= ~35K, chi ~9/1000 mau vuot
+# 32.768). No chi co tac dung khi that su can ngu canh dai.
+#
+# LUU Y KHI BAO CAO: day la Dynamic NTK, KHONG phai YaRN. Ban 128K chinh thuc cua Qwen dung
+# YaRN; Dynamic NTK yeu hon o do dai cuc doan. Phai ghi ro phuong phap trong bai.
+class Qwen2LinearScalingRotaryEmbedding(Qwen2RotaryEmbedding):
+    """Qwen2RotaryEmbedding + linear scaling (chia deu position id)."""
+
+    def __init__(self, dim, max_position_embeddings=2048, base=10000, device=None,
+                 scaling_factor=1.0):
+        self.scaling_factor = scaling_factor
+        super().__init__(dim, max_position_embeddings, base, device)
+
+    def _set_cos_sin_cache(self, seq_len, device, dtype):
+        self.max_seq_len_cached = seq_len
+        t = torch.arange(self.max_seq_len_cached, device=device,
+                         dtype=torch.int64).type_as(self.inv_freq)
+        t = t / self.scaling_factor
+        freqs = torch.outer(t, self.inv_freq)
+        emb = torch.cat((freqs, freqs), dim=-1)
+        self.register_buffer("cos_cached", emb.cos().to(dtype), persistent=False)
+        self.register_buffer("sin_cached", emb.sin().to(dtype), persistent=False)
+
+
+class Qwen2DynamicNTKScalingRotaryEmbedding(Qwen2RotaryEmbedding):
+    """Qwen2RotaryEmbedding + Dynamic NTK: chi doi `base` khi seq_len vuot native."""
+
+    def __init__(self, dim, max_position_embeddings=2048, base=10000, device=None,
+                 scaling_factor=1.0):
+        self.scaling_factor = scaling_factor
+        super().__init__(dim, max_position_embeddings, base, device)
+
+    def _set_cos_sin_cache(self, seq_len, device, dtype):
+        self.max_seq_len_cached = seq_len
+        if seq_len > self.max_position_embeddings:
+            base = self.base * (
+                (self.scaling_factor * seq_len / self.max_position_embeddings)
+                - (self.scaling_factor - 1)
+            ) ** (self.dim / (self.dim - 2))
+            inv_freq = 1.0 / (
+                base ** (torch.arange(0, self.dim, 2, dtype=torch.int64).float().to(device)
+                         / self.dim)
+            )
+            self.register_buffer("inv_freq", inv_freq, persistent=False)
+
+        t = torch.arange(self.max_seq_len_cached, device=device,
+                         dtype=torch.int64).type_as(self.inv_freq)
+        freqs = torch.outer(t, self.inv_freq)
+        emb = torch.cat((freqs, freqs), dim=-1)
+        self.register_buffer("cos_cached", emb.cos().to(dtype), persistent=False)
+        self.register_buffer("sin_cached", emb.sin().to(dtype), persistent=False)
+
+
 def rotate_half(x):
     """Rotates half the hidden dims of the input."""
     x1 = x[..., : x.shape[-1] // 2]
@@ -259,17 +322,41 @@ class Qwen2Attention(nn.Module):
         self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=True)
         self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=False)
 
-        self.rotary_emb = Qwen2RotaryEmbedding(
-            self.head_dim,
-            max_position_embeddings=self.max_position_embeddings,
-            base=self.rope_theta,
-        )
+        self._init_rope()
 
         # === Squeezed Attention: clustering config parameters ===
         self.use_centroids = config.use_centroids
         self.obs_window = config.obs_window
         self.return_qkv_states = config.return_qkv_states
         self.hierarchical_lookup = config.hierarchical_lookup
+
+    def _init_rope(self):
+        """Chon lop RoPE theo config.rope_scaling. None -> ban goc, khong doi gi."""
+        scaling = getattr(self.config, "rope_scaling", None)
+        if not scaling:
+            self.rotary_emb = Qwen2RotaryEmbedding(
+                self.head_dim,
+                max_position_embeddings=self.max_position_embeddings,
+                base=self.rope_theta,
+            )
+            return
+        stype = scaling.get("type") or scaling.get("rope_type")
+        factor = float(scaling["factor"])
+        if stype == "linear":
+            cls = Qwen2LinearScalingRotaryEmbedding
+        elif stype in ("dynamic", "ntk"):
+            cls = Qwen2DynamicNTKScalingRotaryEmbedding
+        else:
+            raise ValueError(
+                f"rope_scaling type '{stype}' chua duoc ho tro cho Qwen2 trong fork nay. "
+                f"Chi co 'linear' va 'dynamic'. YaRN chua duoc port.")
+        orig = scaling.get("original_max_position_embeddings", self.max_position_embeddings)
+        self.rotary_emb = cls(
+            self.head_dim,
+            max_position_embeddings=orig,
+            base=self.rope_theta,
+            scaling_factor=factor,
+        )
 
     def forward(
         self,

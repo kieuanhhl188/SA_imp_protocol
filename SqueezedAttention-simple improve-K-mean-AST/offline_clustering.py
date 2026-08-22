@@ -37,6 +37,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--hierarchical_lookup", action="store_true")
+    parser.add_argument("--force_chat", action="store_true",
+                        help="ap chat template cho lcc/repobench-p. MAC DINH TAT "
+                             "nen Phase 0 khong doi. Bat khi model chinh la Instruct, "
+                             "va phai bat o MOI buoc")
     parser.add_argument("--percent_clusters", type=int, default=-1)
     parser.add_argument("--percent_clusters_l2", type=int, default=-1)
     parser.add_argument('--observation_window', type=int, default=100)
@@ -116,7 +120,9 @@ if __name__ == "__main__":
         prompt_only = prompt_only_format.format(**data_all[i])
 
         # perform truncation and get truncated shared prefix length
-        prompt, truncated_shared_prefix_length = truncate_fn(prompt, prompt_only, tokenizer, max_length, dataset, DEV)
+        prompt, truncated_shared_prefix_length = truncate_fn(prompt, prompt_only, tokenizer, max_length, dataset, DEV,
+                                                   model_name=args.model,
+                                                   force_chat=args.force_chat)
         shared_prefix_length[i] = truncated_shared_prefix_length
         assert (truncated_shared_prefix_length > 0) # else, truncated part of input context as well
 
@@ -158,7 +164,9 @@ if __name__ == "__main__":
         prompt_only = prompt_only_format.format(**d)
 
         # get truncated input prompt
-        prompt, _ = truncate_fn(prompt, prompt_only, tokenizer, max_length, dataset, DEV)
+        prompt, _ = truncate_fn(prompt, prompt_only, tokenizer, max_length, dataset, DEV,
+                                                   model_name=args.model,
+                                                   force_chat=args.force_chat)
         input_ids = tokenizer(prompt, truncation=False, return_tensors="pt").input_ids.to(DEV)
 
         print(f"dataidx: {dataidx} | length of input_ids: {len(input_ids[0])}")

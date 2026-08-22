@@ -163,6 +163,34 @@ cái gate. Phép kiểm per-sample ngay cạnh đó vẫn báo đúng, nên bắ
    token con **chồng** offset lên nhau (31/500 mẫu RepoBench-P) chứ không mất ký tự nào.
    Bất biến đúng là: start nằm trong span, và offset **không để khoảng trống**.
 
+#### D7 — "128K" của protocol KHÔNG có sẵn; giữ 31.500 · ✅ chốt 23/8
+
+Protocol ghi *"Qwen2.5-Coder-7B-Instruct (128K)"*. Kiểm `config.json` của **cả hai** bản:
+
+    max_position_embeddings = 32768
+    rope_scaling            = None
+
+128K là con số trên model card, **chỉ đạt được khi bật YaRN** (`rope_scaling` factor 4) —
+một tuỳ chọn phải khai báo, không phải mặc định. Ngày 23/8 tôi đã đổi `model2maxlen` lên
+127500 rồi **đổi lại 31500** sau khi kiểm config.
+
+Vì sao 127500 không những vô ích mà còn có hại: mẫu dài hơn 32768 token được đưa nguyên vào
+model chỉ có 32768 vị trí → ngoài dải RoPE → kết quả là rác. Chính cảnh báo đã hiện lúc
+chạy: `Token indices sequence length is longer than the specified maximum sequence length
+for this model (34855 > 32768)`. Ảnh hưởng ~9/1000 mẫu (1 LCC + 8 RepoBench-P), nhưng là
+rác thật chứ không phải sai số.
+
+**Và YaRN KHÔNG bật được trong repo này.** `transformers/src/transformers/models/qwen2/
+modeling_qwen2.py` của fork dùng `Qwen2RotaryEmbedding` trần, **không có nhánh xử lý
+`rope_scaling` nào** — không linear, không dynamic, không yarn. Muốn 128K phải tự port YaRN
+vào đúng file mà Squeezed Attention đã vá, tức đặt bản port vào rủi ro.
+
+=> **"(128K)" của protocol không đạt được trong codebase này.** Không phải lựa chọn, là ràng
+buộc kỹ thuật. Giữ 31.500 (native 32.768 trừ lề). Nếu Phase 6 cần context >32K cho
+RepoBench v1.1 thì phải giải quyết YaRN trước, và đó là một hạng mục kỹ thuật riêng.
+
+---
+
 #### D6 — Chính sách khi số unit vượt ngân sách centroid · ✅ chốt 20/8
 
 Đo đầy đủ trên 991 mẫu (đã bỏ mẫu truncate), ngân sách 5%. **Hai** đường chặn khác nhau, chứ

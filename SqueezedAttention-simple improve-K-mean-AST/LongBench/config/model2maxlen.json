@@ -10,6 +10,6 @@
     "LLaMA-2-7B-32K": 31500,
     "Phi-3-mini-128k-instruct": 127000,
     "LWM-Text-Chat-1M": 31500,
-    "qwen2.5-coder-7b-instruct": 127500,
-    "qwen2.5-coder-7b": 127500
+    "qwen2.5-coder-7b-instruct": 31500,
+    "qwen2.5-coder-7b": 31500
 }

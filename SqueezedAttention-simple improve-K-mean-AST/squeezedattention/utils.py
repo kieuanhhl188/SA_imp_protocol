@@ -86,3 +86,34 @@ def truncate_fn(prompt, prompt_noquery, tokenizer, max_length, dataset, device,
     shared_prefix_length = input_ids_prompt_only.shape[1]
 
     return prompt, shared_prefix_length - tokens_removed
+
+
+def apply_rope_scaling(config, spec):
+    """
+    Bat RoPE scaling de dat ngu canh dai hon `max_position_embeddings` goc.
+
+    spec: "dynamic:4" | "linear:4" | None/"" (khong lam gi)
+
+    Qwen2.5-Coder-7B(-Instruct) co native 32.768. Ban "128K" tren model card chi dat duoc
+    khi bat scaling. Dung "dynamic" (NTK): no la PHEP DONG NHAT khi seq_len <= native, nen
+    bat len KHONG lam doi ket qua cua du lieu ngan — da kiem bang test so sanh tensor.
+    "linear" thi doi ngay ca o chuoi ngan, dung khi biet minh dang lam gi.
+
+    KHONG phai YaRN. Ban 128K chinh thuc cua Qwen dung YaRN; day la Dynamic NTK, yeu hon o
+    do dai cuc doan. Phai ghi ro phuong phap khi bao cao.
+    """
+    if not spec:
+        return config
+    if ":" not in spec:
+        raise ValueError(f"rope_scaling phai dang 'dynamic:4' hoac 'linear:4', nhan '{spec}'")
+    stype, factor = spec.split(":", 1)
+    orig = getattr(config, "max_position_embeddings", 32768)
+    config.rope_scaling = {
+        "type": stype,
+        "factor": float(factor),
+        "original_max_position_embeddings": orig,
+    }
+    config.max_position_embeddings = int(orig * float(factor))
+    print(f">>> rope_scaling={config.rope_scaling} -> ngu canh toi da "
+          f"{config.max_position_embeddings}")
+    return config

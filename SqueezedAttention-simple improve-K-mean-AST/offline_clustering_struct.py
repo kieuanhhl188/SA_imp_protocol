@@ -68,7 +68,7 @@ from tqdm import tqdm
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from squeezedattention.clustering import run_clustering, run_global_threshold  # noqa: E402
-from squeezedattention.utils import truncate_fn  # noqa: E402
+from squeezedattention.utils import truncate_fn, apply_rope_scaling  # noqa: E402
 from struct_clustering import (  # noqa: E402
     LEVELS, parse_units, assign_token_units, compact_unit_ids,
     hard_boundary_kmeans, struct_hierarchy_l1, build_l1_groups,
@@ -78,7 +78,8 @@ from struct_clustering import (  # noqa: E402
 METHODS = ("sa", "hard_boundary", "struct_hierarchy")
 
 
-def load_phase1(phase1_dir, dataset, model, expect_n=None, expect_mode=None):
+def load_phase1(phase1_dir, dataset, model, expect_n=None, expect_mode=None,
+                expect_chat=None):
     """
     Đọc offset token do scripts/prepare_code_data.py sinh ra.
 
@@ -109,6 +110,14 @@ def load_phase1(phase1_dir, dataset, model, expect_n=None, expect_mode=None):
             d = json.loads(line)
             meta[d["dataidx"]] = d
 
+    if expect_chat is not None:
+        fcs = {bool(r.get("force_chat", False)) for r in meta.values()}
+        if fcs != {expect_chat}:
+            raise SystemExit(
+                f"[ERROR] {meta_path} sinh voi force_chat={fcs}, run nay yeu cau "
+                f"{expect_chat}. Chat template doi shared_prefix_length -> centroid "
+                f"khong dung chung duoc."
+            )
     if expect_mode is not None:
         modes = {r.get("fixed_context_mode", "longbench") for r in meta.values()}
         if modes != {expect_mode}:
@@ -186,7 +195,13 @@ def main():
     ap.add_argument("--dataset", type=str, default="lcc",
                     choices=["lcc", "repobench-p"])
     ap.add_argument("--output_path", type=str, default="output_struct/")
-    ap.add_argument("--fixed_context", choices=["protocol", "longbench"], default="protocol",
+    ap.add_argument("--rope_scaling", default=None,
+                    help="dang 'dynamic:4' de dat 128K. Mac dinh tat -> giu native 32.768. "
+                         "Dynamic NTK la phep dong nhat duoi native nen bat len khong doi "
+                         "ket qua cua mau ngan")
+    ap.add_argument("--force_chat", action="store_true",
+                    help="phai TRUNG voi co da dung khi sinh du lieu Phase 1.4 va o pred.py")
+    ap.add_argument("--fixed_context", choices=["full", "crossfile"], default="full",
                     help="phai TRUNG voi che do da dung khi sinh du lieu Phase 1.4")
     ap.add_argument("--phase1_dir", type=str,
                     default=os.environ.get("SQA_PHASE1_DIR", "phase1_data"))
@@ -239,6 +254,7 @@ def main():
 
     tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     config = AutoConfig.from_pretrained(model_path)
+    config = apply_rope_scaling(config, args.rope_scaling)
     config.return_qkv_states = True
     config._flash_attn_2_enabled = True
     config._attn_implementation = "flash_attention_2"
@@ -257,7 +273,7 @@ def main():
     layers = model.model.layers
     dataset2prompt = json.load(open("LongBench/config/dataset2prompt.json", encoding="utf-8"))
     prompt_format = dataset2prompt[args.dataset]
-    key_only = (args.dataset + "_prompt_protocol" if args.fixed_context == "protocol"
+    key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
                 else args.dataset + "_prompt")
     prompt_only_format = dataset2prompt[key_only]
     print(f">>> fixed_context={args.fixed_context}  (template: {key_only})")
@@ -265,7 +281,8 @@ def main():
 
     n_planned = len(data) if args.limit <= 0 else min(args.limit, len(data))
     meta, offsets_npz = load_phase1(args.phase1_dir, args.dataset, args.model,
-                                    expect_n=n_planned, expect_mode=args.fixed_context)
+                                    expect_n=n_planned, expect_mode=args.fixed_context,
+                                    expect_chat=args.force_chat)
 
     # hook thu q/k giống offline_clustering.py.
     # `state` là hộp chứa để hook đọc được sp_len của sample hiện tại — dùng biến cục bộ
@@ -304,7 +321,8 @@ def main():
         prompt = prompt_format.format(**d)
         prompt_only = prompt_only_format.format(**d)
         prompt, shared_prefix_length = truncate_fn(
-            prompt, prompt_only, tokenizer, max_length, args.dataset, DEV)
+            prompt, prompt_only, tokenizer, max_length, args.dataset, DEV,
+            model_name=args.model, force_chat=args.force_chat)
         if shared_prefix_length != rec["shared_prefix_length"]:
             raise SystemExit(
                 f"[ERROR] dataidx {dataidx}: shared_prefix_length lệch với Phase 1.4 "

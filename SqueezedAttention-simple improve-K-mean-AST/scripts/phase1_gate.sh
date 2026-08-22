@@ -53,6 +53,11 @@ while [ $# -gt 0 ]; do
 done
 
 MODEL="${MODEL_OVERRIDE:-$SQA_MODEL_CODE}"
+
+# Chat template: bat buoc voi ban Instruct, phai dong bo o MOI buoc.
+# Thieu co o mot buoc -> shared_prefix_length lech -> assert no sau khi nap model 15 GB.
+if [ "${SQA_FORCE_CHAT:-0}" = "1" ]; then CHAT_ARG="--force_chat"; else CHAT_ARG=""; fi
+echo ">>> force_chat: ${SQA_FORCE_CHAT:-0}"
 DATASET="$SQA_PHASE1_TASK"
 
 # Centroid cua Qwen phai nam THU MUC RIENG, khong tron voi centroid LongChat cua
@@ -117,7 +122,7 @@ echo ">>> [1] Phase 1.4 — offset token + kiem tokenizer nhanh/cham ($MODEL)"
 # co ten model trong do — chay de len bo offset 500 mau cua LongChat la mat, ma Phase 2
 # thi khong co cach nao biet minh dang doc offset cua model nao.
 PHASE14_LOG="$LOG_DIR/${TS}_phase1_prepare_data.log"
-python scripts/prepare_code_data.py "$MODEL" \
+python scripts/prepare_code_data.py "$MODEL" $CHAT_ARG \
     --dataset "$DATASET" \
     --output_path "$SQA_PHASE1_DIR/$MODEL" \
     $LIMIT_ARG 2>&1 | tee "$PHASE14_LOG"
@@ -134,7 +139,7 @@ echo "    Tom tat: $TOK_SUMMARY"
 # ket qua sai. Xem scripts/check_phase1_data.py.
 echo ""
 echo ">>> [1b] Gate du lieu Phase 1 (CPU, khong can GPU)"
-python scripts/check_phase1_data.py "$MODEL" \
+python scripts/check_phase1_data.py "$MODEL" $CHAT_ARG \
     --dataset "$DATASET" \
     --phase1_dir "$SQA_PHASE1_DIR" \
     $LIMIT_ARG 2>&1 | tee "$LOG_DIR/${TS}_phase1_data_gate.log"
@@ -158,7 +163,7 @@ if [ "$SKIP_CLUSTER" -eq 0 ]; then
   echo ">>> [2] Offline clustering (single-level, ${SQA_PERCENT_CLUSTERS}%) — $DATASET"
   echo "        Cho doi dong 'num_key_value_heads=4' o dau log: do la xac nhan"
   echo "        centroid duoc sinh TRUOC repeat_kv. Neu ra 28 thi dung ngay."
-  python offline_clustering.py "$MODEL" \
+  python offline_clustering.py "$MODEL" $CHAT_ARG \
       --dataset "$DATASET" \
       --output_path "${CLUSTER_ROOT}/${DATASET}/" \
       --percent_clusters "$SQA_PERCENT_CLUSTERS" \
@@ -184,13 +189,13 @@ python scripts/check_cluster_integrity.py "${CLUSTER_ROOT}/${DATASET}/" \
 cd "$SQA_REPO_ROOT/LongBench"
 echo ""
 echo ">>> [4] All-KV baseline — $DATASET"
-python pred.py --model "$MODEL" --task "$DATASET" --seed "$SQA_SEED" --overwrite $LIMIT_ARG
+python pred.py --model "$MODEL" --task "$DATASET" --seed "$SQA_SEED" --overwrite $CHAT_ARG $LIMIT_ARG
 python eval.py --model "$MODEL" $LIMIT_ARG
 
 # ---------- 5. Sq-70% qua duong GQA ----------
 echo ""
 echo ">>> [5] Sq-70% (percentile=$SQA_PERCENTILE_GATE) — $DATASET"
-python pred.py --model "$MODEL" --task "$DATASET" \
+python pred.py --model "$MODEL" --task "$DATASET" $CHAT_ARG \
     --use_centroids \
     --percent_clusters "$SQA_PERCENT_CLUSTERS" \
     --percentile "$SQA_PERCENTILE_GATE" \

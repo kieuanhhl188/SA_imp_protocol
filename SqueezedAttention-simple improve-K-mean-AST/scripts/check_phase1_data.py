@@ -84,7 +84,9 @@ def main():
     ap.add_argument("--phase1_dir",
                     default=os.environ.get("SQA_PHASE1_DIR",
                                            os.path.join(REPO_ROOT, "phase1_data")))
-    ap.add_argument("--fixed_context", choices=["protocol", "longbench"], default="protocol",
+    ap.add_argument("--force_chat", action="store_true",
+                    help="phai TRUNG voi co da dung khi sinh du lieu Phase 1.4")
+    ap.add_argument("--fixed_context", choices=["full", "crossfile"], default="full",
                     help="che do fixed_context ma du lieu PHAI duoc sinh ra voi")
     ap.add_argument("--level", default="function",
                     help="level dùng để kiểm ranh giới cấu trúc (giống Phase 2)")
@@ -167,6 +169,9 @@ def main():
     rep.check(2, f"fixed_context của meta là '{args.fixed_context}'",
               modes == {args.fixed_context},
               f"{modes} — sinh lại với --fixed_context {args.fixed_context}")
+    fcs = {r.get("force_chat", "(thieu)") for r in meta.values()}
+    rep.check(2, f"force_chat cua meta la {args.force_chat}", fcs == {args.force_chat},
+              f"{fcs} — sinh lai voi co khop")
     mls = {r.get("max_length", "(thieu)") for r in meta.values()}
     rep.check(2, f"max_length của meta khớp config hiện tại ({max_length})",
               mls == {max_length}, f"{mls} vs {max_length}")
@@ -204,7 +209,7 @@ def main():
     print("\n=== BƯỚC 3 + 4 — offset và fixed_context (dựng lại prompt như Phase 2) ===")
     tok_slow = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     prompt_format = d2p[args.dataset]
-    key_only = (args.dataset + "_prompt_protocol" if args.fixed_context == "protocol"
+    key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
                 else args.dataset + "_prompt")
     prompt_only_format = d2p[key_only]
 
@@ -226,7 +231,8 @@ def main():
         prompt_raw = prompt_format.format(**d)
         prompt_only = prompt_only_format.format(**d)
         prompt, sp_len = truncate_fn(prompt_raw, prompt_only, tok_slow, max_length,
-                                     args.dataset, "cpu")
+                                     args.dataset, "cpu", model_name=args.model,
+                                     force_chat=args.force_chat)
         offs = npz[f"offsets_{i}"]
 
         # ---------------- BƯỚC 3 ----------------

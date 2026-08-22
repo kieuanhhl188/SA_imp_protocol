@@ -286,7 +286,7 @@ def run(args):
     dataset2prompt = json.load(open(os.path.join(REPO_ROOT, "LongBench/config/dataset2prompt.json"),
                                     encoding="utf-8"))
     prompt_format = dataset2prompt[args.dataset]
-    key_only = (args.dataset + "_prompt_protocol" if args.fixed_context == "protocol"
+    key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
                 else args.dataset + "_prompt")
     if key_only not in dataset2prompt:
         raise SystemExit(f"[ERROR] dataset2prompt.json thieu khoa '{key_only}'")
@@ -350,7 +350,8 @@ def run(args):
 
             # truncate_fn dùng tokenizer CHẬM, y hệt offline_clustering.py
             prompt, sp_len = truncate_fn(
-                prompt_raw, prompt_only, tok_slow, max_length, args.dataset, "cpu"
+                prompt_raw, prompt_only, tok_slow, max_length, args.dataset, "cpu",
+                model_name=args.model, force_chat=args.force_chat
             )
             truncated = len_before > max_length
             n_truncated += int(truncated)
@@ -391,6 +392,7 @@ def run(args):
                 "prompt_num_chars": len(prompt),
                 "has_byte_offsets": True,
                 "fixed_context_mode": args.fixed_context,
+                "force_chat": bool(args.force_chat),
                 "max_length": int(max_length),
                 "template_located": bool(template_ok),
             }
@@ -577,7 +579,14 @@ def main():
                     default=os.environ.get("SQA_PHASE1_DIR",
                                            os.path.join(REPO_ROOT, "phase1_data")))
     ap.add_argument("--limit", type=int, default=-1, help="chỉ xử lý N sample đầu; -1 = tất cả")
-    ap.add_argument("--fixed_context", choices=["protocol", "longbench"], default="protocol",
+    ap.add_argument("--force_chat", action="store_true",
+                    help="AP chat template (ChatML) cho lcc/repobench-p. BAT BUOC khi model "
+                         "chinh la ban Instruct: LongBench co y bo template o hai task nay, "
+                         "ma Instruct khong co template thi sinh prediction gan rong "
+                         "(do 17,60 so voi 67,80 khi co template). Phai TRUNG voi co dung o "
+                         "pred.py va offline_clustering_struct.py, neu khong "
+                         "shared_prefix_length se lech")
+    ap.add_argument("--fixed_context", choices=["full", "crossfile"], default="full",
                     help="dinh nghia fixed_context. protocol (MAC DINH): gom ca phan file "
                          "hien tai truoc con tro, dung chu cua protocol Phase 1. longbench: "
                          "chi gom {context}, giu nguyen quy uoc LongBench de so voi Table 2. "

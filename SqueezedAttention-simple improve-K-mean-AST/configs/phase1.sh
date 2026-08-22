@@ -26,7 +26,17 @@ source "$SCRIPT_DIR/phase0.sh"
 #
 # Ghi de bang bien moi truong hoac co --model cua phase1_gate.sh:
 #   SQA_MODEL_CODE=qwen2.5-coder-7b-instruct bash scripts/phase1_gate.sh
-export SQA_MODEL_CODE="${SQA_MODEL_CODE:-qwen2.5-coder-7b}"
+# CHOT 23/8: quay ve ban INSTRUCT theo dung protocol.
+# Instruct chi hong khi THIEU chat template (17,60 · 6/20 prediction rong). Co template
+# thi 67,80 so voi base 65,35 — kiem dinh theo cap tren cung 20 mau: p=0,78, KTC95
+# [-12,42; +17,32], tuc HAI BEN KHONG PHAN BIET DUOC. Voi SD=33,94 thi can ~740 mau
+# moi phan dinh duoc, ma LCC chi co 500 -> cau hoi nay khong giai duoc bang LCC.
+# Khong co ly do hieu nang de lech protocol -> theo protocol.
+#
+# HE QUA: moi buoc phai bat --force_chat. Thieu co o mot buoc la shared_prefix_length
+# lech va assert no sau khi da nap xong model 15 GB.
+export SQA_MODEL_CODE="${SQA_MODEL_CODE:-qwen2.5-coder-7b-instruct}"
+export SQA_FORCE_CHAT="${SQA_FORCE_CHAT:-1}"
 
 # --- So sample cho smoke test cua gate Phase 1 ---
 # Muc dich cua gate la xac nhan duong GQA nap/tra dung centroid, KHONG phai do
