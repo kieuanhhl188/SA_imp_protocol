@@ -1,0 +1,15 @@
+{
+  "dataset": "lcc",
+  "method": "struct_hierarchy",
+  "level": "function",
+  "percent_clusters": 5,
+  "on_budget_exceeded": "skip",
+  "n_requested": 3,
+  "feasible": [
+    0,
+    1,
+    2
+  ],
+  "infeasible": [],
+  "merged": []
+}
