@@ -81,6 +81,9 @@ tree-sitter-python
 tree-sitter-java
 tree-sitter-c-sharp
 tree-sitter-javascript
+# tree-sitter-typescript CAN cho CrossCodeEval: bo do co 3.356 mau TypeScript
+# (34% cua 9.928). Thieu no thi gate Phase 1 chet giua chung o mau TS dau tien.
+tree-sitter-typescript
 
 # ============================================================================
 # Phân tích / plot

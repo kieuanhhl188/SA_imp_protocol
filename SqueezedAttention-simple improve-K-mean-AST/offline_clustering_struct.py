@@ -75,6 +75,25 @@ from struct_clustering import (  # noqa: E402
     compute_token_type_weights, merge_units_to_budget,
 )
 
+JSONL_HEAD = "Please complete the code given below. " + chr(10)
+JSONL_TAIL = "Next line of code:" + chr(10)
+
+
+def load_jsonl_contexts(data_dir):
+    """Doc <data_dir>/contexts.jsonl — dinh dang do build_*.py sinh ra."""
+    path = os.path.join(data_dir, "contexts.jsonl")
+    if not os.path.exists(path):
+        raise SystemExit(f"[ERROR] khong thay {path}")
+    out = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            d = json.loads(line)
+            out.append({"context": d["fixed_context"], "input": "",
+                        "language": d.get("language", "python"),
+                        "group_id": d["group_id"]})
+    return out
+
+
 METHODS = ("sa", "hard_boundary", "struct_hierarchy")
 
 
@@ -195,6 +214,10 @@ def main():
     ap.add_argument("--dataset", type=str, default="lcc",
                     choices=["lcc", "repobench-p"])
     ap.add_argument("--output_path", type=str, default="output_struct/")
+    ap.add_argument("--data_source", choices=["longbench", "jsonl"], default="longbench",
+                    help="jsonl: doc <data_dir>/contexts.jsonl. PHAI trung voi cach da "
+                         "sinh du lieu Phase 1.4")
+    ap.add_argument("--data_dir", default=None)
     ap.add_argument("--rope_scaling", default=None,
                     help="dang 'dynamic:4' de dat 128K. Mac dinh tat -> giu native 32.768. "
                          "Dynamic NTK la phep dong nhat duoi native nen bat len khong doi "
@@ -273,11 +296,21 @@ def main():
     layers = model.model.layers
     dataset2prompt = json.load(open("LongBench/config/dataset2prompt.json", encoding="utf-8"))
     prompt_format = dataset2prompt[args.dataset]
-    key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
-                else args.dataset + "_prompt")
-    prompt_only_format = dataset2prompt[key_only]
+    if args.data_source == "jsonl":
+        prompt_format = JSONL_HEAD + "{context}" + JSONL_TAIL
+        prompt_only_format = JSONL_HEAD + "{context}"
+        key_only = "jsonl"
+    else:
+        key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
+                    else args.dataset + "_prompt")
+        prompt_only_format = dataset2prompt[key_only]
     print(f">>> fixed_context={args.fixed_context}  (template: {key_only})")
-    data = load_dataset("THUDM/LongBench", args.dataset, split="test")
+    if args.data_source == "jsonl":
+        if not args.data_dir:
+            raise SystemExit("[ERROR] --data_source jsonl can --data_dir")
+        data = load_jsonl_contexts(args.data_dir)
+    else:
+        data = load_dataset("THUDM/LongBench", args.dataset, split="test")
 
     n_planned = len(data) if args.limit <= 0 else min(args.limit, len(data))
     meta, offsets_npz = load_phase1(args.phase1_dir, args.dataset, args.model,
@@ -321,7 +354,8 @@ def main():
         prompt = prompt_format.format(**d)
         prompt_only = prompt_only_format.format(**d)
         prompt, shared_prefix_length = truncate_fn(
-            prompt, prompt_only, tokenizer, max_length, args.dataset, DEV,
+            prompt, prompt_only, tokenizer, max_length,
+            ("lcc" if args.data_source == "jsonl" else args.dataset), DEV,
             model_name=args.model, force_chat=args.force_chat)
         if shared_prefix_length != rec["shared_prefix_length"]:
             raise SystemExit(

@@ -22,7 +22,7 @@ import torch.multiprocessing as mp
 import pickle
 import textwrap
 import sys
-from squeezedattention.utils import build_chat, truncate_fn
+from squeezedattention.utils import build_chat, truncate_fn, apply_rope_scaling
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
 
@@ -51,6 +51,9 @@ def parse_args(args=None):
     parser.add_argument("--percentile", type=float, default=0.5)
     parser.add_argument("--percentile_lower", type=float, default=0.7)
     parser.add_argument("--obs_window", type=int, default=100)
+    parser.add_argument("--rope_scaling", default=None,
+                        help="dang 'dynamic:4' de dat 128K. PHAI trung voi cau hinh "
+                             "da dung khi sinh centroid")
     parser.add_argument("--force_chat", action="store_true",
                         help="AP chat template cho ca lcc/repobench-p. LongBench co y BO "
                              "template o hai task nay; bat len la de KIEM CHUNG gia thuyet "
@@ -147,6 +150,7 @@ def load_model_and_tokenizer(path, model_name, device, config_params):
 
     from transformers import AutoConfig, AutoModelForCausalLM
     config = AutoConfig.from_pretrained(path)
+    config = apply_rope_scaling(config, config_params.get('rope_scaling'))
 
     # set attn implementation
     config._flash_attn_2_enabled = True
@@ -217,6 +221,7 @@ if __name__ == '__main__':
     config_params['obs_window'] = args.obs_window
     config_params['seed'] = args.seed
     config_params['force_chat'] = args.force_chat
+    config_params['rope_scaling'] = args.rope_scaling
 
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
     dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))

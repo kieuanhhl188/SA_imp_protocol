@@ -190,26 +190,50 @@ model có massive activations (Qwen2), LLaMA không chạm tới.
 
 ---
 
-## Trạng thái mục theo protocol
+## Đối chiếu từng yêu cầu của protocol — chốt 23/8
 
-| # | Việc | Trạng thái |
-|---|---|---|
-| 1.1 | LongBench LCC + RepoBench-P | ✅ |
-| 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 khảo sát xong, còn viết loader |
-| 1.3 | Chuẩn hoá `fixed_context` / `user_input` | ✅ (D2) |
-| 1.4 | Offset ký tự từng token | ✅ 500 + 500 mẫu |
-| 1.5 | Model chính Qwen2.5-Coder-7B **base** | ✅ |
-| 1.6 | GQA per-head (QUEST Appendix G) | ✅ |
-| 1.7 | Gate cho bản port | ✅ PASS |
+Protocol Phase 1 có **8 yêu cầu thực** (bỏ 2 mục trong thẻ `<chưa cần làm bây giờ>`).
 
-**Bốn chỗ lệch protocol, đều có chủ đích**
+| # | Protocol yêu cầu | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| A | *"một fixed context → **nhiều** user input query"* | ✅ **đạt 23/8** | RepoBench v1.1: **1.735 context · 7.080 query**, trung vị 3 query/context, max 50 |
+| B1 | LongBench RepoBench-P và LCC | ✅ | 500 + 500 mẫu, gate PASS |
+| B2 | CrossCodeEval và RepoEval / RepoBench | ✅ CCE + RepoBench · ⏸️ RepoEval | CCE **9.928 mẫu · 4 ngôn ngữ**. RepoEval bỏ có chủ đích — không có trong grid Phase 6, và RepoBench v1.1 đã phủ mục đích |
+| C1 | `fixed_context` = cross-file + phần file trước con trỏ | ✅ | Cờ `--fixed_context full` (mặc định), đóng dấu vào meta, `load_phase1` chặn khi lệch |
+| C2 | `user_input` = dòng/khối cần hoàn thành | ✅ | |
+| C3 | **Lưu byte offset** từng token | ✅ | Lưu **cả byte lẫn ký tự**; bất biến "byte cắt ra đúng chuỗi như ký tự" khớp tuyệt đối trên 100% mẫu của cả 4 bộ |
+| D1 | Model long-context, mở, đủ mạnh — đề xuất **Qwen2.5-Coder-7B-Instruct (128K)** | ✅ Instruct · ⚠️ 128K | Instruct + chat template: **67,80**. 128K cần YaRN mà fork không có → đã port RoPE scaling, bật bằng `--rope_scaling dynamic:4` |
+| D2 | GQA per-head theo QUEST Appendix G | ✅ | 4 KV head → 28 Q head, xác nhận trên GPU |
 
-| Lệch | Lý do | Bằng chứng |
-|---|---|---|
-| base thay Instruct | Instruct sinh prediction gần rỗng | **17,60 vs 65,35** |
-| 31.5K thay 128K | Cùng độ dài với LongChat thì ablation mới sạch; K-means đắt theo S | D5 |
-| Offset trên prompt **sau** truncation | `truncate_fn` decode-lại-encode → offset trên source gốc **chắc chắn sai** | — |
-| `fixed_context` của `repobench-p` | Sửa thì mất mốc Table 2 | D2 · LCC vốn đã khớp protocol |
+## Bốn dataset đã sẵn sàng
+
+Tất cả sinh cùng cấu hình: **Instruct · `force_chat` · `full` · maxlen 31.500**.
+
+| | LCC | RepoBench-P | CrossCodeEval | **RepoBench v1.1** |
+|---|---:|---:|---:|---:|
+| Context | 500 | 500 | 9.928 | **1.735** |
+| Query | 500 | 500 | 9.928 | **7.080** |
+| Query/context | 1 | 1 | 1 | **3 (max 50)** |
+| Ngôn ngữ | py·java·cs | py·java | py·java·cs·**ts** | py·java |
+| `n_ctx` trung vị | 2.294 | 8.328 | 946 | **16.154** |
+| Đơn vị AST/mẫu | 15 | 107 | 6 | 98 |
+| Mẫu suy biến (U≤2) | 2,4% | 0% | **21,4%** | 0,2% |
+| Truncate ở 31.500 | 1/500 | 8/500 | 0 | **298 (17,2%)** |
+| Gate | PASS | PASS | PASS | PASS |
+
+## Ba chỗ lệch protocol còn lại — đều có số liệu chống lưng
+
+| Lệch | Lý do đo được |
+|---|---|
+| **128K → 31.500** | Config của Qwen2.5-Coder-7B(-Instruct): `max_position_embeddings=32768`, `rope_scaling=None`. "128K" trên model card cần YaRN, mà fork transformers **không có nhánh scaling nào cho Qwen2**. Đã port Dynamic NTK (là phép đồng nhất dưới 32.768 — kiểm bằng so tensor), bật bằng cờ. Xem D7 |
+| **Bỏ RepoEval** | Chỉ xuất hiện 1 lần trong protocol, không có trong grid Phase 6 lẫn bảng chính. RepoBench v1.1 phủ cùng mục đích với chi phí thấp hơn nhiều |
+| **Offset trên prompt SAU truncation** | `truncate_fn` decode-lại-encode nên offset trên source gốc chắc chắn sai. Không có lựa chọn khác |
+
+## Hai tính chất của dữ liệu phải nêu trong bài
+
+**CrossCodeEval có rất ít cấu trúc AST.** 21,4% mẫu chỉ ≤2 đơn vị, và **0/9.928 mẫu chứa Unicode parse sạch** — chunk retrieve ra là đoạn cắt giữa hàm, không có `function_definition` trọn vẹn. Đề xuất 1 gần như không có ranh giới để ràng buộc trên 1/5 bộ này.
+
+**RepoBench v1.1 mất 17,2% mẫu vì trần 31.500**, đúng những mẫu dài nhất. Muốn dùng đúng mục đích long-context phải chạy với `--rope_scaling dynamic:4`.
 
 ---
 
@@ -228,5 +252,12 @@ không phải ~24 như PreFixQA của bài gốc.
 Chính bài gốc thừa nhận khoảng trống này (Section 5: *"there is currently no benchmark
 designed to test this scenario"*) và tự dựng PreFixQA vì thế.
 
-Cách xử lý đã chốt: không sửa LCC/RepoBench-P, mà bổ sung ở Phase 6 bằng RepoBench v1.1
-và/hoặc RepoEval. Việc còn lại là viết loader — CPU, không chặn Phase 2 và không chặn Phase 5.
+**Đã xử lý xong 23/8**: loader RepoBench v1.1 cho **1.735 fixed context dùng chung bởi 7.080
+query**, trung vị 3 query/context. Đó là bộ duy nhất trong dự án đo được C3.
+
+Nhưng phải nói cho đúng mức: **trung vị 3 query/context, không phải ~24 như PreFixQA**. Chi
+phí clustering được khấu hao qua 3 truy vấn chứ không phải 24, nên mọi phát biểu về tiết kiệm
+phải dựa trên con số 3 — không được mượn tỉ lệ của bài gốc.
+
+Và với `maxlen=31500`, **17,2% mẫu của bộ đó bị cắt giữa**. Muốn đo C3 ở đúng độ dài mà bộ
+này cung cấp (trung vị 19,8K, max 99,9K token) thì bắt buộc chạy `--rope_scaling dynamic:4`.

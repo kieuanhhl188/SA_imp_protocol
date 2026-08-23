@@ -125,6 +125,46 @@ def resolve_language(sample, dataset, override=None):
         )
     return lang, src
 
+# =====================================================================
+# NGUON DU LIEU JSONL — cho bo do build_repobench_groups.py / build_crosscodeeval.py sinh
+# =====================================================================
+
+JSONL_HEAD = "Please complete the code given below. " + chr(10)
+JSONL_TAIL = "Next line of code:" + chr(10)
+
+
+def load_jsonl_contexts(data_dir):
+    """
+    Doc <data_dir>/contexts.jsonl -> danh sach ban ghi giong schema LongBench.
+
+    Phase 1.4 chi can FIXED CONTEXT, khong can query: offset duoc tinh tren phan dung
+    chung, va do la toan bo y nghia cua "mot fixed context - nhieu query". Moi group_id
+    dong vai mot `dataidx`.
+
+    LUU Y VE DINH NGHIA: voi bo NHIEU QUERY tren mot context (RepoBench v1.1), fixed_context
+    KHONG THE gom phan file hien tai truoc con tro — phan do khac nhau giua cac query nen
+    dua vao la moi query mot context, va tinh dung chung bien mat. Day la rang buoc cua
+    ban chat bai toan, khong phai lua chon cau hinh. Voi bo 1-query (CrossCodeEval) thi
+    loader da gom san theo che do `full`.
+    """
+    path = os.path.join(data_dir, "contexts.jsonl")
+    if not os.path.exists(path):
+        raise SystemExit(f"[ERROR] khong thay {path}. Chay build_repobench_groups.py "
+                         f"hoac build_crosscodeeval.py truoc.")
+    out = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            d = json.loads(line)
+            out.append({
+                "context": d["fixed_context"],
+                "input": "",
+                "language": d.get("language", "python"),
+                "group_id": d["group_id"],
+                "n_query": d.get("n_query", 1),
+            })
+    return out
+
+
 # truncate_fn bỏ qua build_chat với các dataset này -> không chạm bug `model_name`
 # chưa định nghĩa ở squeezedattention/utils.py:44
 NO_CHAT_TEMPLATE = {"trec", "triviaqa", "samsum", "lcc", "repobench-p"}
@@ -260,7 +300,7 @@ def run(args):
     from datasets import load_dataset
     from squeezedattention.utils import truncate_fn
 
-    if args.dataset not in NO_CHAT_TEMPLATE:
+    if args.data_source == "longbench" and args.dataset not in NO_CHAT_TEMPLATE:
         raise SystemExit(
             f"[ERROR] dataset '{args.dataset}' không nằm trong {sorted(NO_CHAT_TEMPLATE)}.\n"
             f"        Với dataset khác, truncate_fn gọi build_chat(prompt, model_name) mà\n"
@@ -285,16 +325,30 @@ def run(args):
 
     dataset2prompt = json.load(open(os.path.join(REPO_ROOT, "LongBench/config/dataset2prompt.json"),
                                     encoding="utf-8"))
-    prompt_format = dataset2prompt[args.dataset]
-    key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
-                else args.dataset + "_prompt")
-    if key_only not in dataset2prompt:
-        raise SystemExit(f"[ERROR] dataset2prompt.json thieu khoa '{key_only}'")
-    prompt_only_format = dataset2prompt[key_only]
+    if args.data_source == "jsonl":
+        # Bo jsonl khong nam trong dataset2prompt -> dung khung chung, cung hinh dang voi
+        # lcc de `locate_code_region` van dinh vi duoc vung code. Che do fixed_context da
+        # duoc quyet o buoc loader (build_*.py), khong lap lai o day.
+        prompt_format = JSONL_HEAD + "{context}" + JSONL_TAIL
+        prompt_only_format = JSONL_HEAD + "{context}"
+        key_only = "jsonl"
+    else:
+        prompt_format = dataset2prompt[args.dataset]
+        key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
+                    else args.dataset + "_prompt")
+        if key_only not in dataset2prompt:
+            raise SystemExit(f"[ERROR] dataset2prompt.json thieu khoa '{key_only}'")
+        prompt_only_format = dataset2prompt[key_only]
     print(f">>> fixed_context={args.fixed_context}  (template: {key_only})")
     head, tail = split_prompt_template(prompt_format)
 
-    data = load_dataset("THUDM/LongBench", args.dataset, split="test")
+    if args.data_source == "jsonl":
+        if not args.data_dir:
+            raise SystemExit("[ERROR] --data_source jsonl can --data_dir")
+        data = load_jsonl_contexts(args.data_dir)
+        print(f">>> nguon: {args.data_dir}/contexts.jsonl ({len(data)} fixed context)")
+    else:
+        data = load_dataset("THUDM/LongBench", args.dataset, split="test")
     n = len(data) if args.limit <= 0 else min(args.limit, len(data))
     print(f">>> Số sample xử lý: {n}/{len(data)}")
 
@@ -350,7 +404,8 @@ def run(args):
 
             # truncate_fn dùng tokenizer CHẬM, y hệt offline_clustering.py
             prompt, sp_len = truncate_fn(
-                prompt_raw, prompt_only, tok_slow, max_length, args.dataset, "cpu",
+                prompt_raw, prompt_only, tok_slow, max_length,
+                ("lcc" if args.data_source == "jsonl" else args.dataset), "cpu",
                 model_name=args.model, force_chat=args.force_chat
             )
             truncated = len_before > max_length
@@ -574,7 +629,14 @@ def self_test():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("model", nargs="?", default=None, help="tên model trong model2path.json")
-    ap.add_argument("--dataset", default="lcc", choices=sorted(NO_CHAT_TEMPLATE))
+    ap.add_argument("--dataset", default="lcc",
+                    help="ten dataset LongBench (lcc/repobench-p), HOAC ten tuy y khi "
+                         "--data_source jsonl — dung de dat ten file output")
+    ap.add_argument("--data_source", choices=["longbench", "jsonl"], default="longbench",
+                    help="jsonl: doc <data_dir>/contexts.jsonl do build_repobench_groups.py "
+                         "hoac build_crosscodeeval.py sinh ra")
+    ap.add_argument("--data_dir", default=None,
+                    help="thu muc chua contexts.jsonl, bat buoc khi --data_source jsonl")
     ap.add_argument("--output_path",
                     default=os.environ.get("SQA_PHASE1_DIR",
                                            os.path.join(REPO_ROOT, "phase1_data")))

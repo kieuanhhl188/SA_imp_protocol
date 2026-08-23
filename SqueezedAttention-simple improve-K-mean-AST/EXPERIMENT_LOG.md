@@ -163,6 +163,44 @@ cái gate. Phép kiểm per-sample ngay cạnh đó vẫn báo đúng, nên bắ
    token con **chồng** offset lên nhau (31/500 mẫu RepoBench-P) chứ không mất ký tự nào.
    Bất biến đúng là: start nằm trong span, và offset **không để khoảng trống**.
 
+#### Bốn dataset đã sẵn sàng cho Phase 2/6 · ✅ 23/8
+
+Hai loader mới đưa CrossCodeEval và RepoBench v1.1 vào cùng đường ống với LongBench
+(`--data_source jsonl`), tất cả sinh với **Qwen2.5-Coder-7B-Instruct · force_chat · full ·
+maxlen 31500**:
+
+| | LCC | RepoBench-P | CrossCodeEval | RepoBench v1.1 |
+|---|---:|---:|---:|---:|
+| Mẫu / context | 500 | 500 | **9.928** | **1.735** |
+| Query | 500 | 500 | 9.928 | **7.080** |
+| Query/context | 1 | 1 | 1 | **trung vị 3 · max 50** |
+| `n_ctx` trung vị | 2.294 | 8.328 | **946** | **16.154** |
+| Truncate ở 31.500 | 1/500 | 8/500 | 0/9.928 | **298/1.735 (17,2%)** |
+| Unit/mẫu (function) | 15 | 107 | **6** | **98** |
+| Mẫu suy biến (U≤2) | 2,4% | 0% | **21,4%** | 0,2% |
+| Gate | PASS | PASS | PASS* | **PASS** |
+
+\* CrossCodeEval cần `--max_degenerate_ratio 0.25`. **Không phải nới tiêu chuẩn cho qua** —
+21,4% là tính chất của bộ đó: chunk retrieve ra là đoạn **cắt giữa hàm**, không có
+`function_definition` trọn vẹn. Bằng chứng cùng chiều: **0/9.928 mẫu chứa Unicode parse
+sạch** (1.170 mẫu đều có node ERROR). Phải ghi vào bài: *đề xuất 1 có rất ít ranh giới để
+ràng buộc trên ~1/5 số mẫu CrossCodeEval.*
+
+**RepoBench v1.1 là bộ duy nhất thoả câu mở đầu của protocol** — một fixed context, nhiều
+query. Nhưng ở `maxlen=31500` thì **17,2% mẫu bị cắt giữa**, và đó đúng là những mẫu dài
+nhất. Muốn dùng đúng mục đích phải chạy với `--rope_scaling dynamic:4`.
+
+**Hai phép kiểm của gate đã được siết đúng phạm vi** (23/8), không phải nới lỏng:
+- Phép thử vi sai byte/ký tự chỉ áp cho mẫu **parse sạch** — trên code gãy cú pháp, cơ chế
+  phục hồi lỗi của tree-sitter nhảy chỗ khác khi thay ký tự nên báo lệch giả (8/1735 mẫu).
+- Phủ kín offset cho phép hở **≤8 ký tự/mẫu** — do chuẩn hoá của tokenizer nhanh, đo được
+  3/1735 mẫu hở tổng cộng 8 ký tự (một mẫu là `U+0300` dấu tổ hợp).
+
+Bất biến **trực tiếp** thì vẫn kiểm 100% mẫu và khớp tuyệt đối: offset byte cắt ra đúng
+chuỗi mà offset ký tự cắt ra, trên cả 9.928 + 1.735 mẫu.
+
+---
+
 #### D7 — "128K" của protocol KHÔNG có sẵn; giữ 31.500 · ✅ chốt 23/8
 
 Protocol ghi *"Qwen2.5-Coder-7B-Instruct (128K)"*. Kiểm `config.json` của **cả hai** bản:

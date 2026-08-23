@@ -88,6 +88,8 @@ def main():
     ap.add_argument("--variant", choices=sorted(VARIANTS), default="retrieval",
                     help="retrieval (MAC DINH, cong bang) hoac retrievalwref (oracle, dung "
                          "dap an de retrieve -> thuong can tren, khong dung lam ket qua chinh)")
+    ap.add_argument("--context_format", choices=["raw", "commented"], default="raw",
+                    help="raw (MAC DINH): ghep tu truong `retrieved_chunk`, la CODE THAT. commented: dung truong `text` cua bo goc, trong do MOI DONG bi them dau # -> tree-sitter chi thay comment, khong con don vi cau truc nao. Do that: che do commented lam 65% mau chi con <=2 unit, tuc Idea 1 khong co gi de rang buoc")
     ap.add_argument("--fixed_context", choices=["full", "crossfile"], default="full",
                     help="full (MAC DINH): cross-file + phan file truoc con tro, dung dinh "
                          "nghia protocol. crossfile: chi cross-file, de nhieu query dung "
@@ -113,7 +115,16 @@ def main():
             r = df.iloc[i]
             n_rows += 1
             cf = r[col]
-            cf_text = str(cf.get("text", "")) if hasattr(cf, "get") else ""
+            if args.context_format == "commented":
+                cf_text = str(cf.get("text", "")) if hasattr(cf, "get") else ""
+            else:
+                parts = []
+                for c in cf.get("list", []):
+                    chunk = str(c.get("retrieved_chunk", ""))
+                    if not chunk.strip():
+                        continue
+                    parts.append("# Path: " + str(c.get("filename", "")) + chr(10) + chunk)
+                cf_text = (chr(10) + chr(10)).join(parts)
             if not cf_text.strip():
                 # Bay da gap: bien the khong co cross-file context tra chuoi rong, roi
                 # hash("") gom het query cung repo vao mot nhom -> ti le "dung chung" nhay
@@ -151,6 +162,7 @@ def main():
             "language": members[0][1]["language"],
             "repository": members[0][1]["repository"],
             "variant": args.variant,
+            "context_format": args.context_format,
             "fixed_context_mode": args.fixed_context,
             "n_query": len(members),
             "n_chars": len(fixed),

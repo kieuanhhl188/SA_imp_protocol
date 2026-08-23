@@ -18,7 +18,7 @@ import textwrap
 import shutil
 import json
 from squeezedattention.clustering import run_clustering, run_global_threshold
-from squeezedattention.utils import build_chat, truncate_fn
+from squeezedattention.utils import build_chat, truncate_fn, apply_rope_scaling
 from transformers import AutoTokenizer, LlamaForCausalLM, LlamaConfig
 
 if __name__ == "__main__":
@@ -37,6 +37,8 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--hierarchical_lookup", action="store_true")
+    parser.add_argument("--rope_scaling", default=None,
+                        help="dang 'dynamic:4' de dat 128K. Mac dinh tat")
     parser.add_argument("--force_chat", action="store_true",
                         help="ap chat template cho lcc/repobench-p. MAC DINH TAT "
                              "nen Phase 0 khong doi. Bat khi model chinh la Instruct, "
@@ -66,6 +68,7 @@ if __name__ == "__main__":
     from transformers import AutoConfig, AutoModelForCausalLM
     tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     config = AutoConfig.from_pretrained(model_path)
+    config = apply_rope_scaling(config, args.rope_scaling)
     config.return_qkv_states = True
     config._flash_attn_2_enabled = True
     config._attn_implementation = "flash_attention_2"

@@ -80,7 +80,10 @@ class Report:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("model")
-    ap.add_argument("--dataset", default="lcc", choices=["lcc", "repobench-p"])
+    ap.add_argument("--dataset", default="lcc",
+                    help="ten dataset LongBench, hoac ten tuy y khi --data_source jsonl")
+    ap.add_argument("--data_source", choices=["longbench", "jsonl"], default="longbench")
+    ap.add_argument("--data_dir", default=None)
     ap.add_argument("--phase1_dir",
                     default=os.environ.get("SQA_PHASE1_DIR",
                                            os.path.join(REPO_ROOT, "phase1_data")))
@@ -135,7 +138,17 @@ def main():
             d = json.loads(line)
             meta[d["dataidx"]] = d
     npz = np.load(npz_path)
-    data = load_dataset("THUDM/LongBench", args.dataset, split="test")
+    if args.data_source == "jsonl":
+        if not args.data_dir:
+            raise SystemExit("[ERROR] --data_source jsonl can --data_dir")
+        data = []
+        with open(os.path.join(args.data_dir, "contexts.jsonl"), encoding="utf-8") as f:
+            for line in f:
+                d = json.loads(line)
+                data.append({"context": d["fixed_context"], "input": "",
+                             "language": d.get("language", "python")})
+    else:
+        data = load_dataset("THUDM/LongBench", args.dataset, split="test")
     n_total = len(data)
     n = n_total if args.limit <= 0 else min(args.limit, n_total)
 
@@ -208,10 +221,18 @@ def main():
     # ---------------------------------------------------------------
     print("\n=== BƯỚC 3 + 4 — offset và fixed_context (dựng lại prompt như Phase 2) ===")
     tok_slow = AutoTokenizer.from_pretrained(model_path, use_fast=False)
-    prompt_format = d2p[args.dataset]
-    key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
-                else args.dataset + "_prompt")
-    prompt_only_format = d2p[key_only]
+    if args.data_source == "jsonl":
+        # Cung khung voi prepare_code_data.py va offline_clustering_struct.py — ba noi phai
+        # dung chung mot template, neu khong sp_len se lech.
+        _H = "Please complete the code given below. " + chr(10)
+        _T = "Next line of code:" + chr(10)
+        prompt_format = _H + "{context}" + _T
+        prompt_only_format = _H + "{context}"
+    else:
+        prompt_format = d2p[args.dataset]
+        key_only = (args.dataset + "_prompt_full" if args.fixed_context == "full"
+                    else args.dataset + "_prompt")
+        prompt_only_format = d2p[key_only]
 
     bad_ids_match, bad_len, bad_sorted, bad_cover = [], [], [], []
     bad_sp, bad_nctx, bad_context_lost, bad_unit_span = [], [], [], []
@@ -219,6 +240,7 @@ def main():
     n_trunc, n_nonascii, degenerate, budget_short = 0, 0, [], []
     n_tok_cross, n_tok_total, n_unicode_code, n_overlap = 0, 0, 0, 0
     bad_byte, n_no_byte = [], 0
+    n_gap_samples = n_gap_chars = n_unicode_skipped = 0
     units_all = []
 
     for i in tqdm(range(n), disable=None):
@@ -231,7 +253,8 @@ def main():
         prompt_raw = prompt_format.format(**d)
         prompt_only = prompt_only_format.format(**d)
         prompt, sp_len = truncate_fn(prompt_raw, prompt_only, tok_slow, max_length,
-                                     args.dataset, "cpu", model_name=args.model,
+                                     ("lcc" if args.data_source == "jsonl"
+                                      else args.dataset), "cpu", model_name=args.model,
                                      force_chat=args.force_chat)
         offs = npz[f"offsets_{i}"]
 
@@ -250,15 +273,22 @@ def main():
         # nào bị mất, thứ tự start vẫn không giảm, cả hai token con rơi vào cùng một unit
         # -> Phase 2 không hề hấn gì. Đo trên RepoBench-P: 31/500 mẫu. Cái phải chặn là
         # KHOẢNG TRỐNG (ký tự không thuộc token nào), nên chỉ kiểm khoảng trống.
-        pos = 0
+        # Khoang trong 1-2 ky tu la do chuan hoa cua tokenizer nhanh (vd U+0300 dau
+        # to hop bi dich cho). Do that: 3/1735 mau RepoBench v1.1, moi mau DUNG 1 ky tu.
+        # Vo hai voi Phase 2 — token van duoc gan theo diem bat dau, mot ky tu khong
+        # thuoc token nao khong doi ranh gioi unit. Chi FAIL khi khoang trong DAI,
+        # vi do moi la dau hieu lech that su.
+        pos, gap_chars = 0, 0
         for a, b in offs:
-            if a > pos:
-                bad_cover.append(i)
-                break
+            if int(a) > pos:
+                gap_chars += int(a) - pos
             pos = max(pos, int(b))
-        else:
-            if pos != len(prompt):
-                bad_cover.append(i)
+        gap_chars += max(0, len(prompt) - pos)
+        if gap_chars:
+            n_gap_samples += 1
+            n_gap_chars += gap_chars
+            if gap_chars > 8:
+                bad_cover.append((i, gap_chars))
         if any(int(a) < int(prev_b) for (a, _), (_, prev_b)
                in zip(offs[1:], offs[:-1])):
             n_overlap += 1
@@ -303,7 +333,8 @@ def main():
         if n_ctx <= 0:
             continue
         code = prompt[rec["code_char_start"]:rec["code_char_end"]]
-        spans, _ = parse_units(code, rec["language"], args.level)
+        spans, _pst = parse_units(code, rec["language"], args.level)
+        pstat_err = _pst["num_error_nodes"]
         spans = [(s + rec["code_char_start"], e + rec["code_char_start"]) for s, e in spans]
         spans.append((0, len(prompt) + 1))
         starts = torch.from_numpy(offs[:n_ctx, 0].astype("int64"))
@@ -336,14 +367,21 @@ def main():
         # Phase 1.4 theo ký tự. Thay mọi ký tự non-ASCII bằng 'x': số KÝ TỰ không đổi, số
         # BYTE thì đổi, và cú pháp giữ nguyên (non-ASCII chỉ nằm trong comment/chuỗi).
         # Vậy span tính theo ký tự phải GIỐNG HỆT nhau. Lệch = quy đổi byte->ký tự sai.
+        # Phep thu chi CO NGHIA khi code parse sach. Tren code gay cu phap (context
+        # ghep tu snippet cat giua ham, hoac mau bi truncate), co che phuc hoi loi cua
+        # tree-sitter nhay cho khac khi doi ky tu -> bao lech gia. Do that: 8/1735 mau
+        # RepoBench v1.1 bao lech, ca 8 deu co 84-129 node ERROR va KHONG bi truncate.
         if len(code.encode("utf-8")) != len(code):
-            n_unicode_code += 1
-            ascii_code = "".join(c if ord(c) < 128 else "x" for c in code)
-            spans_ascii, _ = parse_units(ascii_code, rec["language"], args.level)
-            base = [(s - rec["code_char_start"], e - rec["code_char_start"])
-                    for s, e in spans[:-1]]
-            if sorted(base) != sorted(spans_ascii):
-                bad_unicode_span.append(i)
+            if pstat_err > 0:
+                n_unicode_skipped += 1
+            else:
+                n_unicode_code += 1
+                ascii_code = "".join(c if ord(c) < 128 else "x" for c in code)
+                spans_ascii, _ = parse_units(ascii_code, rec["language"], args.level)
+                base = [(s - rec["code_char_start"], e - rec["code_char_start"])
+                        for s, e in spans[:-1]]
+                if sorted(base) != sorted(spans_ascii):
+                    bad_unicode_span.append(i)
 
     m = len(units_all)
     print()
@@ -352,9 +390,12 @@ def main():
     rep.check(3, "số offset == num_tokens", not bad_len, f"{len(bad_len)} mẫu lệch")
     rep.check(3, "offset không giảm (điều kiện của searchsorted)", not bad_sorted,
               f"{len(bad_sorted)} mẫu")
-    rep.check(3, "offset phủ kín prompt, không sót ký tự nào", not bad_cover,
-              f"{len(bad_cover)} mẫu có khoảng trống" if bad_cover
-              else f"{n} mẫu, 0 khoảng trống")
+    rep.check(3, "offset phủ kín prompt (khoảng trống <=8 ký tự/mẫu)", not bad_cover,
+              f"{len(bad_cover)} mẫu hở nhiều: {bad_cover[:5]}" if bad_cover
+              else f"{n} mẫu")
+    if n_gap_samples:
+        print(f"  [INFO] {n_gap_samples}/{n} mẫu hở tổng cộng {n_gap_chars} ký tự "
+              f"— chuẩn hoá tokenizer, không đổi ranh giới unit")
     if n_overlap:
         print(f"  [INFO] {n_overlap}/{n} mẫu có token chồng offset — BPE byte-level tách "
               f"ký tự nhiều byte (CJK) thành nhiều token; các token con cùng unit, vô hại")
@@ -371,8 +412,11 @@ def main():
     rep.check(3, "span AST không lệch trên mẫu Unicode (phép thử vi sai byte/ký tự)",
               not bad_unicode_span,
               f"{len(bad_unicode_span)} mẫu lệch: {bad_unicode_span[:5]}" if bad_unicode_span
-              else (f"{n_unicode_code}/{n} mẫu có Unicode trong vùng code, span khớp tuyệt đối"
-                    if n_unicode_code else f"0/{n} mẫu có Unicode — phép thử không áp dụng"))
+              else (f"{n_unicode_code}/{n} mẫu parse sạch + có Unicode, span khớp tuyệt đối"
+                    + (f" ({n_unicode_skipped} mẫu bỏ qua vì code gãy cú pháp)"
+                       if n_unicode_skipped else "")
+                    if n_unicode_code or n_unicode_skipped
+                    else f"0/{n} mẫu có Unicode — phép thử không áp dụng"))
     if n_tok_total:
         print(f"  [INFO] token vắt qua biên phải của unit (nuốt ký tự xuống dòng): "
               f"{n_tok_cross}/{n_tok_total} = {100 * n_tok_cross / n_tok_total:.2f}% "

@@ -12,3 +12,8 @@ logs
 # và phụ thuộc tokenizer nên mỗi model một bộ. Đưa 10 MB nhị phân vào git không đáng.
 # Muốn có trên pod thì scp, hoặc để phase1_gate.sh bước [1] tự sinh.
 phase1_data/
+
+# Du lieu do build_crosscodeeval.py / build_repobench_groups.py sinh ra — artefact tai tao
+# duoc trong vai phut, va nang. Loader thi trong git, du lieu thi khong.
+crosscodeeval_data/
+repobench_v11_groups/
