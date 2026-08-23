@@ -249,14 +249,23 @@ def main():
             lab = torch.load(os.path.join(path, f"centroids_labels_dict_{i}_{K}.pt"),
                              map_location=DEV)
             for l in layers:
-                q = all_q[l].squeeze(0).float()[:, n_ctx:sp_len, :]     # [H, Q, D]
-                k = all_k[l].squeeze(0).float()[:, :n_ctx, :]           # [H, S, D]
-                c = cent[l].squeeze(0).float()
-                lb = lab[l].squeeze(0)[:, :n_ctx].long()
-                if c.shape[0] != k.shape[0]:                            # GQA: nhan ban
-                    rep = k.shape[0] // c.shape[0]
+                # GQA: hook lay q/k TRUOC repeat_kv nen q co H_q head (28) con k,
+                # centroid, label deu theo H_kv (4). Appendix G cua bai quy dinh moi
+                # query head TU CHON key rieng, nen nhan ban ca ba thu len H_q —
+                # dung `repeat_interleave` giong `expand_kv_heads_to_query_heads`
+                # cua fork, khong tu che cach khac.
+                q = all_q[l].squeeze(0).float()[:, n_ctx:sp_len, :]     # [H_q, Q, D]
+                k = all_k[l].squeeze(0).float()[:, :n_ctx, :]           # [H_kv, S, D]
+                c = cent[l].squeeze(0).float()                          # [H_kv, K, D]
+                lb = lab[l].squeeze(0)[:, :n_ctx].long()                # [H_kv, S]
+                if q.shape[0] != k.shape[0]:
+                    rep = q.shape[0] // k.shape[0]
+                    assert q.shape[0] == k.shape[0] * rep, (q.shape, k.shape)
+                    k = k.repeat_interleave(rep, dim=0)
                     c = c.repeat_interleave(rep, dim=0)
                     lb = lb.repeat_interleave(rep, dim=0)
+                assert c.shape[0] == k.shape[0] == lb.shape[0] == q.shape[0], (
+                    q.shape, k.shape, c.shape, lb.shape)
                 out = recall_one_sample(q, k, c, lb, args.sparsity)
                 for sp, (r, m) in out.items():
                     res[b][sp]["recall"].append(r)
