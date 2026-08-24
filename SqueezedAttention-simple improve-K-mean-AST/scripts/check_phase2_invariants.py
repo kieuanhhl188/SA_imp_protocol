@@ -35,11 +35,15 @@ USAGE
 
     # kiem nhieu nhanh + so cung budget + doi chieu nhanh sa voi ban goc
     python scripts/check_phase2_invariants.py \\
-        --cluster_dir /workspace/smoke_struct/sa=sa \\
-        --cluster_dir /workspace/smoke_struct/hard_boundary=hard_boundary \\
-        --cluster_dir /workspace/smoke_struct/struct_hierarchy=struct_hierarchy \\
+        --cluster_dir sa=/workspace/smoke_struct/sa \\
+        --cluster_dir hard_boundary=/workspace/smoke_struct/hard_boundary \\
+        --cluster_dir struct_hierarchy=/workspace/smoke_struct/struct_hierarchy \\
         --phase1_dir /workspace/phase1_data/qwen2.5-coder-7b --dataset lcc \\
         --reference_dir /workspace/fixed-prompt-clusters/qwen2.5-coder-7b/lcc
+
+Dang TEN=/duong/dan la quy uoc dung o `phase5_recall.py`, `compare_partitions.py` va
+`run_phase2_phase5_lcc.sh`. File nay nhan CA HAI thu tu (xem cho parse `--cluster_dir`),
+nhung viet theo dang tren de moi script trong du an doc giong nhau.
 
 Ma thoat: 0 = moi bat bien qua, 1 = co vi pham.
 """
@@ -203,7 +207,8 @@ def check_hard_boundary(labels_dict, uid, K):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cluster_dir", action="append", required=True,
-                    help="duong_dan hoac duong_dan=ten_nhanh; lap lai de kiem nhieu nhanh")
+                    help="duong_dan, hoac ten_nhanh=duong_dan (dang dung o phase5_recall.py). "
+                         "Nhan ca thu tu nguoc duong_dan=ten_nhanh. Lap lai de kiem nhieu nhanh")
     ap.add_argument("--method", default=None, help="ten nhanh khi chi co 1 --cluster_dir")
     ap.add_argument("--phase1_dir", required=True)
     ap.add_argument("--model", default="qwen2.5-coder-7b",
@@ -224,17 +229,23 @@ def main():
 
     dirs = {}
     for spec in args.cluster_dir:
-        # Chap nhan CA HAI thu tu: "duong_dan=ten" va "ten=duong_dan".
-        # Ly do: phase5_recall.py va compare_partitions.py dung thu tu NGUOC lai voi file
-        # nay. Hai quy uoc trai chieu trong cung mot du an la loi cho nguoi dung — da vap
-        # that ngay 23/8: lenh kiem bat bien im lang bao "khong thay file centroid" sau khi
-        # Phase 2 da chay xong 3 gio. Nhan dien bang cach xem VE NAO la thu muc co that.
+        # Chap nhan CA HAI thu tu: "ten=duong_dan" va "duong_dan=ten".
+        # Ly do: phase5_recall.py va compare_partitions.py dung thu tu NGUOC lai voi ban
+        # dau cua file nay. Hai quy uoc trai chieu trong cung mot du an la loi cho nguoi
+        # dung — da vap that ngay 23/8: lenh kiem bat bien im lang bao "khong thay file
+        # centroid" sau khi Phase 2 da chay xong 3 gio.
+        #
+        # Nhan dien bang cach xem VE NAO la thu muc co that. Khi KHONG ve nao la thu muc
+        # (duong dan sai chinh ta, hoac chay o may khac) thi mac dinh phai la
+        # "ten=duong_dan" — quy uoc chung cua du an — de thong bao loi chi dung vao thu
+        # thuc su la duong dan. Neu mac dinh nguoc lai, mot loi chinh ta se bao
+        # "khong thay file centroid trong sa", giau mat duong dan that.
         if "=" in spec:
             left, right = spec.rsplit("=", 1)
-            if os.path.isdir(right) and not os.path.isdir(left):
-                name, path = left, right
+            if os.path.isdir(left) and not os.path.isdir(right):
+                path, name = left, right          # dang cu: duong_dan=ten
             else:
-                path, name = left, right
+                name, path = left, right          # quy uoc chung: ten=duong_dan
         else:
             path, name = spec, (args.method or os.path.basename(spec.rstrip("/\\")))
         dirs[name] = path

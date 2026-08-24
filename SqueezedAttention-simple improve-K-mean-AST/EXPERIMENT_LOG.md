@@ -380,7 +380,7 @@ cluster (p25 36,0% · p75 52,6% · max 88,0%, n=500), trong khi `hard_boundary` 
 Bảng đầy đủ: [docs/PHASE2_RESULTS.md](docs/PHASE2_RESULTS.md). Ba điều phải mang sang Phase 5/6:
 `hard_boundary` dùng hết ngân sách còn `sa` lãng phí 0,71% ô centroid; K1 thực tế của tầng L1
 là 18,2 chứ không phải 1% context (71% mẫu bị chặn ở số function); bất biến D còn 55/500 mẫu
-lệch >5% do cuML k-means không ghim seed.
+lệch >5% — **nguyên nhân chưa biết**, xem đính chính 24/8 bên dưới (không phải do seed).
 
 Ý tưởng: đặt ranh giới **cứng** theo AST, cluster embedding bên trong mỗi đơn vị cấu trúc. Hierarchy = token → statement/block → function → file.
 
@@ -647,6 +647,61 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-08-24 — Đính chính bất biến D: **seed đã ghim sẵn**, cách sửa đã đề xuất là no-op
+
+Rà lại code Phase 2 thì thấy chẩn đoán của Bảng 4 sai.
+
+`docs/PHASE2_RESULTS.md` giải thích 55/500 mẫu lệch >5% ở bất biến D bằng *"cuML khởi tạo
+ngẫu nhiên, không ghim `random_state`"*, và đề xuất *"ghim seed rồi sinh lại — ~45 phút GPU"*.
+
+Nhưng [squeezedattention/clustering.py:69](squeezedattention/clustering.py#L69) **đã** đặt
+`random_state=0`, và `git show b03a63d` cho thấy dòng đó có từ **first commit** — từ code gốc
+của Squeezed Attention, không phải thứ ai quên. Cả hai bên của phép đối chiếu (`--method sa`
+của `offline_clustering_struct.py` và `offline_clustering.py`) đều gọi đúng hàm
+`run_clustering` đó, nên **cả hai đều đang chạy với seed ghim**.
+
+Hệ quả: chạy 45 phút GPU theo cách đã đề xuất sẽ ra **đúng con số cũ**, rồi rất dễ đọc thành
+"đã ghim seed mà vẫn lệch → chắc port sai". Đó là kết luận sai sinh ra từ một phép sửa không
+hề thay đổi gì.
+
+**Ba khả năng còn lại, ba cách xử lý khác nhau:**
+
+| | Khả năng | Nếu đúng thì phải làm gì |
+|---|---|---|
+| 1 | cuML không tất định **dù đã ghim seed** — Lloyd iteration reduce bằng atomic trên GPU, thứ tự cộng khác nhau mỗi lượt, rồi `tol=1e-4` chặn sớm ở vòng khác | Không sửa được bằng seed. Báo cáo một **ngưỡng sàn** của phép đo, đổi metric sang loại ổn định số (`inertia`, `ARI`) |
+| 2 | **Key vector** không giống nhau giữa hai lượt forward | Nặng hơn k-means: mọi số Phase 2 sinh ở hai thời điểm khác nhau đều không đối chiếu được |
+| 3 | Reference sinh bởi **code/config khác** (transformers, `rope_scaling`, `force_chat`, `fixed_context`, `maxlen`) | Sinh lại reference bằng đúng cấu hình. Không liên quan seed |
+
+**Thêm [scripts/diag_invariant_d.py](scripts/diag_invariant_d.py)** để tách ba khả năng đó —
+ba tầng đo lồng nhau, mỗi tầng loại một khả năng:
+
+| Tầng | Đo gì | Loại được khả năng nào |
+|---|---|---|
+| T1 | forward **hai lần** cùng prompt trong cùng process, so key bit-for-bit | 2 |
+| T2 | gọi `run_clustering` **hai lần trên cùng key A** | đo riêng 1 → đây là **ngưỡng sàn** của phép đo |
+| T3 | so kết quả T2 với file centroid trên đĩa (`--reference_dir`) | `T3 ≈ T2` → nhiễu cuML, loại 3. `T3 ≫ T2` → còn nguyên nhân thứ ba |
+
+Metric của T2/T3 dùng **y hệt** `check_phase2_invariants.py:397` (Hausdorff một chiều lấy
+max, chuẩn hoá theo median norm, bỏ hàng zero) để so thẳng được với dải 5,7e-03…3,4e-01 đã
+báo cáo. Kèm ba metric **bất biến với hoán vị** vì Hausdorff-max chỉ cần một centroid rơi
+khác chỗ là vọt lên: `mean_nearest` (trung bình thay vì max), `inertia_rel` (hai phân hoạch
+có *tốt ngang nhau* không — đây mới là câu hỏi khoa học), `ARI` (hai phân hoạch có *giống
+nhau* không). Ba hàm metric đã test riêng trên CPU: bất biến với hoán vị cluster, bỏ đúng
+hàng zero, `inertia` tối ưu < `inertia` ngẫu nhiên, `ARI(x,x)=1` và `ARI` của hai nhãn ngẫu
+nhiên ≈ 0.
+
+Chi phí: mặc định 3 mẫu, **~2–3 phút GPU** — rẻ hơn ~15 lần cách cũ và trả lời đúng câu hỏi
+hơn. Chưa chạy (cần pod).
+
+    python scripts/diag_invariant_d.py qwen2.5-coder-7b-instruct --force_chat \
+        --dataset lcc --phase1_dir /workspace/phase1_data --limit 3 \
+        --reference_dir /workspace/p2-instruct/sa/lcc \
+        --out /workspace/diag_invariant_d.json
+
+**Bài học chung, không riêng chỗ này:** trước khi ghi "nguyên nhân là X" vào bảng kết quả,
+phải mở source đọc X. Ở đây chỉ tốn một lần `grep random_state` để thấy chẩn đoán sai — mà
+nếu không thấy thì cái giá là 45 phút GPU cộng một kết luận sai về chất lượng bản port.
 
 ### 2026-08-19 — Đính chính: RepoBench v1.1 **dùng được ở dạng nguyên bản**
 

@@ -81,16 +81,40 @@ threshold) chứ không kiểm Squeezed Attention.
 | Mẫu lệch quá ngưỡng 5% | **55/500 (11%)** |
 | Dải khoảng cách tập hợp (chuẩn hoá) | **5,7e-03 … 3,4e-01** |
 
-**Đọc thế nào.** 445/500 mẫu khớp trong 5%. Phần lệch đến từ **tính bất định của cuML
-k-means** — thư viện khởi tạo ngẫu nhiên, không ghim `random_state`, nên hai lượt chạy cho
-phân hoạch hơi khác. Thước đo lại là **Hausdorff một chiều lấy max**: chỉ cần một centroid
-duy nhất rơi khác chỗ là con số vọt lên, dù 99% centroid còn lại trùng khít.
+**Đọc thế nào.** 445/500 mẫu khớp trong 5%. Thước đo là **Hausdorff một chiều lấy max**: chỉ
+cần một centroid duy nhất rơi khác chỗ là con số vọt lên, dù 99% centroid còn lại trùng khít.
 
 Bằng chứng ủng hộ cách đọc này: `median norm` của centroid **trùng nhau tới 4 chữ số ở cả 28
 lớp** giữa hai lượt chạy. Nếu giá đỡ sai thì thống kê tổng thể phải lệch, không thể trùng.
 
-**Việc phải làm nếu muốn đóng hẳn**: ghim seed cho cuML rồi sinh lại — tốn ~45 phút GPU.
-Chưa làm; hiện ghi nhận là **giới hạn đã biết**, không phải kết luận "port sai".
+> ### ⚠️ ĐÍNH CHÍNH 24/8 — nguyên nhân ghi ở bản trước là SAI
+>
+> Bản trước quy phần lệch cho *"cuML khởi tạo ngẫu nhiên, không ghim `random_state`"* và đề
+> xuất *"ghim seed rồi sinh lại, ~45 phút GPU"*.
+>
+> **Seed đã ghim sẵn.** [squeezedattention/clustering.py:69](../squeezedattention/clustering.py#L69)
+> đặt `random_state=0`, và `git show b03a63d` cho thấy dòng đó có từ **first commit** — tức
+> từ code gốc của Squeezed Attention, không phải thứ ai đó quên. Cả hai bên của phép đối
+> chiếu đều gọi đúng hàm `run_clustering` đó, nên cả hai đều đang chạy với seed ghim. **Cách
+> sửa được đề xuất là no-op**: chạy 45 phút GPU rồi ra đúng con số cũ.
+>
+> Nguyên nhân thật chưa biết, và ba khả năng còn lại đòi ba cách xử lý khác nhau:
+>
+> | | Khả năng | Nếu đúng thì phải làm gì |
+> |---|---|---|
+> | 1 | cuML **không tất định dù đã ghim seed** — Lloyd iteration reduce bằng atomic trên GPU, thứ tự cộng khác nhau mỗi lượt, rồi `tol=1e-4` chặn sớm ở vòng khác | Không sửa được bằng seed. Phải báo cáo một **ngưỡng sàn** của phép đo, và đổi metric sang loại ổn định số: `inertia`, `ARI` |
+> | 2 | **Key vector** không giống nhau giữa hai lượt forward | Nặng hơn k-means nhiều: mọi con số Phase 2 sinh ở hai thời điểm khác nhau đều không đối chiếu được |
+> | 3 | Thư mục reference sinh bởi **code/config khác** (transformers, `rope_scaling`, `force_chat`, `fixed_context`, `maxlen`) | Sinh lại reference bằng đúng cấu hình. Không liên quan gì tới seed |
+>
+> **Cách tách:** [scripts/diag_invariant_d.py](../scripts/diag_invariant_d.py) — ba tầng đo
+> lồng nhau, mỗi tầng loại một khả năng. T1 forward hai lần cùng prompt trong cùng process
+> (loại 2); T2 gọi `run_clustering` hai lần trên **cùng** key A (đo riêng khả năng 1, cho ra
+> ngưỡng sàn); T3 so kết quả T2 với file trên đĩa — `T3 ≈ T2` thì là nhiễu cuML, `T3 ≫ T2`
+> thì còn nguyên nhân thứ ba. Mặc định 3 mẫu, **~2–3 phút GPU** — rẻ hơn ~15 lần so với cách
+> cũ, và trả lời đúng câu hỏi hơn.
+>
+> Chưa chạy. Đến khi chạy thì Bảng 4 vẫn là **giới hạn đã biết**, không phải kết luận
+> "port sai" — nhưng cũng **không được viết nguyên nhân là seed**.
 
 ---
 

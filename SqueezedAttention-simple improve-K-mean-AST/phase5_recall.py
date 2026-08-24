@@ -221,8 +221,12 @@ def main():
         ids = tokenizer(prompt, truncation=False, return_tensors="pt").input_ids.to(DEV)
         all_q.clear(); all_k.clear()
         with torch.no_grad():
-            model.generate(ids, do_sample=False, max_new_tokens=1, use_cache=False,
-                           output_attentions=True)
+            # Goi model.model (than transformer) chu KHONG phai model.generate.
+            # Hook nam o layer.self_attn nen van bat duoc q/k, con LM head thi khong
+            # chay. Quan trong: logits co dang [1, seq_len, 151936]; `logits.float()`
+            # cua generate doi 12,95 GiB o mau ~22.600 token va lam OOM giua chung
+            # (gap that o mau 248/300). Phase 5 khong dung logits mot lan nao.
+            model.model(input_ids=ids, use_cache=False)
 
         n_ctx = sp_len - args.observation_window
         if n_ctx <= 0:
@@ -271,6 +275,9 @@ def main():
                     res[b][sp]["recall"].append(r)
                     res[b][sp]["mass"].append(m)
         n_used += 1
+        all_q.clear(); all_k.clear()
+        if n_used % 20 == 0:
+            torch.cuda.empty_cache()
 
     print(f"\n>>> Do tren {n_used} mau · lop {args.layers} · sparsity {args.sparsity}")
     print(f"{'nhanh':20s} " + " ".join(f"{'sp'+str(s):>18s}" for s in args.sparsity))
