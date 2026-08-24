@@ -224,8 +224,17 @@ def main():
 
     dirs = {}
     for spec in args.cluster_dir:
+        # Chap nhan CA HAI thu tu: "duong_dan=ten" va "ten=duong_dan".
+        # Ly do: phase5_recall.py va compare_partitions.py dung thu tu NGUOC lai voi file
+        # nay. Hai quy uoc trai chieu trong cung mot du an la loi cho nguoi dung — da vap
+        # that ngay 23/8: lenh kiem bat bien im lang bao "khong thay file centroid" sau khi
+        # Phase 2 da chay xong 3 gio. Nhan dien bang cach xem VE NAO la thu muc co that.
         if "=" in spec:
-            path, name = spec.rsplit("=", 1)
+            left, right = spec.rsplit("=", 1)
+            if os.path.isdir(right) and not os.path.isdir(left):
+                name, path = left, right
+            else:
+                path, name = left, right
         else:
             path, name = spec, (args.method or os.path.basename(spec.rstrip("/\\")))
         dirs[name] = path
