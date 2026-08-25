@@ -125,7 +125,7 @@ def main():
         "python_3_10": sys.version_info[:2] == (3, 10),
         "torch_expected": torch_info.get("version") == "2.3.1+cu121",
         "triton_expected": triton_info.get("version") == "2.3.1",
-        "cuml_expected": str(cuml_info.get("version", "")).startswith("24.6"),
+        "cuml_expected": str(cuml_info.get("version", "")).replace(".", "").startswith("2406"),
     })
     try:
         import torch
