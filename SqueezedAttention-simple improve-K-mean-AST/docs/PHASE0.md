@@ -100,8 +100,8 @@ Tất cả nằm trong [configs/phase0.sh](../configs/phase0.sh). Mọi phase sa
 
 ## 6. Còn nợ (cần GPU hoặc quyết định)
 
-- [ ] **Chạy gate thật** — chưa có số nào.
-- [ ] Ghi `phase0_results/env_record.json` trên máy chạy thật.
+- [ ] **Chạy lại strict gate thật** — artifact cũ chỉ đạt khi nới tolerance lên ±2.0.
+- [x] Ghi environment record — cần ghi lại trên pod mới sau khi chạy `setup_pod.sh --strict`.
 - [ ] Quyết định: port Squeezed Attention sang `modeling_qwen2.py` ngay, hay giữ LLaMA cho Phase 0–2 và hoãn Qwen2.5-Coder tới trước Phase 6. Patch hiện **chỉ tồn tại trong `models/llama/`**; `models/qwen2/` hoàn toàn nguyên bản.
 - [ ] Kiểm chứng GQA: đường code centroid lookup chưa từng chạy với `num_key_value_heads < num_heads` (LLaMA-2-7B-32K là MHA). Bắt buộc trước khi dùng Qwen.
 

@@ -17,7 +17,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 
 | Phase | Nội dung | Hạn | Tiến độ |
 |---|---|---|---|
-| 0 | Môi trường + tái lập baseline SA | — | ✅ **GATE PASS** (LCC, dung sai ±2.0) |
+| 0 | Môi trường + tái lập baseline SA | — | 🟡 **reproduction có, strict gate chưa đạt** (chỉ LCC, dung sai ±2.0) |
 | 1 | Chuẩn bị dữ liệu code | — | ✅ **GATE PASS** (Qwen base, paired test p=0,22) |
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code, chưa chạy GPU |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
@@ -31,7 +31,7 @@ Phase 2 và 3 là phần *cài đặt* mà Phase 5/6 sẽ đo.
 
 ---
 
-### Phase 0 — Môi trường + tái lập baseline SA · ✅ GATE PASS
+### Phase 0 — Môi trường + tái lập baseline SA · 🟡 reproduction có, strict gate chưa đạt
 
 Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablation trên cùng một nền.
 
@@ -44,7 +44,7 @@ Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablati
 | 0.5 | Số đích từ Table 2 | ✅ | [scripts/reference_table2.json](scripts/reference_table2.json), xem mục 2 |
 | 0.6 | Sửa bug chặn gate | ✅ | 5 bug, xem mục 6 |
 | 0.7 | Cài đặt thật trên pod | ✅ | A100 SXM 80GB. Stack đã kiểm chứng, xem mục 6 |
-| 0.8 | Chạy gate | ✅ | **PASS** với dung sai nới ±2.0. All-KV 54,83 · Sq-70% 56,08. Chỉ LCC; bỏ RepoBench-P và Sq-80/90% |
+| 0.8 | Chạy gate | 🟡 | Chỉ có LCC; All-KV 54,83 (delta −1,81) · Sq-70% 56,08 (delta −0,85). PASS với dung sai nới ±2,0, **FAIL theo protocol ±0,3**; chưa chạy RepoBench-P và Sq-80/90% |
 | 0.9 | Hậu kiểm prediction thô | ✅ | Thêm 17/8. `inspect_preds.py` trên cả 500 mẫu: dòng chấm rỗng **14,6%** (All-KV) / **12,6%** (Sq-70%), dưới ngưỡng 25%. Prediction là code thật → 54,83 không phải số ảo. Xem mục 6 |
 
 **Còn lại:**

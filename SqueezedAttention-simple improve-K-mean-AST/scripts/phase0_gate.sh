@@ -68,7 +68,8 @@ echo ">>> [0] Ghi môi trường"
 python scripts/record_env.py \
     --out "$SQA_RESULT_DIR/env_record.json" \
     --seed "$SQA_SEED" \
-    --note "phase0 gate: $MODEL on ${SQA_CODE_DATASETS[*]}"
+  --note "phase0 gate: $MODEL on ${SQA_CODE_DATASETS[*]}" \
+  --strict
 
 # ---------- 1. Offline clustering ----------
 if [ "$SKIP_CLUSTER" -eq 0 ]; then

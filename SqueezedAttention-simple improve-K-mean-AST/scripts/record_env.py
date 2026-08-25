@@ -61,6 +61,8 @@ def main():
     ap.add_argument("--out", default=os.path.join(REPO_ROOT, "phase0_results", "env_record.json"))
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--note", default="", help="ghi chú tự do, ví dụ 'phase0 gate lcc+rb'")
+    ap.add_argument("--strict", action="store_true",
+                    help="thoát lỗi nếu stack không đúng cấu hình Phase 0")
     args = ap.parse_args()
 
     rec = {
@@ -75,6 +77,18 @@ def main():
             for k in ["CUDA_VISIBLE_DEVICES", "CONDA_DEFAULT_ENV", "PYTORCH_CUDA_ALLOC_CONF"]
         },
         "packages": {name: pkg_info(name) for name in WATCH},
+        "experiment_config": {
+            "model": "longchat-v1.5-7b-32k",
+            "datasets": ["lcc", "repobench-p"],
+            "percent_clusters": 5,
+            "percent_clusters_l1": 1,
+            "percent_clusters_l2": 5,
+            "observation_window": 100,
+            "percentile_gate": 0.7,
+            "percentile_lower": 0.5,
+            "max_length": 31500,
+            "seed": args.seed,
+        },
     }
 
     # GPU
@@ -99,10 +113,35 @@ def main():
     tf_path = tf.get("path") or ""
     fork_path = os.path.join(REPO_ROOT, "transformers")
     rec["checks"] = {
-        "transformers_is_repo_fork": os.path.abspath(fork_path) in os.path.abspath(tf_path),
+        "transformers_is_repo_fork": os.path.realpath(fork_path) in os.path.realpath(tf_path),
         "transformers_version_expected": "4.40.0.dev0",
         "transformers_version_actual": tf.get("version"),
     }
+
+    torch_info = rec["packages"].get("torch", {})
+    triton_info = rec["packages"].get("triton", {})
+    cuml_info = rec["packages"].get("cuml", {})
+    rec["checks"].update({
+        "python_3_10": sys.version_info[:2] == (3, 10),
+        "torch_expected": torch_info.get("version") == "2.3.1+cu121",
+        "triton_expected": triton_info.get("version") == "2.3.1",
+        "cuml_expected": str(cuml_info.get("version", "")).startswith("24.6"),
+    })
+    try:
+        import torch
+        rec["checks"].update({
+            "cuda_available": torch.cuda.is_available(),
+            "one_gpu_visible": torch.cuda.device_count() == 1,
+            "cuda_version_expected": torch.version.cuda == "12.1",
+            "cuda_visible_is_zero": os.environ.get("CUDA_VISIBLE_DEVICES") == "0",
+        })
+    except Exception:
+        rec["checks"].update({
+            "cuda_available": False,
+            "one_gpu_visible": False,
+            "cuda_version_expected": False,
+            "cuda_visible_is_zero": False,
+        })
 
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
@@ -133,6 +172,17 @@ def main():
     if c["transformers_version_actual"] != c["transformers_version_expected"]:
         print(f"  [!!] transformers version {c['transformers_version_actual']} "
               f"!= {c['transformers_version_expected']} (khả năng đã bị LongBench/requirements.txt ghi đè)")
+
+    if args.strict:
+        required = [
+            "transformers_is_repo_fork", "python_3_10", "torch_expected",
+            "triton_expected", "cuml_expected", "cuda_available",
+            "one_gpu_visible", "cuda_version_expected", "cuda_visible_is_zero",
+        ]
+        failed = [name for name in required if not rec["checks"].get(name, False)]
+        if failed:
+            print(f"  [!!] STRICT ENV FAIL: {', '.join(failed)}")
+            sys.exit(1)
 
 
 if __name__ == "__main__":

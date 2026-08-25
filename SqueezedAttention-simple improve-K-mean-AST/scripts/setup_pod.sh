@@ -35,6 +35,7 @@ cd "$REPO_ROOT"
 WORKSPACE="${WORKSPACE:-/workspace}"
 VENV="${VENV:-$WORKSPACE/venv310}"
 PYVER="${PYVER:-3.10}"
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 
 # Phiên bản đã kiểm chứng chạy được (16/8/2026)
 TORCH_VERSION="${TORCH_VERSION:-2.3.1}"
@@ -69,7 +70,13 @@ fi
 # shellcheck disable=SC1091
 source "$VENV/bin/activate"
 PY="$VENV/bin/python"
+PY_ACTUAL="$($PY -c 'import sys; print(f"{sys.version_info[0]}.{sys.version_info[1]}")')"
 echo "    $($PY -V)"
+if [ "$PY_ACTUAL" != "$PYVER" ]; then
+  echo "    [!!] Venv hiện tại dùng Python $PY_ACTUAL, cần Python $PYVER."
+  echo "         Xóa hoặc đổi VENV rồi chạy lại; không cài chồng vào venv này."
+  exit 1
+fi
 
 # ---------- 2. pip trong venv ----------
 # Bẫy #2 + #3: uv venv không có pip; ensurepip cấp pip 23.0.1 quá cũ.
@@ -78,6 +85,9 @@ echo ">>> [2] pip trong venv (bẫy #2, #3)"
 $PY -m pip --version >/dev/null 2>&1 || $PY -m ensurepip --upgrade
 $PY -m pip install -q -U pip setuptools wheel
 echo "    $($PY -m pip --version)"
+
+# Không để image kéo theo torch/vision/audio khác phiên bản làm bẩn resolver.
+$PY -m pip uninstall -y -q torchaudio torchvision 2>/dev/null || true
 
 # ---------- 3. Thư mục + biến môi trường ----------
 echo ""
@@ -205,7 +215,8 @@ $PY scripts/prepare_code_data.py --self_test > /tmp/t3.log 2>&1 && echo "    pre
 
 echo ""
 echo ">>> [13] Ghi lại môi trường"
-$PY scripts/record_env.py --out "$WORKSPACE/phase0_results/env_record.json" --note "setup_pod"
+$PY scripts/record_env.py --out "$WORKSPACE/phase0_results/env_record.json" \
+  --seed 42 --note "setup_pod" --strict
 $PY -m pip freeze > "$WORKSPACE/working_env.txt"
 echo "    đã ghi $WORKSPACE/working_env.txt"
 
