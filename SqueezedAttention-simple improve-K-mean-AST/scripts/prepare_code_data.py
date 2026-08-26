@@ -56,8 +56,10 @@ USAGE
     python scripts/prepare_code_data.py --self_test        # kiểm tra logic, không cần mạng
 """
 import argparse
+import errno
 import json
 import os
+import shutil
 import sys
 
 # Console Windows mac dinh cp1252 -> tieng Viet co dau se lam crash print().
@@ -240,6 +242,34 @@ def offsets_from_fast_tokenizer(prompt, tok_fast):
     return list(enc["offset_mapping"]), list(enc["input_ids"])
 
 
+def _format_quota_error(path, exc):
+    msg = exc.strerror or str(exc)
+    if exc.errno in (errno.ENOSPC, errno.EDQUOT) or "quota" in msg.lower() or "disk" in msg.lower():
+        return (
+            f"[ERROR] Không thể ghi ra '{path}': {msg}\n"
+            f"        Đây là lỗi quota/dung lượng đĩa. Chọn một thư mục khác hoặc xoá artefact cũ, ví dụ:\n"
+            f"          --output_path /tmp/phase1_data\n"
+            f"          --output_path /mnt/data/phase1_data"
+        )
+    return f"[ERROR] Không thể ghi ra '{path}': {msg}"
+
+
+def ensure_output_dir(path):
+    """Check that the output directory exists and can accept a small probe write."""
+    path = os.path.abspath(path)
+    os.makedirs(path, exist_ok=True)
+    probe_path = os.path.join(path, ".write_probe.tmp")
+    try:
+        with open(probe_path, "w", encoding="utf-8") as f:
+            f.write("probe")
+        os.remove(probe_path)
+        return path
+    except OSError as exc:
+        if exc.errno in (errno.ENOSPC, errno.EDQUOT) or "quota" in str(exc).lower() or "disk" in str(exc).lower():
+            raise SystemExit(_format_quota_error(path, exc))
+        raise
+
+
 def char_to_byte_index(text):
     """
     Bảng tra `c2b[i]` = chỉ số BYTE của ký tự thứ i trong `text` (dài len(text)+1).
@@ -352,7 +382,7 @@ def run(args):
     n = len(data) if args.limit <= 0 else min(args.limit, len(data))
     print(f">>> Số sample xử lý: {n}/{len(data)}")
 
-    os.makedirs(args.output_path, exist_ok=True)
+    ensure_output_dir(args.output_path)
     meta_path = os.path.join(args.output_path, f"{args.dataset}_meta.jsonl")
     npz_path = os.path.join(args.output_path, f"{args.dataset}_offsets.npz")
 
@@ -391,77 +421,83 @@ def run(args):
     n_truncated = 0
     n_template_miss = 0
 
-    with open(meta_path, "w", encoding="utf-8") as fmeta:
-        for dataidx in tqdm(range(n)):
-            d = data[dataidx]
-            lang, lang_src = resolve_language(d, args.dataset, args.language)
-            lang_count[lang] += 1
-            lang_src_count[lang_src] += 1
-            prompt_raw = prompt_format.format(**d)
-            prompt_only = prompt_only_format.format(**d)
+    try:
+        with open(meta_path, "w", encoding="utf-8") as fmeta:
+            for dataidx in tqdm(range(n)):
+                d = data[dataidx]
+                lang, lang_src = resolve_language(d, args.dataset, args.language)
+                lang_count[lang] += 1
+                lang_src_count[lang_src] += 1
+                prompt_raw = prompt_format.format(**d)
+                prompt_only = prompt_only_format.format(**d)
 
-            len_before = len(tok_slow(prompt_raw, truncation=False).input_ids)
+                len_before = len(tok_slow(prompt_raw, truncation=False).input_ids)
 
-            # truncate_fn dùng tokenizer CHẬM, y hệt offline_clustering.py
-            prompt, sp_len = truncate_fn(
-                prompt_raw, prompt_only, tok_slow, max_length,
-                ("lcc" if args.data_source == "jsonl" else args.dataset), "cpu",
-                model_name=args.model, force_chat=args.force_chat
-            )
-            truncated = len_before > max_length
-            n_truncated += int(truncated)
+                # truncate_fn dùng tokenizer CHẬM, y hệt offline_clustering.py
+                prompt, sp_len = truncate_fn(
+                    prompt_raw, prompt_only, tok_slow, max_length,
+                    ("lcc" if args.data_source == "jsonl" else args.dataset), "cpu",
+                    model_name=args.model, force_chat=args.force_chat
+                )
+                truncated = len_before > max_length
+                n_truncated += int(truncated)
 
-            # offset lấy từ tokenizer NHANH trên prompt CUỐI CÙNG
-            offsets, ids_fast = offsets_from_fast_tokenizer(prompt, tok_fast)
-            ids_slow = tok_slow(prompt, truncation=False).input_ids
+                # offset lấy từ tokenizer NHANH trên prompt CUỐI CÙNG
+                offsets, ids_fast = offsets_from_fast_tokenizer(prompt, tok_fast)
+                ids_slow = tok_slow(prompt, truncation=False).input_ids
 
-            ids_match = (list(ids_fast) == list(ids_slow))
-            if not ids_match:
-                n_mismatch += 1
+                ids_match = (list(ids_fast) == list(ids_slow))
+                if not ids_match:
+                    n_mismatch += 1
 
-            code_start, code_end = locate_code_region(prompt, head, tail)
-            template_ok = not (code_start == 0 and code_end == len(prompt) and head)
-            if not template_ok:
-                n_template_miss += 1
+                code_start, code_end = locate_code_region(prompt, head, tail)
+                template_ok = not (code_start == 0 and code_end == len(prompt) and head)
+                if not template_ok:
+                    n_template_miss += 1
 
-            n_in_code, n_fixed_in_code = summarize_alignment(
-                offsets, code_start, code_end, sp_len
-            )
+                n_in_code, n_fixed_in_code = summarize_alignment(
+                    offsets, code_start, code_end, sp_len
+                )
 
-            rec = {
-                "dataidx": dataidx,
-                "dataset": args.dataset,
-                "model": args.model,
-                "language": lang,
-                "language_source": lang_src,
-                "num_tokens": len(ids_fast),
-                "shared_prefix_length": int(sp_len),
-                "truncated": bool(truncated),
-                "num_tokens_before_truncation": int(len_before),
-                "code_char_start": int(code_start),
-                "code_char_end": int(code_end),
-                "num_tokens_in_code": int(n_in_code),
-                "num_fixed_tokens_in_code": int(n_fixed_in_code),
-                "fast_slow_ids_match": bool(ids_match),
-                "prompt_num_bytes": len(prompt.encode("utf-8")),
-                "prompt_num_chars": len(prompt),
-                "has_byte_offsets": True,
-                "fixed_context_mode": args.fixed_context,
-                "force_chat": bool(args.force_chat),
-                "max_length": int(max_length),
-                "template_located": bool(template_ok),
-            }
-            if args.save_prompt:
-                rec["prompt"] = prompt
-            fmeta.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                rec = {
+                    "dataidx": dataidx,
+                    "dataset": args.dataset,
+                    "model": args.model,
+                    "language": lang,
+                    "language_source": lang_src,
+                    "num_tokens": len(ids_fast),
+                    "shared_prefix_length": int(sp_len),
+                    "truncated": bool(truncated),
+                    "num_tokens_before_truncation": int(len_before),
+                    "code_char_start": int(code_start),
+                    "code_char_end": int(code_end),
+                    "num_tokens_in_code": int(n_in_code),
+                    "num_fixed_tokens_in_code": int(n_fixed_in_code),
+                    "fast_slow_ids_match": bool(ids_match),
+                    "prompt_num_bytes": len(prompt.encode("utf-8")),
+                    "prompt_num_chars": len(prompt),
+                    "has_byte_offsets": True,
+                    "fixed_context_mode": args.fixed_context,
+                    "force_chat": bool(args.force_chat),
+                    "max_length": int(max_length),
+                    "template_located": bool(template_ok),
+                }
+                if args.save_prompt:
+                    rec["prompt"] = prompt
+                fmeta.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
-            offsets_store[f"offsets_{dataidx}"] = np.asarray(offsets, dtype=np.int32)
-            offsets_store[f"offsets_bytes_{dataidx}"] = np.asarray(
-                offsets_to_bytes(offsets, prompt), dtype=np.int32)
-            if args.save_prompt_npz:
-                offsets_store[f"prompt_{dataidx}"] = np.array(prompt, dtype=object)
+                offsets_store[f"offsets_{dataidx}"] = np.asarray(offsets, dtype=np.int32)
+                offsets_store[f"offsets_bytes_{dataidx}"] = np.asarray(
+                    offsets_to_bytes(offsets, prompt), dtype=np.int32)
+                if args.save_prompt_npz:
+                    offsets_store[f"prompt_{dataidx}"] = np.array(prompt, dtype=object)
+    except OSError as exc:
+        raise SystemExit(_format_quota_error(meta_path, exc))
 
-    np.savez_compressed(npz_path, **offsets_store)
+    try:
+        np.savez_compressed(npz_path, **offsets_store)
+    except OSError as exc:
+        raise SystemExit(_format_quota_error(npz_path, exc))
 
     print()
     print(f">>> Đã ghi {meta_path}")
