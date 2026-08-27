@@ -69,27 +69,34 @@ def config_dir(model, config, run_tag):
 
 
 def load_run(pred_dir, model, config, run_tag, task):
-    """Tra ve (score, per_sample_dict|None, duong_dan)."""
+    """Tra ve (score, per_sample_dict|None, n_samples|None, duong_dan)."""
     d = os.path.join(pred_dir, config_dir(model, config, run_tag))
     res = os.path.join(d, "result.json")
     if not os.path.exists(res):
-        return None, None, d
+        return None, None, None, d
     with open(res, encoding="utf-8") as f:
         scores = json.load(f)
     if task not in scores:
-        return None, None, d
+        return None, None, None, d
 
     per = None
+    n_samples = None
     detail_path = os.path.join(d, "result_detail.json")
     if os.path.exists(detail_path):
         with open(detail_path, encoding="utf-8") as f:
             detail = json.load(f)
+        n_samples = (detail.get(task) or {}).get("n_samples")
         blk = (detail.get(task) or {}).get("per_sample")
+        # eval.py luu per_sample o thang GOC cua metric, tuc 0..1 (code_sim_score la
+        # fuzz.ratio/100), roi moi nhan 100 khi tinh trung binh cho result.json. Khong
+        # nhan 100 o day thi cot mean/std (doc tu result.json, da x100) va dong ghep cap
+        # (doc tu per_sample) lech nhau 100 lan -- lan chay 27/8 in ra "+0.02" trong khi
+        # hieu so that la +2.0 diem.
         if isinstance(blk, dict):
-            per = dict((int(k), float(v)) for k, v in blk.items())
+            per = dict((int(k), 100.0 * float(v)) for k, v in blk.items())
         elif isinstance(blk, list):
-            per = dict((i, float(v)) for i, v in enumerate(blk))
-    return float(scores[task]), per, d
+            per = dict((i, 100.0 * float(v)) for i, v in enumerate(blk))
+    return float(scores[task]), per, n_samples, d
 
 
 def sample_disagreement(pers):
@@ -159,15 +166,17 @@ def main():
            "note": args.note, "configs": {}}
     missing = []
 
+    all_n = {}          # (cfg, tag) -> so mau, de bat truong hop so lech nhau
     for cfg in configs:
         runs, pers = {}, []
         for tag in args.run_tags:
-            score, per, d = load_run(args.pred_dir, args.model, cfg, tag, args.task)
+            score, per, n_s, d = load_run(args.pred_dir, args.model, cfg, tag, args.task)
             if score is None:
                 missing.append(d)
                 continue
             runs[tag] = score
             pers.append(per)
+            all_n[(cfg, tag)] = n_s
         vals = list(runs.values())
         n_diff, n_common = sample_disagreement(pers)
         out["configs"][cfg] = {
@@ -179,6 +188,7 @@ def main():
             "max": max(vals) if vals else None,
             "n_samples_differing_across_runs": n_diff,
             "n_samples_compared": n_common,
+            "n_samples_per_run": dict((t, all_n.get((cfg, t))) for t in runs),
             "_per": pers,
         }
 
@@ -212,16 +222,29 @@ def main():
     if args.note:
         L.append("- Ghi chu: %s" % args.note)
     L.append("")
-    L.append("| Cau hinh | n | mean | std | min | max | mau doi diem giua cac lan |")
-    L.append("|---|---|---|---|---|---|---|")
+    L.append("| Cau hinh | so luot | so mau | mean | std | min | max | mau doi diem giua cac lan |")
+    L.append("|---|---|---|---|---|---|---|---|")
     for cfg in configs:
         c = out["configs"][cfg]
         diff = ("-" if c["n_samples_differing_across_runs"] is None
                 else "%d/%d" % (c["n_samples_differing_across_runs"], c["n_samples_compared"]))
-        L.append("| %s | %d | %s | %s | %s | %s | %s |" % (
-            cfg, c["n_runs"], fmt(c["mean"]), fmt(c["std"]),
+        ns = sorted(set(v for v in c["n_samples_per_run"].values() if v is not None))
+        ns_txt = "-" if not ns else (str(ns[0]) if len(ns) == 1 else ",".join(map(str, ns)))
+        L.append("| %s | %d | %s | %s | %s | %s | %s | %s |" % (
+            cfg, c["n_runs"], ns_txt, fmt(c["mean"]), fmt(c["std"]),
             fmt(c["min"]), fmt(c["max"]), diff))
     L.append("")
+
+    # Diem cua 226 mau va diem cua 500 mau KHONG so duoc voi nhau. Ngay 27/8 hai con so
+    # do da nam canh nhau trong bang nay va sinh ra mot "delta +2.45" vo nghia.
+    seen_n = set(v for v in all_n.values() if v is not None)
+    if len(seen_n) > 1:
+        L.append("> [SAI] So mau KHONG giong nhau giua cac cau hinh/luot: %s. Cot mean va "
+                 "delta ben duoi VO NGHIA — diem cua tap con khong so duoc voi diem cua ca "
+                 "tap. Nguyen nhan thuong gap: mot luot pred.py chet giua chung. Chay lai "
+                 "luot thieu voi --overwrite, va truyen --expect cho eval.py de no tu chan."
+                 % ", ".join("%s/%s=%s" % (c, t, n) for (c, t), n in sorted(all_n.items())))
+        L.append("")
     L.append("Diem tung lan chay:")
     L.append("")
     L.append("| Cau hinh | " + " | ".join(args.run_tags) + " |")

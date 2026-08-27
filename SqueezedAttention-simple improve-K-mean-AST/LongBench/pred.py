@@ -299,3 +299,16 @@ if __name__ == '__main__':
             processes.append(p)
         for p in processes:
             p.join()
+
+        # Worker chet vi exception thi p.join() van tra ve binh thuong va tien trinh cha
+        # thoat voi ma 0. Hau qua day du: `set -e` cua script khong bat duoc, eval.py cham
+        # diem tren so mau thieu, va result.json ghi ra mot con so trong nhu that.
+        # Xay ra that ngay 27/8: mot file centroid hong lam worker chet o mau 226/500,
+        # ca pipeline van chay het va bao Sq-70% = 57.28 (thuc te la diem cua 226 mau).
+        failed = [(rank, p.exitcode) for rank, p in enumerate(processes) if p.exitcode != 0]
+        if failed:
+            raise SystemExit(
+                "[ERROR] %d/%d worker that bai (rank, exitcode): %s\n"
+                "        Prediction trong %s KHONG day du -> KHONG duoc cham diem.\n"
+                "        Xem traceback cua worker o phia tren de biet nguyen nhan."
+                % (len(failed), len(processes), failed, out_path))

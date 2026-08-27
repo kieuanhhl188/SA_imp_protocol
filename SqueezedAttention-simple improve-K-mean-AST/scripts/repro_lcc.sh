@@ -175,22 +175,30 @@ if [ "$AGGREGATE_ONLY" -eq 0 ]; then
         --device "$SQA_DEVICE" \
         $LIMIT_ARG
 
-    # Bắt buộc, không phải tuỳ chọn: MooseFS cắt cụt file im lặng khi vượt hạn mức và
-    # torch.save KHÔNG raise. Vòng resume thấy file tồn tại nên bỏ qua đúng mẫu hỏng.
-    # Chỉ kiểm CRC (zipfile.testzip) mới bắt được — rẻ hơn nhiều so với một lượt pred.py
-    # chạy vài giờ rồi mới chết. Sự cố 16/8: hai file hỏng, mất ~5 giờ GPU.
-    EXPECT_N=500
-    if [ "$LIMIT" -gt 0 ]; then EXPECT_N="$LIMIT"; fi
-    for S in "${SEEDS[@]}"; do
-      echo ""
-      echo ">>> [1b] Kiểm toàn vẹn centroid — seed $S"
-      python scripts/check_cluster_integrity.py \
-          "$(cluster_root_for "$S")/${DATASET}/" --expect "$EXPECT_N"
-    done
   else
     echo ""
     echo ">>> [1] BỎ QUA offline clustering"
   fi
+
+  # ---------- 1b. Kiểm toàn vẹn centroid — CHẠY CẢ KHI --skip-cluster ----------
+  #
+  # Bắt buộc, không phải tuỳ chọn. MooseFS cắt cụt file im lặng khi vượt hạn mức và
+  # torch.save KHÔNG raise; vòng resume thấy file tồn tại nên bỏ qua đúng mẫu hỏng.
+  # Chỉ kiểm CRC (zipfile.testzip) mới bắt được.
+  #
+  # TRƯỚC ĐÂY khối này nằm trong nhánh clustering nên `--skip-cluster` bỏ qua luôn — và
+  # đó chính là cách lượt 27/8 hỏng: 5/1500 file hỏng có sẵn từ lượt 17/8, pred.py chạy
+  # 226/500 mẫu rồi mới chết vì `PytorchStreamReader ... failed finding central directory`.
+  # Centroid tái dùng lại càng phải kiểm, vì nó cũ và không ai biết nó nằm trên đĩa
+  # bao lâu rồi. Quét 1500 file mất vài phút, đổi lại tránh mất hàng giờ GPU.
+  EXPECT_N=500
+  if [ "$LIMIT" -gt 0 ]; then EXPECT_N="$LIMIT"; fi
+  for S in "${SEEDS[@]}"; do
+    echo ""
+    echo ">>> [1b] Kiểm toàn vẹn centroid — seed $S"
+    python scripts/check_cluster_integrity.py \
+        "$(cluster_root_for "$S")/${DATASET}/" --expect "$EXPECT_N"
+  done
 
   # ---------- 2. Chạy từng lượt ----------
   cd "$SQA_REPO_ROOT/LongBench"
@@ -202,7 +210,9 @@ if [ "$AGGREGATE_ONLY" -eq 0 ]; then
     echo ">>> [2a] All-KV — lượt $TAG"
     python pred.py --model "$MODEL" --task "$DATASET" \
         --run_tag "$TAG" --seed "$SQA_SEED" --overwrite $LIMIT_ARG
-    python eval.py --model "$MODEL" --run_tag "$TAG" $LIMIT_ARG
+    # --expect: eval.py TU CHOI cham diem neu thieu mau. Không có nó thì một lượt
+    # pred.py chết giữa chừng vẫn ra một con số trông như thật.
+    python eval.py --model "$MODEL" --run_tag "$TAG" --expect "$EXPECT_N" $LIMIT_ARG
 
     echo ""
     echo ">>> [2b] Sq-70% — lượt $TAG (centroid: $CROOT)"
@@ -215,7 +225,7 @@ if [ "$AGGREGATE_ONLY" -eq 0 ]; then
         --run_tag "$TAG" --seed "$SQA_SEED" --overwrite $LIMIT_ARG
     python eval.py --model "$MODEL" --use_centroids \
         --percent_clusters "$SQA_PERCENT_CLUSTERS" \
-        --percentile "$SQA_PERCENTILE_GATE" --run_tag "$TAG" $LIMIT_ARG
+        --percentile "$SQA_PERCENTILE_GATE" --run_tag "$TAG" --expect "$EXPECT_N" $LIMIT_ARG
 
     # Chỉ purge SAU khi eval đã ghi xong result.json — điểm số nằm trong pred/, centroid
     # không cần nữa và sinh lại được bất cứ lúc nào bằng chính seed đó.

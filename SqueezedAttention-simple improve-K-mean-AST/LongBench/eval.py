@@ -51,6 +51,12 @@ def parse_args(args=None):
     parser.add_argument("--percentile_lower", type=float, default=0.7)
     parser.add_argument("--run_tag", type=str, default="",
                         help="phai trung --run_tag da dung khi chay pred.py")
+    parser.add_argument("--expect", type=int, default=-1,
+                        help="so mau BAT BUOC phai co. Lech la dung, KHONG ghi result.json. "
+                             "Khong co co nay thi eval.py cham bat cu thu gi no thay: "
+                             "ngay 27/8 mot luot pred.py chet o mau 226/500 va eval.py van "
+                             "ghi ra {'lcc': 57.28} — mot con so cua 226 mau, dat canh 54.83 "
+                             "cua 500 mau trong cung mot bang.")
     parser.add_argument("--limit", type=int, default=-1,
                         help="đọc thư mục có hậu tố _lim<N> do `pred.py --limit N` sinh ra. "
                              "Phải trùng đúng N đã dùng ở pred.py")
@@ -143,6 +149,13 @@ if __name__ == '__main__':
         scores[dataset] = score
 
         n = len(predictions)
+        if args.expect > 0 and n != args.expect:
+            raise SystemExit(
+                "[ERROR] %s: co %d prediction nhung can %d.\n"
+                "        Luot pred.py chua chay xong (hoac chay du roi bi mat file).\n"
+                "        KHONG ghi result.json — diem cua tap con khong so duoc voi diem\n"
+                "        cua ca tap, va de bi doc nham thanh ket qua that.\n"
+                "        Chay lai: pred.py ... --overwrite" % (dataset, n, args.expect))
         n_empty = sum(1 for p in predictions if not p.strip())
         dup = (len(dataidxs) - len(set(dataidxs))) if dataidxs else None
         detail[dataset] = {
