@@ -47,6 +47,13 @@ if __name__ == "__main__":
     parser.add_argument("--percent_clusters_l2", type=int, default=-1)
     parser.add_argument('--observation_window', type=int, default=100)
     parser.add_argument('--device', type=int, default=0)
+    parser.add_argument('--seeds', type=int, nargs='+', default=[0],
+                        help="danh sach seed cho K-means (KMeans.random_state). Truoc day "
+                             "random_state bi hardcode = 0 nen chay lai bao nhieu lan cung ra "
+                             "y het -> khong the tinh mean+-std. Nhieu seed duoc cluster TRONG "
+                             "CUNG MOT LUOT forward: forward pass la phan dat (~6h/500 mau LCC) "
+                             "va khong phu thuoc seed, chi K-means moi phu thuoc. Nhieu hon mot "
+                             "seed thi --output_path PHAI chua '{seed}'.")
     parser.add_argument('--limit', type=int, default=-1,
                         help="chi cluster N sample DAU (smoke test); -1 = ca dataset. "
                              "Phai truyen dung N nay cho LongBench/pred.py --limit, "
@@ -54,6 +61,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     DEV = torch.device(f"cuda:{args.device}")
+
+    if len(args.seeds) != len(set(args.seeds)):
+        raise SystemExit("[ERROR] --seeds co gia tri trung lap")
+    if len(args.seeds) > 1 and "{seed}" not in args.output_path:
+        raise SystemExit(
+            "[ERROR] chay nhieu seed nhung --output_path khong co '{seed}'. Tat ca se ghi "
+            "de len nhau. Vi du: --seeds 0 1 2 "
+            "--output_path 'fixed-prompt-clusters_seed{seed}/lcc/'")
+
+    def out_dir_for(seed):
+        return args.output_path.format(seed=seed) if "{seed}" in args.output_path else args.output_path
 
     # get maxlen and model path
     model2path = json.load(open("LongBench/config/model2path.json", "r"))
@@ -156,7 +174,11 @@ if __name__ == "__main__":
         if not args.hierarchical_lookup:
             _sp = shared_prefix_length[dataidx]
             _nc = max(1, int((args.percent_clusters / 100.0) * (_sp - args.observation_window)))
-            if os.path.exists(f'{args.output_path}/global_threshold_{dataidx}_{_nc}.pt'):
+            # Chi bo qua khi MOI seed da co ket qua. Thieu mot seed thi van phai chay lai
+            # forward pass (key khong duoc cache o dau ca), roi ben duoi se bo qua rieng
+            # nhung seed da xong.
+            if all(os.path.exists(f'{out_dir_for(_s)}/global_threshold_{dataidx}_{_nc}.pt')
+                   for _s in args.seeds):
                 continue
 
         all_queries_layers = []
@@ -185,9 +207,9 @@ if __name__ == "__main__":
                 output_attentions=True
             )
 
-        # write out data
-        if not os.path.exists(args.output_path):
-            os.makedirs(args.output_path)
+        # Thu muc ket qua duoc tao trong vong lap seed ben duoi (os.makedirs(out_dir)),
+        # khong tao o day nua: voi --output_path co '{seed}' thi mkdir o day se de ra mot
+        # thu muc ten dung chu '{seed}'.
 
         # determine num_centroids based on context length
         sp_len = shared_prefix_length[dataidx]
@@ -201,81 +223,95 @@ if __name__ == "__main__":
         if args.hierarchical_lookup:
             assert (num_centroids_l2 >= 1)
 
-        # hierarchical
-        if args.hierarchical_lookup:
-            centroids_tensor_dict_l2, centroids_labels_dict_l2 = run_clustering(all_keys_layers,
-                                                                                num_centroids_l2,
-                                                                                observation_window=args.observation_window,
-                                                                                device=DEV)
-            centroids_tensor_dict_l1, centroids_labels_dict_l1 = run_clustering(centroids_tensor_dict_l2,
-                                                                                num_centroids,
-                                                                                observation_window=0,
-                                                                                device=DEV)
+        # Mot forward pass -> nhieu seed K-means. Forward pass chiem phan lon thoi gian
+        # (~45s/mau tren A100) va khong phu thuoc seed, nen lap seed o DAY re hon nhieu so
+        # voi chay lai ca offline_clustering.py cho tung seed.
+        for seed in args.seeds:
+            out_dir = out_dir_for(seed)
+            if not args.hierarchical_lookup and os.path.exists(
+                    f'{out_dir}/global_threshold_{dataidx}_{num_centroids}.pt'):
+                print(f"  seed {seed}: da co, bo qua")
+                continue
+            print(f"  seed {seed} -> {out_dir}")
 
-            # update centroid_labels to convert L1 -> L2 mapping to be L1 -> keys for evaluation code
-            num_lyrs = len(all_keys_layers)
-            for i in range(num_lyrs):
-                label_dict_l1 = centroids_labels_dict_l1[i]
-                label_dict_l2 = centroids_labels_dict_l2[i]
-                gathered_tensor = torch.gather(label_dict_l1, -1, label_dict_l2)
-                centroids_labels_dict_l1[i] = gathered_tensor
+            # hierarchical
+            if args.hierarchical_lookup:
+                centroids_tensor_dict_l2, centroids_labels_dict_l2 = run_clustering(all_keys_layers,
+                                                                                    num_centroids_l2,
+                                                                                    observation_window=args.observation_window,
+                                                                                    device=DEV,
+                                                                                    seed=seed)
+                centroids_tensor_dict_l1, centroids_labels_dict_l1 = run_clustering(centroids_tensor_dict_l2,
+                                                                                    num_centroids,
+                                                                                    observation_window=0,
+                                                                                    device=DEV,
+                                                                                    seed=seed)
 
-            # run global threshold
-            global_threshold_dict_l1 = run_global_threshold(
-                all_keys_layers, all_queries_layers, centroids_tensor_dict_l1, centroids_labels_dict_l1, num_centroids,
-                observation_window=args.observation_window,  device=DEV
-            )
+                # update centroid_labels to convert L1 -> L2 mapping to be L1 -> keys for evaluation code
+                num_lyrs = len(all_keys_layers)
+                for i in range(num_lyrs):
+                    label_dict_l1 = centroids_labels_dict_l1[i]
+                    label_dict_l2 = centroids_labels_dict_l2[i]
+                    gathered_tensor = torch.gather(label_dict_l1, -1, label_dict_l2)
+                    centroids_labels_dict_l1[i] = gathered_tensor
 
-            # run global threshold (hierarchical lookup) using L2 denominator
-            global_threshold_dict_l2 = run_global_threshold(
-                all_keys_layers, all_queries_layers, centroids_tensor_dict_l2, centroids_labels_dict_l2, num_centroids_l2,
-                observation_window=args.observation_window,  device=DEV
-            )
+                # run global threshold
+                global_threshold_dict_l1 = run_global_threshold(
+                    all_keys_layers, all_queries_layers, centroids_tensor_dict_l1, centroids_labels_dict_l1, num_centroids,
+                    observation_window=args.observation_window,  device=DEV
+                )
 
-            # save centroids tensor, labels, global threshold
-            os.makedirs(args.output_path, exist_ok=True)
-            for k,v in centroids_tensor_dict_l1.items():
-                centroids_tensor_dict_l1[k] = centroids_tensor_dict_l1[k].cpu()
-            for k,v in centroids_labels_dict_l1.items():
-                centroids_labels_dict_l1[k] = centroids_labels_dict_l1[k].cpu()
-            for k,v in centroids_tensor_dict_l2.items():
-                centroids_tensor_dict_l2[k] = centroids_tensor_dict_l2[k].cpu()
-            for k,v in centroids_labels_dict_l2.items():
-                centroids_labels_dict_l2[k] = centroids_labels_dict_l2[k].cpu()
+                # run global threshold (hierarchical lookup) using L2 denominator
+                global_threshold_dict_l2 = run_global_threshold(
+                    all_keys_layers, all_queries_layers, centroids_tensor_dict_l2, centroids_labels_dict_l2, num_centroids_l2,
+                    observation_window=args.observation_window,  device=DEV
+                )
 
-            # NOTE: tên file phải khớp với chỗ load trong
-            # transformers/src/transformers/models/llama/modeling_llama.py (~L1457),
-            # tức 'hierarchical_centroids_*' chứ không phải 'hierarchical_lookup_*'.
-            torch.save(centroids_tensor_dict_l1, f'{args.output_path}/hierarchical_centroids_tensor_dict_L1_{dataidx}_{num_centroids}.pt')
-            torch.save(centroids_labels_dict_l1, f'{args.output_path}/hierarchical_centroids_labels_dict_L1_{dataidx}_{num_centroids}.pt')
-            torch.save(centroids_tensor_dict_l2, f'{args.output_path}/centroids_tensor_dict_{dataidx}_{num_centroids_l2}.pt')
-            torch.save(centroids_labels_dict_l2, f'{args.output_path}/centroids_labels_dict_{dataidx}_{num_centroids_l2}.pt')
-            torch.save(global_threshold_dict_l1, f'{args.output_path}/hierarchical_global_threshold_L1_{dataidx}_{num_centroids}.pt')
-            torch.save(global_threshold_dict_l2, f'{args.output_path}/global_threshold_{dataidx}_{num_centroids_l2}.pt')
+                # save centroids tensor, labels, global threshold
+                os.makedirs(out_dir, exist_ok=True)
+                for k,v in centroids_tensor_dict_l1.items():
+                    centroids_tensor_dict_l1[k] = centroids_tensor_dict_l1[k].cpu()
+                for k,v in centroids_labels_dict_l1.items():
+                    centroids_labels_dict_l1[k] = centroids_labels_dict_l1[k].cpu()
+                for k,v in centroids_tensor_dict_l2.items():
+                    centroids_tensor_dict_l2[k] = centroids_tensor_dict_l2[k].cpu()
+                for k,v in centroids_labels_dict_l2.items():
+                    centroids_labels_dict_l2[k] = centroids_labels_dict_l2[k].cpu()
 
-        else:
-            # compute centroids
-            centroids_tensor_dict, centroids_labels_dict = run_clustering(all_keys_layers,
-                                                                          num_centroids,
-                                                                          observation_window=args.observation_window,
-                                                                          device=DEV)
+                # NOTE: tên file phải khớp với chỗ load trong
+                # transformers/src/transformers/models/llama/modeling_llama.py (~L1457),
+                # tức 'hierarchical_centroids_*' chứ không phải 'hierarchical_lookup_*'.
+                torch.save(centroids_tensor_dict_l1, f'{out_dir}/hierarchical_centroids_tensor_dict_L1_{dataidx}_{num_centroids}.pt')
+                torch.save(centroids_labels_dict_l1, f'{out_dir}/hierarchical_centroids_labels_dict_L1_{dataidx}_{num_centroids}.pt')
+                torch.save(centroids_tensor_dict_l2, f'{out_dir}/centroids_tensor_dict_{dataidx}_{num_centroids_l2}.pt')
+                torch.save(centroids_labels_dict_l2, f'{out_dir}/centroids_labels_dict_{dataidx}_{num_centroids_l2}.pt')
+                torch.save(global_threshold_dict_l1, f'{out_dir}/hierarchical_global_threshold_L1_{dataidx}_{num_centroids}.pt')
+                torch.save(global_threshold_dict_l2, f'{out_dir}/global_threshold_{dataidx}_{num_centroids_l2}.pt')
 
-            # run global threshold
-            global_threshold_dict = run_global_threshold(
-                all_keys_layers, all_queries_layers, centroids_tensor_dict, centroids_labels_dict, num_centroids,
-                observation_window=args.observation_window, device=DEV
-            )
+            else:
+                # compute centroids
+                centroids_tensor_dict, centroids_labels_dict = run_clustering(all_keys_layers,
+                                                                              num_centroids,
+                                                                              observation_window=args.observation_window,
+                                                                              device=DEV,
+                                                                              seed=seed)
 
-            # save centroids tensor, labels, global threshold
-            os.makedirs(args.output_path, exist_ok=True)
-            for k,v in centroids_tensor_dict.items():
-                centroids_tensor_dict[k] = centroids_tensor_dict[k].cpu()
-            for k,v in centroids_labels_dict.items():
-                centroids_labels_dict[k] = centroids_labels_dict[k].cpu()
+                # run global threshold
+                global_threshold_dict = run_global_threshold(
+                    all_keys_layers, all_queries_layers, centroids_tensor_dict, centroids_labels_dict, num_centroids,
+                    observation_window=args.observation_window, device=DEV
+                )
 
-            torch.save(centroids_tensor_dict, f'{args.output_path}/centroids_tensor_dict_{dataidx}_{num_centroids}.pt')
-            torch.save(centroids_labels_dict, f'{args.output_path}/centroids_labels_dict_{dataidx}_{num_centroids}.pt')
-            torch.save(global_threshold_dict, f'{args.output_path}/global_threshold_{dataidx}_{num_centroids}.pt')
+                # save centroids tensor, labels, global threshold
+                os.makedirs(out_dir, exist_ok=True)
+                for k,v in centroids_tensor_dict.items():
+                    centroids_tensor_dict[k] = centroids_tensor_dict[k].cpu()
+                for k,v in centroids_labels_dict.items():
+                    centroids_labels_dict[k] = centroids_labels_dict[k].cpu()
+
+                torch.save(centroids_tensor_dict, f'{out_dir}/centroids_tensor_dict_{dataidx}_{num_centroids}.pt')
+                torch.save(centroids_labels_dict, f'{out_dir}/centroids_labels_dict_{dataidx}_{num_centroids}.pt')
+                torch.save(global_threshold_dict, f'{out_dir}/global_threshold_{dataidx}_{num_centroids}.pt')
 
         # free up memory by deleting all qkv from lists
         num_layers = len(all_keys_layers)

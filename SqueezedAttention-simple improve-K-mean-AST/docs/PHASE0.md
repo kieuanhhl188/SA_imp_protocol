@@ -1,6 +1,13 @@
 # Phase 0 — Môi trường + tái lập baseline SA
 
-Gate của toàn bộ protocol. **Không khớp số thì không chạy Phase 1/2.**
+Nền cho toàn bộ protocol: dựng lại đúng đường ống SA để mọi cải tiến về sau là một
+ablation trên cùng một nền.
+
+> **Thu hẹp phạm vi (27/8).** Cả bài chỉ kiểm chứng khả thi trên **một** cặp
+> **LCC × LongChat-7B-v1.5-32K**, và **không** còn so kết quả với Table 2 của Hooper
+> et al. Mốc bây giờ là **chính đường ống này**: chạy lặp nhiều lượt rồi lấy mean ± std
+> cho từng cấu hình (All-KV, Sq-70%). Xem [§3](#3-tái-lập-nhiều-lượt-mean--std) và
+> [§8](#8-những-gì-đã-bỏ-khỏi-phase-0) cho những gì bị bỏ.
 
 ---
 
@@ -32,39 +39,90 @@ Phải thấy `transformers` trỏ vào `<repo>/transformers/src/...` và versio
 
 ---
 
-## 2. Chạy gate
+## 2. Chạy tái lập
 
 ```bash
 export CUDA_VISIBLE_DEVICES=0        # cố định 1 GPU cho mọi lần đo
-bash scripts/phase0_gate.sh          # All-KV + Sq-70%, đủ để gate
-bash scripts/phase0_gate.sh --full   # thêm Sq-80/90% + H-Sq-90%
+bash scripts/repro_lcc.sh            # 3 seed K-means, All-KV + Sq-70%, rồi gộp mean±std
 ```
 
-Script tự làm: ghi env → offline clustering → `pred.py` → `eval.py` → `check_gate.py`.
+Script tự làm: ghi env → offline clustering (mọi seed trong **một** lượt forward) →
+`pred.py` → `eval.py` → `scripts/aggregate_runs.py`.
 
 Chạy lại từng phần:
 ```bash
-bash scripts/phase0_gate.sh --skip-cluster   # centroid đã có, chỉ chạy lại eval
-python scripts/check_gate.py --model longchat-v1.5-7b-32k --pred_dir LongBench/pred
+bash scripts/repro_lcc.sh --skip-cluster        # centroid đã có
+bash scripts/repro_lcc.sh --aggregate-only      # chỉ gộp lại kết quả đã chạy
+bash scripts/repro_lcc.sh --seeds "0 1 2 3 4"   # nhiều lượt hơn
+bash scripts/repro_lcc.sh --limit 20            # smoke test
 ```
+
+Centroid seed 0 của lượt 17/8 dùng lại được — nó vốn đã sinh bằng `random_state=0`:
+```bash
+ln -s "$PWD/fixed-prompt-clusters" "$PWD/fixed-prompt-clusters_seed0"
+```
+
+**Chi phí GPU** (A100-80GB, 500 mẫu LCC, đo từ log 17/8): offline clustering ~6h15 (dùng
+chung cho mọi seed) · `pred.py` All-KV ~16 phút/lượt · `pred.py` Sq-70% ~3h07/lượt.
+Ba seed ≈ **16 giờ**.
+
+### ⚠️ Đĩa là ràng buộc chặt hơn GPU
+
+Centroid LCC 500 mẫu với LongChat = **~68-71 GB / seed** (32 head KV, fp32 + label int64).
+Ba seed cùng lúc ≈ **210 GB**. Volume 200 GB không chứa nổi; ngày 16/8 volume thật chỉ
+được cấp ~50-55 GB và job chết ở mẫu 113/500.
+
+`df` **không** phát hiện được: `/workspace` là MooseFS dùng chung, `df` báo dung lượng cả
+cụm chứ không biết hạn mức riêng. Vượt hạn mức thì `torch.save` không raise — file bị cắt
+cụt im lặng, và vòng resume của `offline_clustering.py` thấy file tồn tại nên **bỏ qua đúng
+mẫu hỏng**. Vì vậy `repro_lcc.sh` luôn chạy `check_cluster_integrity.py` (kiểm CRC từng
+file) sau mỗi lượt clustering.
+
+**Trình tự an toàn cho 3 seed** (đỉnh ~140 GB, tổng ~16 giờ GPU):
+```bash
+ln -s /workspace/fixed-prompt-clusters /workspace/fixed-prompt-clusters_seed0
+bash scripts/repro_lcc.sh --seeds "0"   --skip-cluster       # dùng lại centroid 17/8
+bash scripts/repro_lcc.sh --seeds "1 2" --purge-after        # 1 lượt forward cho 2 seed
+bash scripts/repro_lcc.sh --seeds "0 1 2" --aggregate-only   # gộp mean±std
+```
+Volume nhỏ hơn thì chạy từng seed một, mỗi lượt kèm `--purge-after` (đỉnh ~70 GB, nhưng
+tốn 3 lượt forward → ~28 giờ). `--purge-after` chỉ xoá thư mục khớp `*_seed*`, và với
+symlink thì chỉ gỡ link — không đụng vào `fixed-prompt-clusters` gốc.
 
 ---
 
-## 3. Số cần khớp (±0.3 điểm)
+## 3. Tái lập nhiều lượt: mean ± std
 
-LongChat-7B-v1.5-32K, Table 2 của Hooper et al. (ACL 2025, `2025.acl-long.1568`):
+Không còn số đích từ ngoài. Cái được báo cáo là:
 
-| Config | Budget | LCC | RepoBench-P |
-|---|---|---|---|
-| All KV | 1.000 | 56.64 | 53.20 |
-| **Sq-70%** | 0.325 | **56.93** | **54.64** |
-| Sq-80% | 0.225 | 57.17 | 52.83 |
-| Sq-90% | 0.125 | 56.95 | 51.57 |
-| H-Sq-90% | 0.122 | 57.20 | 51.89 |
+| Cấu hình | n | mean | std | min | max | số mẫu đổi điểm giữa các lượt |
+|---|---|---|---|---|---|---|
+| baseline (All-KV) | | | | | | |
+| PC5_PERC0.7 (Sq-70%) | | | | | | |
 
-Toàn bộ bảng (kèm LLaMA-2-7B-32K, LWM) nằm trong [scripts/reference_table2.json](../scripts/reference_table2.json).
+cộng với hiệu số ghép cặp Sq-70% − All-KV trên từng mẫu (KTC95 + sign test).
 
-⚠️ **Đừng dùng số trong `LongBench/README.md`** (LCC 53.0 / RB 55.3). Đó là số All-KV của LongBench gốc với prompt/truncation khác — không phải mốc để so.
+### ⚠️ Đường ống này gần như tất định — đọc trước khi diễn giải std
+
+Trước bản vá 27/8 thì **lặp lại bao nhiêu lượt cũng ra std = 0,00**, vì:
+
+- `pred.py` giải mã tham lam (`do_sample=False`, `num_beams=1`) → `--seed` của
+  torch/numpy không đổi được output một chút nào;
+- [squeezedattention/clustering.py](../squeezedattention/clustering.py) **hardcode**
+  `KMeans(random_state=0)` → `--seed` không bao giờ tới được K-means, centroid không đổi.
+
+Nguồn phương sai thật của Squeezed Attention là **khởi tạo K-means**. Bản vá 27/8 đưa
+seed vào `random_state`, và `offline_clustering.py --seeds 0 1 2` sinh nhiều bộ centroid
+**trong cùng một lượt forward** (lượt forward chiếm phần lớn thời gian và không phụ
+thuộc seed). Vì vậy trong `repro_lcc.sh`, **một lượt = một seed K-means**, không phải
+chạy lại `pred.py` trên cùng bộ centroid.
+
+All-KV không đụng centroid nên vẫn không có nguồn ngẫu nhiên nào; nó chạy đủ N lượt để
+cho **sàn nhiễu phần cứng** đem so với std của Sq-70%. Kỳ vọng std ≈ 0,00 — khác 0 đáng
+kể tức là môi trường không ổn định và mọi so sánh sau phải tính đến điều đó.
+
+`aggregate_runs.py` in thẳng cột "số mẫu đổi điểm giữa các lượt" và cảnh báo khi cột đó
+bằng 0, để không đọc nhầm "std = 0" thành "đã đo được phương sai".
 
 ---
 
@@ -79,7 +137,8 @@ Tất cả nằm trong [configs/phase0.sh](../configs/phase0.sh). Mọi phase sa
 | observation window | 100 token cuối, giữ nguyên không cluster | Appendix C |
 | ngưỡng L1 (hierarchical) | loại 50% key → `--percentile_lower 0.5` | Section 6.1 |
 | max context | 32K (`model2maxlen` = 31500) | Appendix F |
-| seed | 42 | — |
+| seed torch/numpy | 42 | — (không ảnh hưởng output: giải mã tham lam) |
+| seed K-means | 0, 1, 2 | — (nguồn phương sai duy nhất) |
 
 **Ánh xạ sparsity → CLI:** Sq-70% ⇒ `--percentile 0.7`, Sq-80% ⇒ `0.8`, Sq-90% ⇒ `0.9`. Danh sách quantile khả dụng là `[0.5, 0.7, 0.8, 0.9]` (hard-code trong [squeezedattention/clustering.py](../squeezedattention/clustering.py#L173)) — muốn mức khác phải sửa `qlist` **và** chạy lại offline clustering.
 
@@ -95,12 +154,15 @@ Tất cả nằm trong [configs/phase0.sh](../configs/phase0.sh). Mọi phase sa
 | **Bug**: `pred.py` ghi jsonl chế độ append, chạy lại là nhân đôi prediction → `eval.py` ra số sai. Thêm `--overwrite` + cảnh báo | [LongBench/pred.py](../LongBench/pred.py) |
 | **Bug**: `seed_everything` chỉ chạy ở process cha, `mp.spawn` không kế thừa. Seed lại trong con | [LongBench/pred.py](../LongBench/pred.py) |
 | Thêm `--seed` (chuẩn bị cho mean±std ≥3 seed) | [LongBench/pred.py](../LongBench/pred.py) |
+| **Bug**: `KMeans(random_state=0)` hardcode → `--seed` không tới được K-means, mọi lượt chạy ra centroid y hệt và std luôn = 0 | [squeezedattention/clustering.py](../squeezedattention/clustering.py) |
+| `--seeds` + `{seed}` trong `--output_path`: nhiều bộ centroid từ **một** lượt forward | [offline_clustering.py](../offline_clustering.py) |
+| `--run_tag`: tách thư mục kết quả của các lượt lặp cùng cấu hình (không có nó thì lượt sau ghi đè lượt trước) | [LongBench/pred.py](../LongBench/pred.py), [LongBench/eval.py](../LongBench/eval.py) |
 
 ---
 
 ## 6. Còn nợ (cần GPU hoặc quyết định)
 
-- [ ] **Chạy lại strict gate thật** — artifact cũ chỉ đạt khi nới tolerance lên ±2.0.
+- [ ] **Chạy `scripts/repro_lcc.sh` trên pod** — chưa từng chạy với code sau bản vá 27/8.
 - [x] Ghi environment record — cần ghi lại trên pod mới sau khi chạy `setup_pod.sh --strict`.
 - [ ] Quyết định: port Squeezed Attention sang `modeling_qwen2.py` ngay, hay giữ LLaMA cho Phase 0–2 và hoãn Qwen2.5-Coder tới trước Phase 6. Patch hiện **chỉ tồn tại trong `models/llama/`**; `models/qwen2/` hoàn toàn nguyên bản.
 - [ ] Kiểm chứng GQA: đường code centroid lookup chưa từng chạy với `num_key_value_heads < num_heads` (LLaMA-2-7B-32K là MHA). Bắt buộc trước khi dùng Qwen.
@@ -110,4 +172,24 @@ Tất cả nằm trong [configs/phase0.sh](../configs/phase0.sh). Mọi phase sa
 ## 7. Lỗi khác đã biết, chưa chặn Phase 0
 
 - [squeezedattention/utils.py:44](../squeezedattention/utils.py#L44) — `build_chat(prompt, model_name)` dùng biến `model_name` chưa định nghĩa trong scope → `NameError`. Chỉ nổ với dataset **ngoài** `{trec, triviaqa, samsum, lcc, repobench-p}`. Gate không chạm tới, nhưng sẽ nổ ở Phase 6 nếu thêm task QA.
-- `README_EXTENSIONS.md` trỏ tới `LongBench/run_evaluation.sh` — file này **không tồn tại**. Dùng `scripts/phase0_gate.sh` thay thế.
+- `README_EXTENSIONS.md` trỏ tới `LongBench/run_evaluation.sh` — file này **không tồn tại**. Dùng `scripts/repro_lcc.sh` thay thế.
+
+---
+
+## 8. Những gì đã bỏ khỏi Phase 0
+
+Bỏ vì phạm vi thu lại còn "LCC × LongChat-7B, kiểm chứng khả thi". Code không xoá, chỉ
+không còn nằm trên đường chạy mặc định — cần thì bật lại được.
+
+| Bỏ gì | Vì sao | Hiện trạng |
+|---|---|---|
+| **RepoBench-P** | Không nằm trong phạm vi. Context dài gấp ~3,7 lần → clustering đắt hơn nhiều mà không trả lời thêm câu hỏi nào. Phase 1 vốn đã chốt LCC-only. | `SQA_CODE_DATASETS=("lcc")` |
+| **Sq-80%, Sq-90%, H-Sq-90%** | Chỉ cần một điểm sparsity để so All-KV ↔ SA. Sq-70% là mức bài gốc dùng làm mốc chính. | `repro_lcc.sh` không chạy; `pred.py` vẫn nhận `--percentile` |
+| **Chạy nhánh hierarchical (L1/L2)** | Là biến thể của SA, không phải nền để so. **Cấu hình 1%/5% + `percentile_lower 0.5` vẫn chốt trong `phase0.sh`** — chốt giá trị và chạy nhánh là hai việc khác nhau. | `offline_clustering.py --hierarchical_lookup` vẫn chạy được, không phải sửa config |
+| **So với Table 2 + tolerance ±0,3** | Người dùng chốt không so nữa. Số của bài phụ thuộc prompt/truncation/phần cứng của họ; chênh 1,8 điểm trên All-KV không phân định được là môi trường sai hay là khác biệt hợp lệ, và nó chặn nhầm cả những lượt chạy tốt. | `scripts/check_gate.py` + `scripts/reference_table2.json` **để lại nhưng không còn dùng** — `check_phase1.py` vẫn import `env_summary` từ đó |
+| **`scripts/phase0_gate.sh`** | Thay bằng `scripts/repro_lcc.sh`. | Giữ làm tham chiếu lịch sử |
+| **Mục 0.5 "số đích từ Table 2", 0.8 "gate"** | Không còn tiêu chí PASS/FAIL từ ngoài. | Xem `EXPERIMENT_LOG.md` mục Phase 0 |
+
+**Không** bỏ: `record_env.py` (`--strict`), `inspect_preds.py` (hậu kiểm prediction thô),
+`compare_runs.py` (paired test), và toàn bộ 5 bug đã sửa ở [§5](#5-đã-sửa-trong-phase-0).
+Những cái đó kiểm tính đúng đắn của đường ống, không phụ thuộc việc có mốc ngoài hay không.

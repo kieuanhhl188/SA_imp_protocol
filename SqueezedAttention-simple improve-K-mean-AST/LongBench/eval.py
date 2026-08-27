@@ -49,6 +49,8 @@ def parse_args(args=None):
     parser.add_argument("--percent_clusters_l2", type=int, default=-1)
     parser.add_argument("--percentile", type=float, default=0.5)
     parser.add_argument("--percentile_lower", type=float, default=0.7)
+    parser.add_argument("--run_tag", type=str, default="",
+                        help="phai trung --run_tag da dung khi chay pred.py")
     parser.add_argument("--limit", type=int, default=-1,
                         help="đọc thư mục có hậu tố _lim<N> do `pred.py --limit N` sinh ra. "
                              "Phải trùng đúng N đã dùng ở pred.py")
@@ -109,6 +111,9 @@ if __name__ == '__main__':
 
     if args.limit > 0:
         config_dir = f"{config_dir}_lim{args.limit}"
+
+    if args.run_tag:
+        config_dir = f"{config_dir}_run{args.run_tag}"
 
     path = f"pred/{config_dir}/"
     all_files = os.listdir(path)

@@ -1,4 +1,5 @@
 {
+  "_deprecated": "27/8: Phase 0 khong con so voi Table 2 (xem docs/PHASE0.md §8). File giu lai lam tham chieu cho lượt chay 17/8, khong con nam tren duong chay mac dinh.",
   "_source": "Hooper et al., 'Squeezed Attention: Accelerating Long Context Length LLM Inference', ACL 2025 (2025.acl-long.1568), Table 2, trang 7.",
   "_note": "Chỉ trích 2 cột code task (RB = RepoBench-P, LCC) cộng 2 cột trung bình. 'budget' = expected % KV cache phải load (đã gồm overhead centroid).",
   "_longbench_allkv_reference": {

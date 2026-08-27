@@ -17,7 +17,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 
 | Phase | Nội dung | Hạn | Tiến độ |
 |---|---|---|---|
-| 0 | Môi trường + tái lập baseline SA | — | 🟡 **reproduction có, strict gate chưa đạt** (chỉ LCC, dung sai ±2.0) |
+| 0 | Môi trường + tái lập baseline SA | — | 🟡 **1 lượt đã có; đang chờ chạy lặp 3 seed lấy mean±std** (LCC-only, không so Table 2) |
 | 1 | Chuẩn bị dữ liệu code | — | ✅ **GATE PASS** (Qwen base, paired test p=0,22) |
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code, chưa chạy GPU |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
@@ -31,26 +31,65 @@ Phase 2 và 3 là phần *cài đặt* mà Phase 5/6 sẽ đo.
 
 ---
 
-### Phase 0 — Môi trường + tái lập baseline SA · 🟡 reproduction có, strict gate chưa đạt
+### Phase 0 — Môi trường + tái lập baseline SA · 🟡 1 lượt đã có, chờ chạy lặp
 
 Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablation trên cùng một nền.
+
+**Thu hẹp phạm vi 27/8.** Cả bài chỉ kiểm chứng khả thi trên **LCC × LongChat-7B-v1.5-32K**.
+Bỏ RepoBench-P, bỏ Sq-80/90% và H-Sq-90%, và **bỏ hẳn việc so với Table 2**. Mốc bây giờ
+là chính đường ống này: chạy lặp nhiều lượt, báo cáo mean ± std cho All-KV và Sq-70%.
+Danh sách đầy đủ những gì bị bỏ: [docs/PHASE0.md §8](docs/PHASE0.md).
 
 | # | Việc | Trạng thái | Chi tiết |
 |---|---|---|---|
 | 0.1 | Clone repo gốc, dựng env | ✅ | Repo + fork transformers 4.40.0.dev0 có sẵn. `requirements.txt` đã viết đủ (cuml, cupy, triton, flash-attn) |
-| 0.2 | Chốt config mặc định (5%, 1%/5%, obs 100, 32K) | ✅ | [configs/phase0.sh](configs/phase0.sh) |
+| 0.2 | Chốt config mặc định (5%, obs 100, 32K) | ✅ | [configs/phase0.sh](configs/phase0.sh) — `SQA_CODE_DATASETS=("lcc")`, thêm `SQA_SEEDS` |
 | 0.3 | Ghi version transformers/triton, GPU, seed | ✅ | [scripts/record_env.py](scripts/record_env.py), tự kiểm tra transformers có đúng fork |
-| 0.4 | Script chạy gate LCC/RB | ✅ | [scripts/phase0_gate.sh](scripts/phase0_gate.sh) + [scripts/check_gate.py](scripts/check_gate.py), tolerance ±0.3 |
-| 0.5 | Số đích từ Table 2 | ✅ | [scripts/reference_table2.json](scripts/reference_table2.json), xem mục 2 |
+| 0.4 | Script tái lập lặp nhiều lượt | ✅ | [scripts/repro_lcc.sh](scripts/repro_lcc.sh) + [scripts/aggregate_runs.py](scripts/aggregate_runs.py) |
+| 0.5 | ~~Số đích từ Table 2~~ | ⛔ bỏ | Không còn tiêu chí PASS/FAIL từ ngoài. [scripts/reference_table2.json](scripts/reference_table2.json) và [scripts/check_gate.py](scripts/check_gate.py) giữ lại nhưng không còn trên đường chạy |
 | 0.6 | Sửa bug chặn gate | ✅ | 5 bug, xem mục 6 |
 | 0.7 | Cài đặt thật trên pod | ✅ | A100 SXM 80GB. Stack đã kiểm chứng, xem mục 6 |
-| 0.8 | Chạy gate | 🟡 | Chỉ có LCC; All-KV 54,83 (delta −1,81) · Sq-70% 56,08 (delta −0,85). PASS với dung sai nới ±2,0, **FAIL theo protocol ±0,3**; chưa chạy RepoBench-P và Sq-80/90% |
+| 0.8 | Chạy 1 lượt (17/8) | ✅ | LCC 500 mẫu: All-KV **54,83** · Sq-70% **56,08** (delta **+1,25**). Bằng chứng: [phase0_evidence/](phase0_evidence/) |
 | 0.9 | Hậu kiểm prediction thô | ✅ | Thêm 17/8. `inspect_preds.py` trên cả 500 mẫu: dòng chấm rỗng **14,6%** (All-KV) / **12,6%** (Sq-70%), dưới ngưỡng 25%. Prediction là code thật → 54,83 không phải số ảo. Xem mục 6 |
+| 0.10 | Sửa: seed không tới được K-means | ✅ 27/8 | `KMeans(random_state=0)` bị hardcode trong [squeezedattention/clustering.py](squeezedattention/clustering.py). Cộng với giải mã tham lam của `pred.py`, **toàn bộ đường ống không có nguồn ngẫu nhiên nào** → chạy lặp bao nhiêu lượt cũng ra std = 0,00. Đã đưa seed vào `random_state`, thêm `--seeds` cho `offline_clustering.py` và `--run_tag` cho `pred.py`/`eval.py` |
+| 0.11 | Chạy lặp 3 seed lấy mean±std | ⬜ **chờ pod** | Pod cũ (`154.54.102.43:11267`) đã tắt. `bash scripts/repro_lcc.sh` |
+| 0.12 | Chốt an toàn đĩa cho chạy nhiều seed | ✅ 27/8 | Centroid LCC LongChat **~70 GB/seed** → 3 seed ≈ 210 GB, **quá volume 200 GB**. `repro_lcc.sh` nay: cảnh báo dung lượng trước khi chạy, bắt buộc `check_cluster_integrity.py` sau clustering (MooseFS cắt cụt im lặng, resume bỏ qua đúng mẫu hỏng), và `--purge-after` xoá centroid từng seed sau khi pred xong. `SQA_CLUSTER_DIR_PATTERN` dẫn xuất từ `SQA_CLUSTER_DIR` nên vẫn nằm trên volume |
 
-**Còn lại:**
-1. Thuê pod theo cấu hình mục 5, cài theo [docs/PHASE0.md](docs/PHASE0.md).
-2. Chạy thử **3 sample** trước để đo giây/sample và MB/sample — hai con số chưa biết, cần để ước lượng job full và dung lượng đĩa.
-3. `bash scripts/phase0_gate.sh`. Kết quả tự ghi vào mục "Lịch sử chạy".
+**Cách chạy:**
+```bash
+source /workspace/env.sh
+ln -s /workspace/fixed-prompt-clusters /workspace/fixed-prompt-clusters_seed0
+bash scripts/repro_lcc.sh --seeds "0"   --skip-cluster       # dùng lại centroid 17/8
+bash scripts/repro_lcc.sh --seeds "1 2" --purge-after        # 1 lượt forward cho 2 seed
+bash scripts/repro_lcc.sh --seeds "0 1 2" --aggregate-only   # gộp
+```
+Chia ba lượt vì **đĩa**, không phải vì GPU: mỗi seed ~70 GB centroid. Xem 0.12.
+Chi phí đo từ log 17/8 trên A100-80GB: clustering ~6h15 (dùng chung mọi seed) ·
+All-KV ~16 phút/lượt · Sq-70% ~3h07/lượt. Ba seed ≈ 16 giờ; tái dùng seed 0 thì ≈ 10 giờ.
+
+**Sq-70% (56,08) cao hơn All-KV (54,83) — không phải lỗi.** Kiểm định ghép cặp trên
+chính 500 mẫu của lượt 17/8 (tính lại từ `phase0_evidence/pred/*/lcc.jsonl`, ghép theo
+thứ tự dòng, đã xác minh `answers`+`length` khớp từng dòng vì lượt đó chạy 1 GPU):
+
+| | |
+|---|---|
+| Hiệu số từng mẫu (Sq-70% − All-KV) | **+1,25**, KTC95 **[−0,10; +2,59]**, sign test **p = 0,39** |
+| Tốt hơn / xấu hơn / y hệt | 48 / 39 / **413** mẫu |
+| Prediction trùng bit-for-bit | 300/500 |
+| SD điểm từng mẫu (All-KV) | 33,32 → SE của riêng một trung bình = **1,49** |
+
+Tức là **+1,25 không phân biệt được với 0**. Bài gốc cũng cho cùng thứ tự trên cột LCC —
+LongChat +0,29, LLaMA-2-32K +0,39, LWM +0,04 — và mọi mức Sq/H-Sq đều ≥ All-KV. Không có
+gì để sửa; chỉ cần đừng đọc +1,25 như một cải thiện.
+
+**Hệ quả cho các phase sau:** trên LCC 500 mẫu, ngưỡng phát hiện được của kiểm định ghép
+cặp là **≈ 1,3 điểm** (1,96 × 15,34/√500). Cải tiến dưới mức đó thì LCC không phân định
+được, dù trung bình có đẹp đến đâu. Dùng [scripts/compare_runs.py](scripts/compare_runs.py),
+đừng so hai số trung bình.
+
+**Một lượt = một seed K-means, không phải chạy lại `pred.py`.** `pred.py` giải mã tham
+lam nên chạy lại trên cùng bộ centroid ra output y hệt. All-KV vẫn chạy đủ 3 lượt, nhưng
+chỉ để làm sàn nhiễu phần cứng — kỳ vọng std ≈ 0,00.
 
 **Đã kiểm, không phải lo:** 8 tham số SA đều có default trong `configuration_llama.py` (nên `pred.py` không set `return_qkv_states` vẫn chạy); `reset_context = hidden_states.shape[1] > 1` nên centroid nạp lại đúng mỗi sample; `rope_scaling` linear factor 8 của LongChat được fork chấp nhận.
 
@@ -548,7 +587,7 @@ LongBench gốc với prompt/truncation khác, so vào sẽ FAIL oan.
 | Centroid model **ngoài** LongChat | `fixed-prompt-clusters/<model>/<dataset>/*.pt` | `scripts/phase1_gate.sh` |
 | Môi trường | `phase0_results/env_record.json`, `_pip_freeze.txt` | `scripts/record_env.py` |
 | Console log đầy đủ | `phase0_results/logs/<timestamp>_phase0_gate.log` | `scripts/phase0_gate.sh` |
-| **Tổng hợp (file này)** | `EXPERIMENT_LOG.md` | `scripts/check_gate.py --log_md` |
+| **Tổng hợp (file này)** | `EXPERIMENT_LOG.md` | `scripts/aggregate_runs.py --log_md` (Phase 0), `scripts/check_gate.py --log_md` (Phase 1) |
 
 Quy ước tên thư mục `<config>` do `eval.py` sinh:
 - All-KV → `<model>_baseline`
@@ -1154,8 +1193,9 @@ Qwen2ForCausalLM. Chạy được nhờ trùng hợp, nhưng chạy đúng.
 **Thêm mới**
 - `requirements.txt` — dependency đầy đủ (cuml, cupy, triton, flash-attn…)
 - `configs/phase0.sh` — chốt cấu hình dùng chung
-- `scripts/reference_table2.json` — số Table 2 cho LongChat / LLaMA-2-32K / LWM
-- `scripts/check_gate.py` — so kết quả vs Table 2, tolerance 0.3, tự ghi nhật ký
+- `scripts/repro_lcc.sh` — tái lập LCC nhiều lượt (All-KV + Sq-70%)
+- `scripts/aggregate_runs.py` — gộp các lượt thành mean ± std, cảnh báo khi phương sai chưa được đo
+- ~~`scripts/reference_table2.json`~~, ~~`scripts/check_gate.py`~~ — Phase 0 không còn dùng (Phase 1 vẫn import `env_summary`)
 - `scripts/record_env.py` — dump version/GPU/seed, tự kiểm tra transformers có đúng fork
 - `scripts/phase0_gate.sh` — chạy trọn gate, tee console ra file
 - `docs/PHASE0.md`, `EXPERIMENT_LOG.md`

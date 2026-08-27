@@ -9,7 +9,17 @@ from cupy import fromDlpack
 import math
 import time
 
-def run_clustering(tdict, num_clusters, observation_window=100, print_log=False, device=None):
+def run_clustering(tdict, num_clusters, observation_window=100, print_log=False, device=None,
+                   seed=0):
+    """K-means tren key cua tung head.
+
+    `seed` di thang vao KMeans.random_state. Truoc day random_state bi HARDCODE = 0,
+    nen co doi --seed cua pred.py/offline_clustering.py bao nhieu lan thi centroid van
+    y het nhau. Ma pred.py thi giai ma tham lam (do_sample=False, num_beams=1). Cong lai:
+    toan bo duong ong KHONG co nguon ngau nhien nao -> "chay 3 lan lay trung binh" ra
+    do lech chuan 0.00 va khong do duoc gi. K-means init la nguon phuong sai THAT su cua
+    Squeezed Attention, nen do la thu phai bien thien qua cac lan chay.
+    """
     if device is None:
         device = "cuda:0"
 
@@ -66,7 +76,7 @@ def run_clustering(tdict, num_clusters, observation_window=100, print_log=False,
                 max_iter=300,
                 init='k-means++',  # Initialization method
                 verbose=0,
-                random_state=0
+                random_state=seed
             )
             kmeans.fit(data_cp)
             cluster_labels = kmeans.labels_

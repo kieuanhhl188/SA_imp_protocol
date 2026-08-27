@@ -61,6 +61,11 @@ def parse_args(args=None):
     parser.add_argument("--task", type=str, default=None)
     parser.add_argument("--seed", type=int, default=42,
                         help="random seed; protocol yêu cầu mean±std qua >=3 seed cho số accuracy chính")
+    parser.add_argument("--run_tag", type=str, default="",
+                        help="hau to thu muc ket qua: pred/<config>_run<TAG>. Bat buoc khi lap "
+                             "lai CUNG mot cau hinh nhieu lan (mean+-std), vi ten thu muc mac "
+                             "dinh chi gom model + percent_clusters + percentile -> lan sau ghi "
+                             "de lan truoc va khong con gi de lay trung binh.")
     parser.add_argument("--overwrite", action="store_true",
                         help="xoá file .jsonl cũ trước khi chạy. pred.py ghi ở chế độ append, "
                              "chạy lại mà không có cờ này sẽ nhân đôi prediction -> eval.py ra số sai")
@@ -253,6 +258,10 @@ if __name__ == '__main__':
         # cùng loại lỗi với bug append #3 của Phase 0.
         if args.limit > 0:
             savepath = f"{savepath}_lim{args.limit}"
+
+        # _run<TAG> tach cac lan lap cua cung mot cau hinh. eval.py phai nhan cung --run_tag.
+        if args.run_tag:
+            savepath = f"{savepath}_run{args.run_tag}"
 
         if not os.path.exists(savepath):
             os.makedirs(savepath)

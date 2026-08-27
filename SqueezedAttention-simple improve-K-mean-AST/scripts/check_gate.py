@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """
-check_gate.py — Gate của Phase 0.
+check_gate.py — Gate của Phase 0. KHÔNG CÒN DÙNG CHO PHASE 0 (27/8).
+
+Phase 0 đã bỏ việc so với Table 2; thay bằng scripts/aggregate_runs.py (mean +- std qua
+nhiều lượt chạy). File này GIỮ LẠI vì hai lý do: scripts/check_phase1.py import
+env_summary từ đây, và nó là bản ghi cách lượt 17/8 được kiểm. Xem docs/PHASE0.md §8.
 
 So kết quả reproduce với Table 2 của bài (Hooper et al., ACL 2025).
 Protocol: nếu lệch > 0.3 điểm thì environment sai, phải sửa trước khi làm gì khác.

@@ -1,6 +1,13 @@
 #!/bin/bash
 # ====================================================================
-# phase0_gate.sh — GATE MÔI TRƯỜNG
+# ⚠️ KHÔNG CÒN DÙNG (27/8) — thay bằng scripts/repro_lcc.sh
+#
+# Phạm vi cả bài đã thu về LCC × LongChat-7B và KHÔNG còn so với Table 2. Script này
+# vẫn chạy được và giữ lại làm tham chiếu lịch sử cho lượt 17/8 (phase0_evidence/),
+# nhưng nó chạy cả RepoBench-P, cả Sq-80/90%, và dừng theo tiêu chí ±0,3 so với bài
+# gốc — cả ba đều đã ra ngoài phạm vi. Xem docs/PHASE0.md §8.
+# ====================================================================
+# phase0_gate.sh — GATE MÔI TRƯỜNG (lịch sử)
 #
 # Tái lập số Table 2 của Hooper et al. (ACL 2025) trên hai task code
 # của LongBench: LCC và RepoBench-P, model LongChat-7B-v1.5-32K.
