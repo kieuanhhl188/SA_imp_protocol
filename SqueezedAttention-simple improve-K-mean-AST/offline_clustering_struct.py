@@ -45,14 +45,17 @@ ghi đúng danh sách dataidx để Phase 6 so trên tập giao.
 
 Cần chạy `scripts/prepare_code_data.py` trước để có offset token.
 
+Model chốt 28/8: `longchat-v1.5-7b-32k`, LCC-only, KHÔNG `--force_chat` (LongChat là MHA,
+không phải bản Instruct; lcc nằm trong NO_CHAT_TEMPLATE). Xem configs/phase1.sh.
+
 Ví dụ:
-    python offline_clustering_struct.py qwen2.5-coder-7b-instruct \\
+    python offline_clustering_struct.py longchat-v1.5-7b-32k \\
         --dataset lcc --method hard_boundary --level function \\
         --percent_clusters 5 --output_path clusters/lcc/
 
     # ablation cộng dồn trên cùng dữ liệu
     for M in sa hard_boundary struct_hierarchy; do
-        python offline_clustering_struct.py qwen2.5-coder-7b-instruct \\
+        python offline_clustering_struct.py longchat-v1.5-7b-32k \\
             --dataset lcc --method $M --output_path clusters_$M/lcc/
     done
 """

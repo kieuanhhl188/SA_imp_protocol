@@ -33,9 +33,9 @@ BON DAI LUONG
 USAGE
 -----
     python scripts/compare_partitions.py \\
-        --cluster_dir /workspace/fixed-prompt-clusters/qwen2.5-coder-7b/lcc=sa \\
-        --cluster_dir /workspace/struct-clusters/hard_boundary=hard_boundary \\
-        --cluster_dir /workspace/struct-clusters/struct_hierarchy=struct_hierarchy \\
+        --cluster_dir /workspace/p2-longchat/sa/lcc=sa \\
+        --cluster_dir /workspace/p2-longchat/hard_boundary/lcc=hard_boundary \\
+        --cluster_dir /workspace/p2-longchat/struct_hierarchy/lcc=struct_hierarchy \\
         --max_samples 50
 """
 import argparse

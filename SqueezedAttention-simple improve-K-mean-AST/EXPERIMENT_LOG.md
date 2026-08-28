@@ -19,7 +19,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 |---|---|---|---|
 | 0 | Môi trường + tái lập baseline SA | — | 🟡 **1 lượt đã có; đang chờ chạy lặp 3 seed lấy mean±std** (LCC-only, không so Table 2) |
 | 1 | Chuẩn bị dữ liệu code | — | 🟡 **đổi về LongChat + LCC-only 28/8** — dữ liệu 1.4 cần sinh lại (CPU); accuracy = Phase 0 |
-| 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code, chưa chạy GPU |
+| 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code · lượt Qwen 22/8 xong · **đổi về LongChat 28/8 → chạy lại 3 nhánh trên GPU** |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
 | 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | ❌ 0/5 |
@@ -442,9 +442,30 @@ thấp hơn nhiều so với ~24 của PreFixQA; và mọi số trên LCC/RepoBe
 
 ---
 
-### Phase 2 — Structure-aware clustering (Idea 1) · ✅ **XONG 22/8** · 500/500 mẫu LCC
+### Phase 2 — Structure-aware clustering (Idea 1) · 🟡 lượt Qwen xong 22/8 · **đổi về LongChat 28/8**
 
-**Kết quả trung tâm:** K-means thuần (`sa`) vắt qua ranh giới AST ở **trung vị 44,5%** số
+> ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — Phase 2 chuyển sang LongChat-7B, LCC
+>
+> Model chính đổi từ `qwen2.5-coder-7b-instruct` **sang `longchat-v1.5-7b-32k`**, LCC-only,
+> **KHÔNG `--force_chat`** — khớp Phase 0 ([configs/phase0.sh](configs/phase0.sh)) và Phase 1
+> ([configs/phase1.sh](configs/phase1.sh)), dùng đúng model bài gốc (Table 2).
+>
+> **Cần chạy lại 3 nhánh trên GPU:** `bash scripts/run_phase2_phase5_lcc.sh` (nay `source
+> configs/phase1.sh`, output `/workspace/p2-longchat`). Điều kiện tiên quyết: dữ liệu Phase 1.4
+> cho LongChat tại `phase1_data/longchat-v1.5-7b-32k/` — sinh bằng `bash scripts/phase1_gate.sh
+> --data-only` (CPU).
+>
+> **Mọi con số bên dưới + [docs/PHASE2_RESULTS.md](docs/PHASE2_RESULTS.md) là hồ sơ lượt Qwen
+> 22/8, giữ làm tham chiếu.** Đổi theo model: GQA→MHA (LongChat 32 lớp × 32 head, không per-head
+> QUEST App.G); dung lượng ×8 (~150 GB ba nhánh); bất biến D đối chiếu với reference LongChat.
+> Không đổi (tính chất LCC): K1 bị chặn ở số function, chính sách skip D6, thứ tự level.
+>
+> File đã sửa: [scripts/run_phase2_phase5_lcc.sh](scripts/run_phase2_phase5_lcc.sh) ·
+> [scripts/check_phase2_invariants.py](scripts/check_phase2_invariants.py) (default model) ·
+> [offline_clustering_struct.py](offline_clustering_struct.py) (docstring) ·
+> [docs/POD_RUNBOOK.md §5–6](docs/POD_RUNBOOK.md).
+
+**Kết quả trung tâm (lượt Qwen 22/8):** K-means thuần (`sa`) vắt qua ranh giới AST ở **trung vị 44,5%** số
 cluster (p25 36,0% · p75 52,6% · max 88,0%, n=500), trong khi `hard_boundary` và
 `struct_hierarchy` đạt **0,0% ở đúng 500/500 mẫu**. Ranh giới cứng vừa được thi hành tuyệt
 đối, vừa ràng buộc vào một lượng rất lớn — tức can thiệp có liều thật, không phải no-op.

@@ -61,13 +61,13 @@ mà ban goc de xuat, va tra loi dung cau hoi hon.
 USAGE
 -----
     # tang T1 + T2 (khong can reference)
-    python scripts/diag_invariant_d.py qwen2.5-coder-7b --dataset lcc \\
+    python scripts/diag_invariant_d.py longchat-v1.5-7b-32k --dataset lcc \\
         --phase1_dir /workspace/phase1_data --limit 3
 
-    # ca ba tang
-    python scripts/diag_invariant_d.py qwen2.5-coder-7b-instruct --force_chat \\
+    # ca ba tang (LongChat/lcc: KHONG --force_chat)
+    python scripts/diag_invariant_d.py longchat-v1.5-7b-32k \\
         --dataset lcc --phase1_dir /workspace/phase1_data --limit 3 \\
-        --reference_dir /workspace/fixed-prompt-clusters/qwen2.5-coder-7b-instruct/lcc \\
+        --reference_dir /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc \\
         --out /workspace/diag_invariant_d.json
 
 Ma thoat: 0 = da ket luan duoc nguyen nhan, 1 = khong ket luan duoc (xem canh bao in ra).

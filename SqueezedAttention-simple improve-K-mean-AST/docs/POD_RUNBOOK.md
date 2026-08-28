@@ -62,7 +62,7 @@ Bảng tra nhanh. Chi tiết ở mục của từng phase.
 | **0** | `/workspace/phase0_results/repro_lcc_<TS>.md` + `.json`<br>`LongBench/pred/longchat-v1.5-7b-32k_{baseline,PC5_PERC0.7}_run<TAG>/result.json` | `/workspace/fixed-prompt-clusters_seed<N>/lcc/` (~70 GB/seed) |
 | **1.4** | `/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}` — offset byte + ký tự từng token (đầu vào Phase 2) | — |
 | **1** (accuracy) | = Phase 0 (`repro_lcc.sh`). Chỉ khi chạy `phase1_gate.sh --full`: `LongBench/pred/longchat-v1.5-7b-32k_{baseline,PC5_PERC0.7}_*/result.json` | `/workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc/` (~70 GB — nên symlink Phase 0) |
-| **2** | `/workspace/p2_invariants_instruct.log` — kết quả kiểm bất biến | `$P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/` (~19 GB) |
+| **2** | `/workspace/p2_invariants_longchat.log` — kết quả kiểm bất biến | `/workspace/p2-longchat/{sa,hard_boundary,struct_hierarchy}/lcc/` (~150 GB) |
 | **5** | `/workspace/phase5_lcc.json` — recall@budget (C2) | `/workspace/phase5_smoke.json` (smoke 3 mẫu) |
 | 3, 4, 6, 7 | **chưa có code** | — |
 
@@ -187,30 +187,85 @@ LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7{,_lim20}/result.json
 
 ## 5. Phase 2 — structure-aware clustering (Idea 1)
 
+> **Phase 2 đo VIỆC THI HÀNH, không đo CHẤT LƯỢNG.** Nó trả lời: ranh giới cứng có được thi
+> hành đúng không (`hard_boundary` phải 0% cluster vắt biên), can thiệp mạnh tới đâu (`sa`
+> vắt biên bao nhiêu %), ba nhánh có cùng ngân sách không. "Ranh giới cứng có làm retrieval
+> tốt lên không" là **Phase 5 (C2)** và **Phase 6 (C1)**.
+
 Ba nhánh chạy trên cùng một nền: `sa` (đối chứng, bằng SA gốc), `hard_boundary`,
-`struct_hierarchy`. Một script làm cả Phase 2 rồi Phase 5 luôn:
+`struct_hierarchy`.
+
+### Bước 0 — tiên quyết: dữ liệu Phase 1.4 cho LongChat (CPU, ~1–2 phút)
+
+```bash
+bash scripts/phase1_gate.sh --data-only
+ls /workspace/phase1_data/longchat-v1.5-7b-32k/lcc_meta.jsonl   # phải có
+```
+`run_phase2_phase5_lcc.sh` dừng ngay nếu thiếu file này (khác tokenizer → offset khác).
+
+### Bước 1 — smoke 3 mẫu để biết s/mẫu thật TRƯỚC khi chạy full
+
+```bash
+LIMIT_P2=3 bash scripts/run_phase2_phase5_lcc.sh
+```
+Chưa đo clustering trên LongChat bao giờ. Nhân s/mẫu × 500 × 3 nhánh rồi mới quyết.
+
+### Bước 2 — chạy full
 
 ```bash
 bash scripts/run_phase2_phase5_lcc.sh
 ```
 
 Thứ tự trong script **có chủ đích**: chạy `hard_boundary` trước, rồi smoke Phase 5 trên 3 mẫu
-ngay lập tức. Nếu `phase5_recall.py` hỏng thì hỏng sau ~1 giờ chứ không phải sau ~3 giờ.
+ngay lập tức. Nếu `phase5_recall.py` hỏng thì hỏng sớm chứ không phải sau nhiều giờ.
 
-Cấu hình chốt 23/8, không đổi giữa chừng: `--force_chat`, `--dataset lcc`,
-`--level function --level_l1 class`, `--percent_clusters 5`, `--observation_window 100`.
+**CHỐT 28/8: model = `longchat-v1.5-7b-32k`, LCC-only, KHÔNG `--force_chat`** (khớp Phase 0/1;
+LongChat là MHA đi thẳng `modeling_llama`, không phải bản Instruct, lcc trong `NO_CHAT_TEMPLATE`).
+Script `run_phase2_phase5_lcc.sh` nay `source configs/phase1.sh` nên lấy đúng
+`SQA_MODEL_CODE` / `SQA_FORCE_CHAT` / `SQA_PHASE1_DIR`.
 
-Thời gian: mỗi nhánh ~55-70 phút, ba nhánh ~3 giờ, Phase 5 ~1 giờ.
+Cấu hình còn lại, không đổi: `--dataset lcc`, `--level function --level_l1 class`,
+`--percent_clusters 5`, `--observation_window 100`.
+
+Thời gian: **chưa đo trên LongChat**. Mốc thô — Phase 0 `offline_clustering.py` mất ~6h15 cho
+LCC 500 mẫu (MHA). Ước mỗi nhánh ~4–8 giờ (dùng smoke ở Bước 1 để chốt).
 Chạy lại được — `offline_clustering_struct.py` bỏ qua mẫu đã đủ file.
+
+⚠️ **Dung lượng: LongChat tốn gấp ~8 lần Qwen** (32 KV head vs 4). Lượt Qwen 22/8: 5,8 / 5,8 /
+7,8 GB. Ngoại suy LongChat: ~46 / ~46 / ~62 GB → ba nhánh ~150 GB, sát trần volume 200 GB.
+Nhẹ hơn: `LIMIT_P2=200 bash scripts/run_phase2_phase5_lcc.sh`.
 
 **Kết quả cuối:**
 
 ```
-/workspace/p2_invariants_instruct.log    <- kiểm bất biến Phase 2, ĐỌC CÁI NÀY
-$P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/   <- centroid ba nhánh, ~19 GB
+/workspace/p2_invariants_longchat.log    <- kiểm bất biến Phase 2, ĐỌC CÁI NÀY
+$P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/   <- centroid ba nhánh, ~150 GB
 ```
 
-`$P2_DIR` mặc định là `/workspace/p2-instruct`, đổi bằng biến môi trường `P2_DIR`.
+`$P2_DIR` mặc định là `/workspace/p2-longchat`, đổi bằng biến môi trường `P2_DIR`.
+
+### Bất biến D — giới hạn đã biết, chưa giải
+
+Nhánh `sa` của `offline_clustering_struct.py` phải tái lập `offline_clustering.py` gốc. Lượt
+Qwen: **55/500 mẫu (11%) lệch >5%**, nguyên nhân **chưa biết** (KHÔNG phải seed — chẩn đoán
+cũ sai). Khi có centroid LongChat, chạy chẩn đoán (rẻ, ~2–3 phút GPU, 3 mẫu):
+
+```bash
+python scripts/diag_invariant_d.py longchat-v1.5-7b-32k --dataset lcc \
+    --phase1_dir /workspace/phase1_data \
+    --reference_dir /workspace/fixed-prompt-clusters_seed0/lcc \
+    --out /workspace/diag_invd_longchat.json
+```
+T1 (loại "key vector khác giữa 2 forward") · T2 (nhiễu cuML thuần, ra ngưỡng sàn) · T3 (so
+với file trên đĩa). `T3 ≈ T2` → nhiễu cuML. `T3 ≫ T2` → reference sinh bằng config khác.
+Chi tiết: [PHASE2_RESULTS.md Bảng 4](PHASE2_RESULTS.md).
+
+### `--level_l1` vô hiệu trên LCC ở `level=function`
+
+71% mẫu bị chặn K1 ở số function (LCC trung vị ~15 function < ngân sách L1 ~22). `struct_hierarchy`
+thực chất là "L1 = trung bình theo function" — 2 tầng, **không phải** class→function→token.
+Quét `--level_l1` trên LCC/function ra cùng kết quả mọi giá trị; muốn khảo sát phải để L2 ở
+`block`.
 
 ---
 
@@ -219,7 +274,7 @@ $P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/   <- centroid ba nhánh, ~19 GB
 Chạy kèm trong script Phase 2 ở trên, hoặc riêng:
 
 ```bash
-python phase5_recall.py qwen2.5-coder-7b-instruct --force_chat --dataset lcc \
+python phase5_recall.py longchat-v1.5-7b-32k --dataset lcc \
     --cluster_dir "sa=$P2_DIR/sa/lcc" \
     --cluster_dir "hard_boundary=$P2_DIR/hard_boundary/lcc" \
     --cluster_dir "struct_hierarchy=$P2_DIR/struct_hierarchy/lcc" \
@@ -256,13 +311,13 @@ Mục này cập nhật khi có script. Thứ tự chạy theo protocol:
 Ghi lại để biết mà đọc đúng chỗ, **chưa sửa**:
 
 1. **Phase 0/1 ghi vào thư mục có tên**, Phase 2/5 ghi **file rời ở gốc `/workspace`**
-   (`phase5_lcc.json`, `p2_invariants_instruct.log`) lẫn với hàng chục file log khác.
+   (`phase5_lcc.json`, `p2_invariants_longchat.log`) lẫn với hàng chục file log khác.
    Nhất quán hơn thì nên là `/workspace/phase2_results/` và `/workspace/phase5_results/`.
 2. **`SQA_RESULT_DIR` tên là `phase0_results` nhưng chứa cả env record của Phase 1**
    (`env_record_phase1.json`) và log của mọi gate.
-3. **`$P2_DIR` mặc định `/workspace/p2-instruct` nhưng dữ liệu thật đang nằm ở
-   `/workspace/struct-clusters`** (19 GB, từ lượt chạy trước với `P2_DIR` khác).
-   Kiểm bằng `du -sh /workspace/struct-clusters/*` trước khi cho rằng phải chạy lại.
+3. **`$P2_DIR` mặc định `/workspace/p2-longchat`.** Lượt Qwen cũ nằm ở `/workspace/p2-instruct`
+   và `/workspace/struct-clusters` (19 GB) — KHÔNG dùng lại được cho LongChat (khác tokenizer,
+   khác số head). Kiểm `du -sh /workspace/p2-*` rồi xoá bộ Qwen nếu cần chỗ.
 
 ---
 

@@ -31,15 +31,16 @@ USAGE
     # kiem mot nhanh
     python scripts/check_phase2_invariants.py \\
         --cluster_dir /workspace/smoke_struct/hard_boundary --method hard_boundary \\
-        --phase1_dir /workspace/phase1_data/qwen2.5-coder-7b --dataset lcc
+        --phase1_dir /workspace/phase1_data/longchat-v1.5-7b-32k --dataset lcc
 
     # kiem nhieu nhanh + so cung budget + doi chieu nhanh sa voi ban goc
     python scripts/check_phase2_invariants.py \\
         --cluster_dir sa=/workspace/smoke_struct/sa \\
         --cluster_dir hard_boundary=/workspace/smoke_struct/hard_boundary \\
         --cluster_dir struct_hierarchy=/workspace/smoke_struct/struct_hierarchy \\
-        --phase1_dir /workspace/phase1_data/qwen2.5-coder-7b --dataset lcc \\
-        --reference_dir /workspace/fixed-prompt-clusters/qwen2.5-coder-7b/lcc
+        --model longchat-v1.5-7b-32k \\
+        --phase1_dir /workspace/phase1_data/longchat-v1.5-7b-32k --dataset lcc \\
+        --reference_dir /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc
 
 Dang TEN=/duong/dan la quy uoc dung o `phase5_recall.py`, `compare_partitions.py` va
 `run_phase2_phase5_lcc.sh`. File nay nhan CA HAI thu tu (xem cho parse `--cluster_dir`),
@@ -211,7 +212,7 @@ def main():
                          "Nhan ca thu tu nguoc duong_dan=ten_nhanh. Lap lai de kiem nhieu nhanh")
     ap.add_argument("--method", default=None, help="ten nhanh khi chi co 1 --cluster_dir")
     ap.add_argument("--phase1_dir", required=True)
-    ap.add_argument("--model", default="qwen2.5-coder-7b",
+    ap.add_argument("--model", default="longchat-v1.5-7b-32k",
                     help="de dung lai prompt sau truncation (meta khong luu san)")
     ap.add_argument("--dataset", default="lcc")
     ap.add_argument("--level", default="function")
@@ -376,9 +377,10 @@ def main():
             # Do dung: voi moi centroid ben A, tim centroid GAN NHAT ben B, lay max cac
             # khoang cach do — bat bien voi hoan vi.
             # O CENTROID RONG: cuML cap phat du K hang nhung khong phai hang nao cung duoc
-            # dung; hang khong dung o lai toan 0. Do that tren Qwen2 (dataidx 0): lop 27 co
+            # dung; hang khong dung o lai toan 0. Do tren Qwen2 (dataidx 0): lop 27 co
             # 21.7% hang zero, lop 0 co 3.3%, cac lop khac 0% — VA CA HAI BEN deu vay, tuc
-            # day la hanh vi cua code goc chu khong phai loi cua ban port.
+            # day la hanh vi cua code goc chu khong phai loi cua ban port. (LongChat la MHA
+            # 32 head KV nen ty le co the khac; con so tren chi la vi du.)
             #
             # Hai he qua:
             #   1. Khong duoc dua hang zero vao phep so: chung khong mang thong tin, va neu

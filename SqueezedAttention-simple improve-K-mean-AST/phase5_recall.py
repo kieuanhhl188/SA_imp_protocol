@@ -41,9 +41,9 @@ bao cao trung thuc, khong gop lai lam mot.
 
 USAGE
 -----
-    python phase5_recall.py qwen2.5-coder-7b-instruct --force_chat --dataset lcc \\
-        --cluster_dir sa=/workspace/p2/sa/lcc \\
-        --cluster_dir hard_boundary=/workspace/p2/hard_boundary/lcc \\
+    python phase5_recall.py longchat-v1.5-7b-32k --dataset lcc \\
+        --cluster_dir sa=/workspace/p2-longchat/sa/lcc \\
+        --cluster_dir hard_boundary=/workspace/p2-longchat/hard_boundary/lcc \\
         --sparsity 70 80 90 --limit 100 --out phase5_lcc.json
 """
 import argparse
@@ -253,11 +253,11 @@ def main():
             lab = torch.load(os.path.join(path, f"centroids_labels_dict_{i}_{K}.pt"),
                              map_location=DEV)
             for l in layers:
-                # GQA: hook lay q/k TRUOC repeat_kv nen q co H_q head (28) con k,
-                # centroid, label deu theo H_kv (4). Appendix G cua bai quy dinh moi
-                # query head TU CHON key rieng, nen nhan ban ca ba thu len H_q —
-                # dung `repeat_interleave` giong `expand_kv_heads_to_query_heads`
-                # cua fork, khong tu che cach khac.
+                # GQA: hook lay q/k TRUOC repeat_kv nen q co H_q head con k, centroid,
+                # label deu theo H_kv. Appendix G cua bai quy dinh moi query head TU CHON
+                # key rieng, nen nhan ban ca ba thu len H_q — dung `repeat_interleave`
+                # giong `expand_kv_heads_to_query_heads` cua fork, khong tu che cach khac.
+                # LongChat la MHA (H_q == H_kv == 32) nen rep = 1, nhanh nay khong chay.
                 q = all_q[l].squeeze(0).float()[:, n_ctx:sp_len, :]     # [H_q, Q, D]
                 k = all_k[l].squeeze(0).float()[:, :n_ctx, :]           # [H_kv, S, D]
                 c = cent[l].squeeze(0).float()                          # [H_kv, K, D]

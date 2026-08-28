@@ -1,6 +1,28 @@
 # Phase 2 — Bảng kết quả
 
-Chốt 22/8/2026 · Qwen2.5-Coder-7B (base) · LongBench LCC **500/500 mẫu** · A100-80GB
+> ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — Phase 2 chuyển sang LongChat-7B, LCC
+>
+> Model chính đổi từ `qwen2.5-coder-7b-instruct` **sang `longchat-v1.5-7b-32k`**, LCC-only,
+> **KHÔNG `--force_chat`** — khớp phạm vi đã thu hẹp ở Phase 0 ([configs/phase0.sh](../configs/phase0.sh))
+> và Phase 1 ([configs/phase1.sh](../configs/phase1.sh)), dùng đúng model của bài gốc (Table 2).
+>
+> **Mọi con số bên dưới là hồ sơ lượt Qwen 22/8, giữ lại làm tham chiếu — KHÔNG phải trạng
+> thái hiện tại.** Phải chạy lại cả ba nhánh trên LongChat: `bash scripts/run_phase2_phase5_lcc.sh`.
+>
+> Ba điều đổi theo model, phải đọc lại khi có số LongChat:
+> - **GQA → MHA.** Bảng 1 đếm "28 lớp × 4 KV head" là Qwen. LongChat là **32 lớp × 32 head**
+>   (`num_key_value_heads = num_heads = 32`). Không có xử lý per-head kiểu QUEST App. G.
+> - **Dung lượng ×8.** Centroid lưu theo số KV head → Bảng 6 (5,8 / 5,8 / 7,8 GB) thành
+>   ~46 / ~46 / ~62 GB. Ba nhánh ~150 GB, sát trần volume 200 GB.
+> - **Bất biến D** đối chiếu `sa` với `offline_clustering.py` — reference dir phải là bộ
+>   LongChat (`fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc`), không phải bộ Qwen.
+>
+> Không đổi theo model (tính chất của LCC): Bảng 5 (K1 thực tế bị chặn ở số function),
+> chính sách D6 (skip khi vượt ngân sách), thứ tự level function → block → statement.
+
+---
+
+Chốt 22/8/2026 · ~~Qwen2.5-Coder-7B (base)~~ · LongBench LCC **500/500 mẫu** · A100-80GB
 Ngân sách centroid 5% · observation window 100 · `level=function` · `level_l1=class`
 
 Nguồn: `phase2_invariants_v2.log` · `feasibility_lcc_*_function_pc5.json` · `k1_stats_*.pt`
