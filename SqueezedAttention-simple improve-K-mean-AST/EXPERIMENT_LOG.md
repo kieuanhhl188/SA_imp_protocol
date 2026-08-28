@@ -18,7 +18,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 | Phase | Nội dung | Hạn | Tiến độ |
 |---|---|---|---|
 | 0 | Môi trường + tái lập baseline SA | — | 🟡 **1 lượt đã có; đang chờ chạy lặp 3 seed lấy mean±std** (LCC-only, không so Table 2) |
-| 1 | Chuẩn bị dữ liệu code | — | ✅ **GATE PASS** (Qwen base, paired test p=0,22) |
+| 1 | Chuẩn bị dữ liệu code | — | 🟡 **đổi về LongChat + LCC-only 28/8** — dữ liệu 1.4 cần sinh lại (CPU); accuracy = Phase 0 |
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code, chưa chạy GPU |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
@@ -96,6 +96,39 @@ chỉ để làm sàn nhiễu phần cứng — kỳ vọng std ≈ 0,00.
 ---
 
 ### Phase 1 — Chuẩn bị dữ liệu code · ✅ **GATE PASS** · dữ liệu ✅ **PASS 19/8 (500+500 mẫu)**
+
+> ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — quay về LongChat-7B + LCC-only
+>
+> Model chính đổi từ `qwen2.5-coder-7b-instruct` **trở lại `longchat-v1.5-7b-32k`**, chỉ LCC.
+> Lý do: khớp phạm vi đã thu hẹp ở Phase 0 (27/8, [docs/PHASE0.md §8](docs/PHASE0.md)) và
+> dùng đúng model của bài gốc (Table 2).
+>
+> **Phần lớn công việc Phase 1 bên dưới là Qwen-specific và không còn trên đường chạy:**
+>
+> | Hạng mục | LongChat |
+> |---|---|
+> | 1.6 GQA per-head (QUEST App. G) | **N/A** — LongChat là MHA, `num_key_value_heads = 32 = num_heads` |
+> | `--force_chat` | **N/A** — không phải Instruct; LCC trong `NO_CHAT_TEMPLATE`. `SQA_FORCE_CHAT=0` |
+> | YaRN / "128K" / D7 | **N/A** — native 32K + linear RoPE factor 8, fork chấp nhận sẵn |
+> | RepoBench-P · CrossCodeEval · RepoBench v1.1 · RepoEval | ngoài phạm vi (như Phase 0) |
+> | Port gate GPU ([2]–[6] của `phase1_gate.sh`) | trùng Phase 0 (`repro_lcc.sh`) — không chạy lại |
+>
+> **Phần RIÊNG còn lại của Phase 1** = dữ liệu 1.4 (offset byte + ký tự) + gate dữ liệu 5
+> bước, đều CPU. Sinh lại cho LongChat (bộ cũ trước 22/8 thiếu `offsets_bytes_*` và đã bị
+> thư mục Qwen ghi đè):
+>
+> ```bash
+> bash scripts/phase1_gate.sh --data-only     # prepare_code_data + check_phase1_data, ~1-2 phút
+> ```
+>
+> Số accuracy lấy từ Phase 0: All-KV **54,83** · Sq-70% **56,08** · hiệu ghép cặp **+1,25**
+> (p=0,39). Các bước chạy trên pod: [docs/POD_RUNBOOK.md §4](docs/POD_RUNBOOK.md).
+>
+> Config đã sửa: [configs/phase1.sh](configs/phase1.sh) · [scripts/phase1_gate.sh](scripts/phase1_gate.sh)
+> · [scripts/check_phase1.py](scripts/check_phase1.py) (default model + `--no_log_md`).
+>
+> Mọi bảng/kết luận bên dưới ghi "Qwen base 65,35 / Sq 62,55 / −2,80" là **hồ sơ lượt Qwen**,
+> giữ lại làm tham chiếu; không phải trạng thái hiện tại.
 
 Cần đúng cấu trúc *một fixed context → nhiều user query* thì premise của SA mới áp dụng.
 

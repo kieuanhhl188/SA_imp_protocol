@@ -1,35 +1,40 @@
 #!/bin/bash
 # ====================================================================
-# phase1_gate.sh — GATE PHASE 1: ban port Squeezed Attention sang Qwen2 (GQA)
+# phase1_gate.sh — GATE PHASE 1: chuan bi du lieu code + kiem duong nap centroid
 #
-# Phase 1.5 + 1.6 da co code va pass test CPU (scripts/test_gqa_port.py 20/20),
-# nhung CHUA TUNG chay tren GPU. Script nay chay het duong ong tren N mau dau
-# cua LCC de xac nhan bon thu, theo thu tu RE TRUOC DAT SAU — hong o buoc nao
-# thi dung ngay o do, khong tra tien GPU cho buoc sau:
+# CHOT 28/8: model chinh = LongChat-7B-v1.5-32K, LCC-only (configs/phase1.sh).
 #
-#   [1] Phase 1.4 cho Qwen  — tokenizer nhanh/cham co ra cung token id khong?
-#                             (~1 phut, CPU. Lech la moi offset deu sai.)
-#   [2] offline_clustering  — hook tra key 4 head (TRUOC repeat_kv) va cuML chay duoc
+#   [1]  Phase 1.4          — sinh offset BYTE + KY TU tung token; tokenizer
+#                             nhanh/cham co ra cung token id khong? (~1 phut, CPU)
+#   [1b] check_phase1_data  — gate du lieu 5 buoc (CPU): ngon ngu tung mau, du mau,
+#                             span AST khong lech byte/ky tu, fixed_context khong mat
+#   [2] offline_clustering  — hook tra key TRUOC repeat_kv va cuML chay duoc
 #   [3] integrity           — file centroid CRC dung, du bo ba cho moi dataidx
-#   [4] pred All-KV         — duong khong-centroid cua Qwen chay va sinh output that
-#   [5] pred Sq-70%         — duong centroid + GQA lookup chay
+#   [4] pred All-KV         — duong khong-centroid chay va sinh output that
+#   [5] pred Sq-70%         — duong nap + tra centroid chay
 #   [6] check_phase1        — Sq-70% khong te hon All-KV -> tra dung nhom centroid
 #
-# Tieu chi PASS: Sq-70% >= All-KV - tolerance. Table 2 KHONG co Qwen nen day la
-# tieu chi noi tai, khong phai tai lap so cua bai. Chi tiet o scripts/check_phase1.py.
+# >>> VOI LongChat (MHA, khong GQA), buoc [2]-[6] TRUNG voi Phase 0 (repro_lcc.sh):
+#     cung model, cung LCC, cung duong modeling_llama. Phan RIENG that su cua Phase 1
+#     la [1]+[1b] — chay CPU. Khuyen dung:
+#         bash scripts/phase1_gate.sh --data-only
+#     roi lay ket qua accuracy tu Phase 0. Chi chay het [2]-[6] khi muon mot lan
+#     kiem doc lap bang paired test cua check_phase1.py — va luu y no sinh THEM ~70 GB
+#     centroid o thu muc rieng (xem CLUSTER_ROOT ben duoi), trong khi dia la rang buoc
+#     chat nhat cua pod. Khi do nen --skip-cluster + symlink toi centroid Phase 0.
+#
+# Tieu chi PASS: Sq-70% >= All-KV - tolerance, danh gia bang paired test tren hieu so
+# tung mau. Chi tiet o scripts/check_phase1.py.
 #
 # Usage:
-#   bash scripts/phase1_gate.sh                  # 20 mau dau (mac dinh)
+#   bash scripts/phase1_gate.sh --data-only      # [1]+[1b], khong dung GPU  <-- MAC DINH nen dung
+#   bash scripts/phase1_gate.sh                  # 20 mau dau, het duong ong
 #   bash scripts/phase1_gate.sh --limit 50
 #   bash scripts/phase1_gate.sh --full           # ca 500 mau LCC
 #   bash scripts/phase1_gate.sh --skip-cluster   # dung lai centroid da co
-#   bash scripts/phase1_gate.sh --data-only      # chi buoc [1], khong dung GPU
-#   bash scripts/phase1_gate.sh --model qwen2.5-coder-7b-instruct   # doi model
+#   bash scripts/phase1_gate.sh --model qwen2.5-coder-7b-instruct   # doi model (can SQA_FORCE_CHAT=1)
 #
-# Chi phi uoc tinh cho 20 mau: ~30-45 phut ke ca tai model 15 GB (~$1).
-# Qwen2.5-Coder-7B co 4 head KV (vs 32 cua LongChat) -> centroid nho hon ~8 lan,
-# nen ca thoi gian clustering lan dung luong dia deu thap hon Phase 0 dang ke.
-# DAY LA UOC TINH, CHUA DO. Phase 0 cho thay uoc tinh cua toi tung sai 1,5-60 lan.
+# Chi phi [2]-[6] cho LongChat: bang Phase 0 — clustering ~6h15/500 mau, ~70 GB/seed.
 # ====================================================================
 set -e
 
@@ -89,7 +94,7 @@ exec > >(tee -a "$CONSOLE_LOG") 2>&1
 set -o pipefail
 
 echo "=================================================================="
-echo "  PHASE 1 GATE — port Squeezed Attention sang Qwen2 (GQA)"
+echo "  PHASE 1 GATE — chuan bi du lieu code + kiem duong nap centroid"
 echo "  Model:        $MODEL"
 echo "  Dataset:      $DATASET   ($SCOPE)"
 echo "  Cluster dir:  $CLUSTER_ROOT"
@@ -106,15 +111,15 @@ python scripts/record_env.py \
     --seed "$SQA_SEED" \
     --note "phase1 gate: $MODEL on $DATASET ($SCOPE)"
 
-# ---------- 1. Phase 1.4 cho Qwen: offset + kiem tokenizer ----------
+# ---------- 1. Phase 1.4: offset + kiem tokenizer ----------
 # Chay TRUOC MOI THU vi day la buoc re nhat va la buoc de hong nhat khi doi model:
 # offline_clustering.py dung tokenizer CHAM, script nay dung tokenizer NHANH de lay
 # offset roi assert hai ben ra cung token id. Lech la exit 1 ngay tai day, thay vi
 # lo ra sau nhieu gio clustering duoi dang unit_id gan sai key vector.
 #
-# Voi LongChat da chay that: 500/500 khop. Voi Qwen thi CHUA — Qwen2 dung BPE kieu
-# GPT-2 (vocab.json + merges.txt) chu khong phai sentencepiece, ban cham la Python
-# thuan, nen day la cau hoi mo that su chu khong phai thu tuc.
+# LongChat (sentencepiece): da chay that truoc day, 500/500 khop — nhung bo cu sinh
+# TRUOC 22/8 khong co offsets_bytes_* nen phai sinh lai. Sinh lai KHONG dung centroid
+# da co: offset ky tu va shared_prefix_length khong doi, chi them mot mang moi.
 echo ""
 echo ">>> [1] Phase 1.4 — offset token + kiem tokenizer nhanh/cham ($MODEL)"
 #
@@ -161,8 +166,9 @@ fi
 if [ "$SKIP_CLUSTER" -eq 0 ]; then
   echo ""
   echo ">>> [2] Offline clustering (single-level, ${SQA_PERCENT_CLUSTERS}%) — $DATASET"
-  echo "        Cho doi dong 'num_key_value_heads=4' o dau log: do la xac nhan"
-  echo "        centroid duoc sinh TRUOC repeat_kv. Neu ra 28 thi dung ngay."
+  echo "        Kiem dong 'num_key_value_heads=' o dau log: phai bang so head KV THAT"
+  echo "        cua model (LongChat=32, Qwen2.5-Coder=4). Ra so head Q la hook sai cho,"
+  echo "        centroid bi sinh SAU repeat_kv -> dung ngay."
   python offline_clustering.py "$MODEL" $CHAT_ARG \
       --dataset "$DATASET" \
       --output_path "${CLUSTER_ROOT}/${DATASET}/" \
@@ -210,9 +216,11 @@ cd "$SQA_REPO_ROOT"
 echo ""
 echo ">>> Ket thuc: $(date '+%Y-%m-%d %H:%M:%S')"
 
-NOTE="Gate port Qwen2/GQA tren $DATASET ($SCOPE)"
+NOTE="Gate Phase 1 ($MODEL) tren $DATASET ($SCOPE)"
 if [ "$SKIP_CLUSTER" -eq 1 ]; then NOTE="$NOTE, dung lai centroid co san"; fi
 
+# --no_log_md: KHONG ghi vao EXPERIMENT_LOG.md (file trong git). Pod chi sinh so;
+# ghi nhat ky lam o may Windows roi push — xem docs/POD_RUNBOOK.md §10.
 GATE_RC=0
 python scripts/check_phase1.py \
     --model "$MODEL" \
@@ -225,6 +233,7 @@ python scripts/check_phase1.py \
     --console_log "$CONSOLE_LOG_REL" \
     --tokenizer_check "$TOK_SUMMARY" \
     --run_note "$NOTE" \
+    --no_log_md \
     $LIMIT_ARG || GATE_RC=$?
 
 echo ""

@@ -154,7 +154,7 @@ def append_md_log(md_path, args, rows, verdict, env, meta):
 
     scope = f"{args.limit} mẫu đầu" if args.limit > 0 else "toàn bộ dataset"
 
-    lines = ["", f"### {ts} — Phase 1 gate (port Qwen2/GQA) — {args.model} — {badge}", ""]
+    lines = ["", f"### {ts} — Phase 1 gate — {args.model} — {badge}", ""]
     if args.run_note:
         lines += [f"> {args.run_note}", ""]
 
@@ -214,7 +214,7 @@ def append_md_log(md_path, args, rows, verdict, env, meta):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="qwen2.5-coder-7b-instruct")
+    ap.add_argument("--model", default="longchat-v1.5-7b-32k")
     ap.add_argument("--task", default="lcc")
     ap.add_argument("--pred_dir", default=os.path.join(REPO_ROOT, "LongBench", "pred"))
     ap.add_argument("--percent_clusters", type=int, default=5)
@@ -245,7 +245,7 @@ def main():
     sq, p_sq = load_score(args.pred_dir, d_sq, args.task)
 
     print("=" * 66)
-    print("  PHASE 1 GATE — port Squeezed Attention sang Qwen2 (GQA)")
+    print("  PHASE 1 GATE — Sq-70% tra dung nhom centroid (paired test)")
     print(f"  Model:   {args.model}")
     print(f"  Task:    {args.task}" + (f"  (chi {args.limit} mau dau)" if args.limit > 0 else ""))
     print(f"  Tieu chi: Sq-70% >= All-KV - {args.tolerance}")

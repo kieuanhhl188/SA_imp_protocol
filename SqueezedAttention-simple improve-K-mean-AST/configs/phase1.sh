@@ -11,37 +11,37 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/phase0.sh"
 
-# --- Model chinh (quyet dinh D1, chot 15/8; xem lai 17/8) ---
+# --- Model chinh ---
 #
-# MAC DINH LA BAN BASE, KHONG PHAI INSTRUCT. Do 17/8 tren 20 mau LCC:
-#   qwen2.5-coder-7b-instruct  ->  All-KV 17.60   (prediction gan nhu rong)
-# Instruct duoc huan luyen trong khung ChatML; LongBench cho lcc/repobench-p thi
-# co y BO chat template (build_chat bo qua hai task nay), nen model roi vao che do
-# tro ly, mo mot khoi markdown roi phat token ket thuc som. Khong phai loi pipeline:
-# cung duong ong do LongChat ra 54.83, va day la nhanh All-KV khong dung centroid nao.
+# CHOT 28/8: quay ve LongChat-7B-v1.5-32K + LCC-only, khop pham vi da thu hep o
+# Phase 0 (docs/PHASE0.md §8) va dung model cua chinh bai goc (Table 2).
 #
-# LCC/RepoBench-P la dien dong code tiep theo trong ngu canh repo -> base model la
-# dung cong cu. Doi lai: RepoPreFixQA cua Phase 6 la task QA, cho do can instruct.
-# Neu ket cuc dung hai model cho hai loai task thi PHAI ghi ro trong paper.
+# Vi sao doi lai tu Qwen2.5-Coder:
+#   * Qwen la ban PORT sang modeling_qwen2 (GQA) — rui ro nam o dung cho Squeezed
+#     Attention da va. LongChat chay thang duong modeling_llama goc, da duoc Phase 0
+#     xac nhan (repro_lcc.sh: All-KV 54,83 · Sq-70% 56,08).
+#   * LongChat la MHA (num_key_value_heads = num_heads = 32) -> KHONG co GQA. Toan bo
+#     xu ly per-head kieu QUEST Appendix G khong ap dung; buoc 1.6 la N/A.
+#   * LongChat khong phai ban Instruct va LongBench co y bo chat template cho lcc ->
+#     KHONG can --force_chat. (Day la ca dong cot lam Qwen phuc tap.)
+#   * "128K" / YaRN / D7 khong lien quan: LongChat native 32K + linear RoPE factor 8,
+#     fork da chap nhan san.
+#
+# HE QUA THUC TE: phan RIENG cua Phase 1 chi con la du lieu 1.4 (offset token) + gate
+# du lieu 5 buoc — deu chay CPU. Phan do accuracy (Sq-70% vs All-KV tren LongChat/LCC)
+# TRUNG voi Phase 0; khong chay lai o day, xem docs/POD_RUNBOOK.md §4.
 #
 # Ghi de bang bien moi truong hoac co --model cua phase1_gate.sh:
-#   SQA_MODEL_CODE=qwen2.5-coder-7b-instruct bash scripts/phase1_gate.sh
-# CHOT 23/8: quay ve ban INSTRUCT theo dung protocol.
-# Instruct chi hong khi THIEU chat template (17,60 · 6/20 prediction rong). Co template
-# thi 67,80 so voi base 65,35 — kiem dinh theo cap tren cung 20 mau: p=0,78, KTC95
-# [-12,42; +17,32], tuc HAI BEN KHONG PHAN BIET DUOC. Voi SD=33,94 thi can ~740 mau
-# moi phan dinh duoc, ma LCC chi co 500 -> cau hoi nay khong giai duoc bang LCC.
-# Khong co ly do hieu nang de lech protocol -> theo protocol.
-#
-# HE QUA: moi buoc phai bat --force_chat. Thieu co o mot buoc la shared_prefix_length
-# lech va assert no sau khi da nap xong model 15 GB.
-export SQA_MODEL_CODE="${SQA_MODEL_CODE:-qwen2.5-coder-7b-instruct}"
-export SQA_FORCE_CHAT="${SQA_FORCE_CHAT:-1}"
+#   SQA_MODEL_CODE=qwen2.5-coder-7b-instruct SQA_FORCE_CHAT=1 bash scripts/phase1_gate.sh
+export SQA_MODEL_CODE="${SQA_MODEL_CODE:-longchat-v1.5-7b-32k}"
+
+# LongChat + lcc: khong dung chat template. Phai TRUNG voi co dung o pred.py va
+# offline_clustering.py, neu khong shared_prefix_length lech.
+export SQA_FORCE_CHAT="${SQA_FORCE_CHAT:-0}"
 
 # --- So sample cho smoke test cua gate Phase 1 ---
-# Muc dich cua gate la xac nhan duong GQA nap/tra dung centroid, KHONG phai do
-# accuracy. 20 mau du de mot loi tra nham nhom centroid lo ra vai diem, ma van re.
-# Dat 0 de chay ca dataset.
+# Muc dich cua gate la xac nhan du lieu 1.4 + duong nap centroid, KHONG phai do
+# accuracy. 20 mau du re. Dat 0 de chay ca dataset.
 export SQA_PHASE1_LIMIT="${SQA_PHASE1_LIMIT:-20}"
 
 # --- Thu muc du lieu Phase 1.4 (offset token) ---
@@ -53,6 +53,6 @@ export SQA_PHASE1_DIR="${SQA_PHASE1_DIR:-$SQA_REPO_ROOT/phase1_data}"
 export SQA_PHASE1_TASK="${SQA_PHASE1_TASK:-lcc}"
 
 # --- Dung sai gate Phase 1 ---
-# Table 2 khong co Qwen -> khong co moc ngoai. Tieu chi la noi tai:
-# Sq-70% khong duoc thap hon All-KV qua muc nay. Giu ±2.0 nhu Phase 0.
+# Tieu chi noi tai: Sq-70% khong duoc thap hon All-KV qua muc nay. Giu ±2.0 nhu
+# Phase 0. (Phase 0 da chot khong con gate theo Table 2 — xem docs/PHASE0.md §8.)
 export SQA_PHASE1_TOLERANCE="${SQA_PHASE1_TOLERANCE:-2.0}"

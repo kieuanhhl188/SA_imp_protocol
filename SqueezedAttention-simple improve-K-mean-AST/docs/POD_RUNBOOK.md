@@ -60,8 +60,8 @@ Bảng tra nhanh. Chi tiết ở mục của từng phase.
 | Phase | Kết quả cuối cùng | Trung gian (xoá được) |
 |---|---|---|
 | **0** | `/workspace/phase0_results/repro_lcc_<TS>.md` + `.json`<br>`LongBench/pred/longchat-v1.5-7b-32k_{baseline,PC5_PERC0.7}_run<TAG>/result.json` | `/workspace/fixed-prompt-clusters_seed<N>/lcc/` (~70 GB/seed) |
-| **1** | `EXPERIMENT_LOG.md` (mục "Lịch sử chạy", `check_phase1.py` tự phụ lục)<br>`LongBench/pred/qwen2.5-coder-7b-instruct_*/result.json` | `/workspace/fixed-prompt-clusters/qwen2.5-coder-7b-instruct/lcc/` (~5,5 GB) |
-| **1.4** | `/workspace/phase1_data/<model>/` — offset byte + ký tự từng token | — |
+| **1.4** | `/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}` — offset byte + ký tự từng token (đầu vào Phase 2) | — |
+| **1** (accuracy) | = Phase 0 (`repro_lcc.sh`). Chỉ khi chạy `phase1_gate.sh --full`: `LongBench/pred/longchat-v1.5-7b-32k_{baseline,PC5_PERC0.7}_*/result.json` | `/workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc/` (~70 GB — nên symlink Phase 0) |
 | **2** | `/workspace/p2_invariants_instruct.log` — kết quả kiểm bất biến | `$P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/` (~19 GB) |
 | **5** | `/workspace/phase5_lcc.json` — recall@budget (C2) | `/workspace/phase5_smoke.json` (smoke 3 mẫu) |
 | 3, 4, 6, 7 | **chưa có code** | — |
@@ -122,52 +122,66 @@ lượt 17/8 và lượt 27/8. Lệch khỏi nó nghĩa là môi trường đã 
 
 ---
 
-## 4. Phase 1 — chuẩn bị dữ liệu code + port sang Qwen2 (GQA)
+## 4. Phase 1 — chuẩn bị dữ liệu code
 
-Model: `qwen2.5-coder-7b-instruct`, **bắt buộc `--force_chat` ở mọi bước**. Cấu hình ở
-[configs/phase1.sh](../configs/phase1.sh) — nó `source` `phase0.sh` rồi chỉ ghi đè phần khác.
+**CHỐT 28/8: model = `longchat-v1.5-7b-32k`, LCC-only, KHÔNG `--force_chat`.**
+Quay về đúng model của bài gốc (Table 2) và khớp phạm vi đã thu hẹp ở Phase 0
+([docs/PHASE0.md §8](PHASE0.md)). Cấu hình ở [configs/phase1.sh](../configs/phase1.sh) —
+nó `source` `phase0.sh` rồi chỉ ghi đè `SQA_MODEL_CODE` + `SQA_FORCE_CHAT=0`.
+
+### Phần RIÊNG của Phase 1 = dữ liệu 1.4 + gate dữ liệu — **chạy CPU**
 
 ```bash
-bash scripts/phase1_gate.sh --data-only    # bước [1] không cần GPU, ~1 phút
-bash scripts/phase1_gate.sh                # 20 mẫu đầu, ~30-45 phút
-bash scripts/phase1_gate.sh --full         # cả 500 mẫu LCC
-bash scripts/phase1_gate.sh --skip-cluster # centroid đã có
+bash scripts/phase1_gate.sh --data-only     # bước [1] + [1b], ~1-2 phút, không GPU
 ```
 
-Gate chạy 6 bước theo thứ tự **rẻ trước đắt sau**, hỏng ở đâu dừng ngay ở đó: kiểm tokenizer
-(CPU) → offline clustering → CRC → pred All-KV → pred Sq-70% → so sánh.
+Việc nó làm:
 
-Tiêu chí PASS là **nội tại**, không phải tái lập số của bài: Sq-70% ≥ All-KV − tolerance,
-đánh giá bằng **paired test trên hiệu số từng mẫu** ([scripts/check_phase1.py](../scripts/check_phase1.py)).
-Table 2 không có Qwen nên không có mốc ngoài nào để so.
+| Bước | Nội dung | Output |
+|---|---|---|
+| [1] `prepare_code_data.py` | sinh offset **byte + ký tự** từng token của LCC (500 mẫu), `language` lấy per-sample | `/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}` |
+| [1b] `check_phase1_data.py` | gate 5 bước: ngôn ngữ đúng từng mẫu · đủ 500 mẫu · offset fast==slow, phủ kín, byte↔ký tự khớp · `fixed_context` không mất khúc nào | PASS/FAIL trên console |
 
-**Kết quả cuối:**
+Số đã biết (tất định, LCC thuần ASCII): ~1.559.310 token, 0 lệch fast/slow, unit/mẫu
+trung vị 15, 12/500 mẫu suy biến (U≤2), 1/500 truncate. **Kỳ vọng PASS.**
+
+Bước này chạy được cả trên máy Windows — không bắt buộc lên pod.
+
+### Phần accuracy (Sq-70% vs All-KV trên LongChat/LCC) = **KHÔNG chạy ở đây**
+
+LongChat là MHA (không GQA) và đi thẳng đường `modeling_llama` gốc → bước [2]–[6] của
+`phase1_gate.sh` **trùng hoàn toàn với Phase 0** (`repro_lcc.sh`: cùng model, cùng LCC,
+cùng centroid). Lấy số từ đó: All-KV **54,83** · Sq-70% **56,08** · hiệu ghép cặp **+1,25**
+(p=0,39, KTC95 [−0,10; +2,59]).
+
+Chỉ chạy `bash scripts/phase1_gate.sh --full` khi muốn một lần **kiểm độc lập** bằng
+paired test của [check_phase1.py](../scripts/check_phase1.py). Lưu ý:
+- Nó sinh **thêm ~70 GB** centroid ở `/workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc/`
+  (thư mục riêng), trong khi đĩa là ràng buộc chặt nhất của pod ([§9.1](#91-moosefs-cắt-cụt-file-im-lặng), [§9.2](#92-df-không-cho-biết-hạn-mức)).
+- Muốn tiết kiệm: `--skip-cluster` rồi symlink centroid Phase 0 vào đúng chỗ:
+  ```bash
+  mkdir -p /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k
+  ln -sfn /workspace/fixed-prompt-clusters_seed0/lcc \
+          /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc
+  bash scripts/phase1_gate.sh --full --skip-cluster
+  ```
+- `phase1_gate.sh` gọi `check_phase1.py --no_log_md` → **không** đụng `EXPERIMENT_LOG.md`.
+
+**Kết quả cuối (bản `--full` nếu chạy):**
 
 ```
-EXPERIMENT_LOG.md                       <- check_phase1.py tự phụ lục mục PASS/FAIL
-LongBench/pred/qwen2.5-coder-7b-instruct_baseline{,_lim20}/result.json
-LongBench/pred/qwen2.5-coder-7b-instruct_PC5_PERC0.7{,_lim20}/result.json
+LongBench/pred/longchat-v1.5-7b-32k_baseline{,_lim20}/result.json
+LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7{,_lim20}/result.json
 /workspace/phase0_results/env_record_phase1.json
 /workspace/phase0_results/logs/<TS>_phase1_gate.log
 ```
 
-**Dữ liệu Phase 1.4** (offset token, đầu vào của Phase 2) sinh riêng và **lưu riêng**:
+> ⚠️ Bộ dữ liệu 1.4 sinh **trước 22/8** (LongChat cũ) không có `offsets_bytes_*` và đã bị
+> thư mục Qwen ghi đè — phải sinh lại. Sinh lại **không** ảnh hưởng centroid Phase 2/Phase 0
+> đã có: offset ký tự và `shared_prefix_length` không đổi, chỉ thêm một mảng byte mới.
 
-```bash
-python scripts/prepare_code_data.py qwen2.5-coder-7b-instruct --dataset lcc \
-    --output_path /workspace/phase1_data/qwen2.5-coder-7b-instruct
-python scripts/check_phase1_data.py qwen2.5-coder-7b-instruct --dataset lcc
-```
-
-```
-/workspace/phase1_data/<model>/     <- offset BYTE + KÝ TỰ từng token
-```
-
-Thời gian: LCC 500 mẫu **37 giây**, RepoBench-P **4 phút 51**. Bước này là CPU, chạy được cả
-trên máy Windows.
-
-> ⚠️ Bộ dữ liệu sinh **trước 22/8** không có `offsets_bytes_*` → gate báo thiếu, phải sinh
-> lại. Không ảnh hưởng centroid Phase 2 đã có.
+> Bước 1.6 (GQA per-head, QUEST App. G) là **N/A** với LongChat (`num_key_value_heads = 32
+> = num_heads`). Chỉ bật lại khi thêm model cross-check có GQA.
 
 ---
 
@@ -367,13 +381,9 @@ dòng gate tự phụ lục ngày 26/8.
 `scripts/repro_lcc.sh` đã theo quy ước này: nó ghi ra `$SQA_RESULT_DIR` và **không** truyền
 `--log_md`, nên không đụng vào file trong git.
 
-⚠️ **`scripts/phase1_gate.sh` thì ngược lại.** `check_phase1.py` có `--log_md` mặc định trỏ
-thẳng vào `EXPERIMENT_LOG.md`, nên chạy gate Phase 1 trên pod **sẽ** sửa file trong git. Muốn
-giữ một chiều thì thêm cờ tắt:
-
-```bash
-python scripts/check_phase1.py ... --no_log_md
-```
+`scripts/phase1_gate.sh` (từ 28/8) đã gọi `check_phase1.py --no_log_md` nên **không** đụng
+`EXPERIMENT_LOG.md`. Nếu chạy `check_phase1.py` tay thì tự thêm `--no_log_md` — mặc định của
+nó vẫn ghi thẳng vào file trong git.
 
 Đã lỡ ghi rồi thì cất phần pod thêm ra ngoài trước khi đồng bộ code — xem [§9.3](#93-git-treo-trên-moosefs):
 
