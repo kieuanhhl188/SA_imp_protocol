@@ -1192,6 +1192,7 @@ Qwen2ForCausalLM. Chạy được nhờ trùng hợp, nhưng chạy đúng.
 
 **Thêm mới**
 - `requirements.txt` — dependency đầy đủ (cuml, cupy, triton, flash-attn…)
+- [docs/POD_RUNBOOK.md](docs/POD_RUNBOOK.md) — **chạy phase nào bằng lệnh gì trên pod, kết quả mỗi phase lưu ở đâu, và 5 cạm bẫy đã cắn thật**
 - `configs/phase0.sh` — chốt cấu hình dùng chung
 - `scripts/repro_lcc.sh` — tái lập LCC nhiều lượt (All-KV + Sq-70%)
 - `scripts/aggregate_runs.py` — gộp các lượt thành mean ± std, cảnh báo khi phương sai chưa được đo
