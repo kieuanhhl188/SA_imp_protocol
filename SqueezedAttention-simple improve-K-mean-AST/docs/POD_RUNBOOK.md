@@ -132,8 +132,10 @@ nó `source` `phase0.sh` rồi chỉ ghi đè `SQA_MODEL_CODE` + `SQA_FORCE_CHAT
 ### Phần RIÊNG của Phase 1 = dữ liệu 1.4 + gate dữ liệu — **chạy CPU**
 
 ```bash
-bash scripts/phase1_gate.sh --data-only     # bước [1] + [1b], ~1-2 phút, không GPU
+bash scripts/phase1_gate.sh --data-only     # 500 mẫu, ~1-2 phút CPU (không GPU)
 ```
+
+`--data-only` mặc định chạy **toàn bộ 500 mẫu** (không phải smoke 20) — Phase 2 đọc cả 500.
 
 Việc nó làm:
 

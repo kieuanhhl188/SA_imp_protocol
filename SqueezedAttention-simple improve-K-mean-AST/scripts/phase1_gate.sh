@@ -43,19 +43,24 @@ source "$SCRIPT_DIR/../configs/phase1.sh"
 cd "$SQA_REPO_ROOT"
 
 LIMIT="$SQA_PHASE1_LIMIT"
+LIMIT_SET=0            # nguoi dung co truyen --limit/--full khong
 SKIP_CLUSTER=0
 DATA_ONLY=0
 MODEL_OVERRIDE=""
 while [ $# -gt 0 ]; do
   case $1 in
-    --limit) LIMIT="$2"; shift 2 ;;
+    --limit) LIMIT="$2"; LIMIT_SET=1; shift 2 ;;
     --model) MODEL_OVERRIDE="$2"; shift 2 ;;
-    --full) LIMIT=0; shift ;;
+    --full) LIMIT=0; LIMIT_SET=1; shift ;;
     --skip-cluster) SKIP_CLUSTER=1; shift ;;
     --data-only) DATA_ONLY=1; shift ;;
     *) echo "Unknown arg: $1"; exit 1 ;;
   esac
 done
+
+# Gate du lieu 1.4 la buoc CPU ~1-2 phut va Phase 2 doc CA 500 mau -> smoke 20 mau vo
+# nghia o day. --data-only mac dinh chay TOAN BO dataset tru khi ep --limit ro rang.
+if [ "$DATA_ONLY" -eq 1 ] && [ "$LIMIT_SET" -eq 0 ]; then LIMIT=0; fi
 
 MODEL="${MODEL_OVERRIDE:-$SQA_MODEL_CODE}"
 
