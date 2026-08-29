@@ -17,7 +17,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 
 | Phase | Nội dung | Hạn | Tiến độ |
 |---|---|---|---|
-| 0 | Môi trường + tái lập baseline SA | — | 🟡 **1 lượt đã có; đang chờ chạy lặp 3 seed lấy mean±std** (LCC-only, không so Table 2) |
+| 0 | Môi trường + tái lập baseline SA | — | ✅ **baseline vững** — All-KV 54,83 ± 0,00 · Sq-70% 56,36 ± 0,39 (n=2, LCC 500 mẫu). Còn tuỳ chọn: đo phương sai theo seed K-means |
 | 1 | Chuẩn bị dữ liệu code | — | 🟡 **đổi về LongChat + LCC-only 28/8** — dữ liệu 1.4 cần sinh lại (CPU); accuracy = Phase 0 |
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code · lượt Qwen 22/8 xong · **đổi về LongChat 28/8 → chạy lại 3 nhánh trên GPU** |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
@@ -31,7 +31,7 @@ Phase 2 và 3 là phần *cài đặt* mà Phase 5/6 sẽ đo.
 
 ---
 
-### Phase 0 — Môi trường + tái lập baseline SA · 🟡 1 lượt đã có, chờ chạy lặp
+### Phase 0 — Môi trường + tái lập baseline SA · ✅ baseline vững (n=2)
 
 Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablation trên cùng một nền.
 
@@ -52,44 +52,214 @@ Danh sách đầy đủ những gì bị bỏ: [docs/PHASE0.md §8](docs/PHASE0.
 | 0.8 | Chạy 1 lượt (17/8) | ✅ | LCC 500 mẫu: All-KV **54,83** · Sq-70% **56,08** (delta **+1,25**). Bằng chứng: [phase0_evidence/](phase0_evidence/) |
 | 0.9 | Hậu kiểm prediction thô | ✅ | Thêm 17/8. `inspect_preds.py` trên cả 500 mẫu: dòng chấm rỗng **14,6%** (All-KV) / **12,6%** (Sq-70%), dưới ngưỡng 25%. Prediction là code thật → 54,83 không phải số ảo. Xem mục 6 |
 | 0.10 | Sửa: seed không tới được K-means | ✅ 27/8 | `KMeans(random_state=0)` bị hardcode trong [squeezedattention/clustering.py](squeezedattention/clustering.py). Cộng với giải mã tham lam của `pred.py`, **toàn bộ đường ống không có nguồn ngẫu nhiên nào** → chạy lặp bao nhiêu lượt cũng ra std = 0,00. Đã đưa seed vào `random_state`, thêm `--seeds` cho `offline_clustering.py` và `--run_tag` cho `pred.py`/`eval.py` |
-| 0.11 | Chạy lặp 3 seed lấy mean±std | ⬜ **chờ pod** | Pod cũ (`154.54.102.43:11267`) đã tắt. `bash scripts/repro_lcc.sh` |
+| 0.11 | Chạy lặp lấy mean±std | 🟡 **n=2 xong 28/8** | All-KV **54,83 ± 0,00** · Sq-70% **56,36 ± 0,39**. Ghép cặp cặp 28/8: **+1,80**, bootstrap KTC95 [+0,57; +3,13]. Kết quả: `LongBench/pred/longchat-v1.5-7b-32k_*_runs0/result_detail.json` |
+| 0.13 | **Kernel SA không tất định** | ✅ đo 28/8 | 66/500 mẫu đổi prediction giữa hai lượt cùng centroid, trong khi All-KV **0/500**. Phương sai có hai nguồn chứ không một như giả định ở 0.10 |
+| 0.14 | Sự cố 5 centroid hỏng + lượt dở đội lốt kết quả | ✅ sửa 27-28/8 | 5/1500 file hỏng từ lượt 17/8 làm `pred.py` chết ở mẫu 226/500, mà cả ba tầng đều im lặng để 57,28 lọt vào bảng. Đã chặn ba tầng, sinh lại 5 mẫu, CRC nay 1500/1500 sạch |
 | 0.12 | Chốt an toàn đĩa cho chạy nhiều seed | ✅ 27/8 | Centroid LCC LongChat **~70 GB/seed** → 3 seed ≈ 210 GB, **quá volume 200 GB**. `repro_lcc.sh` nay: cảnh báo dung lượng trước khi chạy, bắt buộc `check_cluster_integrity.py` sau clustering (MooseFS cắt cụt im lặng, resume bỏ qua đúng mẫu hỏng), và `--purge-after` xoá centroid từng seed sau khi pred xong. `SQA_CLUSTER_DIR_PATTERN` dẫn xuất từ `SQA_CLUSTER_DIR` nên vẫn nằm trên volume |
 
 **Cách chạy:**
 ```bash
 source /workspace/env.sh
-ln -s /workspace/fixed-prompt-clusters /workspace/fixed-prompt-clusters_seed0
-bash scripts/repro_lcc.sh --seeds "0"   --skip-cluster       # dùng lại centroid 17/8
-bash scripts/repro_lcc.sh --seeds "1 2" --purge-after        # 1 lượt forward cho 2 seed
-bash scripts/repro_lcc.sh --seeds "0 1 2" --aggregate-only   # gộp
+ln -sfn /workspace/fixed-prompt-clusters /workspace/fixed-prompt-clusters_seed0
+bash scripts/repro_lcc.sh --limit 20 --seeds "0" --skip-cluster   # smoke, ~10 phut
+bash scripts/repro_lcc.sh --seeds "0"   --skip-cluster            # ~3h10
+bash scripts/repro_lcc.sh --seeds "1 2" --purge-after             # 2 seed moi, ~12h
+bash scripts/repro_lcc.sh --seeds "0 1 2" --aggregate-only        # gop mean+-std
 ```
-Chia ba lượt vì **đĩa**, không phải vì GPU: mỗi seed ~70 GB centroid. Xem 0.12.
-Chi phí đo từ log 17/8 trên A100-80GB: clustering ~6h15 (dùng chung mọi seed) ·
-All-KV ~16 phút/lượt · Sq-70% ~3h07/lượt. Ba seed ≈ 16 giờ; tái dùng seed 0 thì ≈ 10 giờ.
+Chia nhieu luot vi **dia**, khong phai vi GPU: moi seed ~70 GB centroid. Xem 0.12.
+Thoi gian that do tren A100-80GB, 500 mau: clustering **6h15** (dung chung moi seed) ·
+All-KV **16 phut 29** · Sq-70% **~2h40** (16,5-21 s/mau).
 
-**Sq-70% (56,08) cao hơn All-KV (54,83) — không phải lỗi.** Kiểm định ghép cặp trên
-chính 500 mẫu của lượt 17/8 (tính lại từ `phase0_evidence/pred/*/lcc.jsonl`, ghép theo
-thứ tự dòng, đã xác minh `answers`+`length` khớp từng dòng vì lượt đó chạy 1 GPU):
+#### Kết quả — LCC 500 mẫu, LongChat-7B-v1.5-32K, seed K-means 0
+
+| Cấu hình | 17/8 | 28/8 | mean ± std (n=2) | Prediction rỗng |
+|---|---|---|---|---|
+| All-KV | 54,83 | 54,83 | **54,83 ± 0,00** | 0 / 0 |
+| Sq-70% | 56,08 | 56,63 | **56,36 ± 0,39** | 0 / 0 |
+
+Kiểm định ghép cặp trên cặp 28/8 (cả hai lượt đều đủ `dataidx` 0…499, không trùng lặp):
 
 | | |
 |---|---|
-| Hiệu số từng mẫu (Sq-70% − All-KV) | **+1,25**, KTC95 **[−0,10; +2,59]**, sign test **p = 0,39** |
-| Tốt hơn / xấu hơn / y hệt | 48 / 39 / **413** mẫu |
-| Prediction trùng bit-for-bit | 300/500 |
-| SD điểm từng mẫu (All-KV) | 33,32 → SE của riêng một trung bình = **1,49** |
+| Hiệu số từng mẫu (Sq-70% − All-KV) | **+1,80** |
+| KTC95 xấp xỉ chuẩn | [+0,53; +3,07] |
+| **KTC95 bootstrap** (20.000 lần) | **[+0,57; +3,13]**, chỉ 0,2% lần lấy mẫu lại ra ≤ 0 |
+| Tốt hơn / xấu hơn / y hệt | 47 / 32 / **421** mẫu |
+| Sign test | p = 0,115 |
+| SD điểm từng mẫu (All-KV) | 33,32 → ngưỡng phát hiện được của phép ghép cặp ≈ **1,27 điểm** |
 
-Tức là **+1,25 không phân biệt được với 0**. Bài gốc cũng cho cùng thứ tự trên cột LCC —
-LongChat +0,29, LLaMA-2-32K +0,39, LWM +0,04 — và mọi mức Sq/H-Sq đều ≥ All-KV. Không có
-gì để sửa; chỉ cần đừng đọc +1,25 như một cải thiện.
+Dùng bootstrap làm số chính vì phân bố hiệu số rất lệch — 421/500 mẫu hiệu số bằng đúng 0,
+phần còn lại nhảy tới ±100 — nên xấp xỉ chuẩn không đáng tin. Sign test không thấy khác biệt
+(p = 0,115) vì nó **bỏ qua độ lớn**: Sq-70% thắng 47 thua 32, nhưng thắng đậm hơn (9 mẫu
+thắng >50 điểm so với 5 mẫu thua >50).
 
-**Hệ quả cho các phase sau:** trên LCC 500 mẫu, ngưỡng phát hiện được của kiểm định ghép
-cặp là **≈ 1,3 điểm** (1,96 × 15,34/√500). Cải tiến dưới mức đó thì LCC không phân định
-được, dù trung bình có đẹp đến đâu. Dùng [scripts/compare_runs.py](scripts/compare_runs.py),
-đừng so hai số trung bình.
+Cặp 17/8 cho ước lượng thứ hai của cùng đại lượng: **+1,25**, KTC95 [−0,10; +2,59], p = 0,39.
+Đọc hai con số cạnh nhau: hiệu ứng nhiều khả năng có thật và nhỏ, cỡ **+1 đến +2 điểm**,
+nhưng một lượt đơn lẻ không chốt được — KTC của lượt này chứa 0, lượt kia không.
 
-**Một lượt = một seed K-means, không phải chạy lại `pred.py`.** `pred.py` giải mã tham
-lam nên chạy lại trên cùng bộ centroid ra output y hệt. All-KV vẫn chạy đủ 3 lượt, nhưng
-chỉ để làm sàn nhiễu phần cứng — kỳ vọng std ≈ 0,00.
+---
+
+#### Số đo được đo bằng gì
+
+`code_sim_score` trong [LongBench/metrics.py](LongBench/metrics.py) — **thang 0-100, cao hơn
+là tốt hơn**. Cả `lcc` và `repobench-p` đều dùng metric này.
+
+```python
+def code_sim_score(prediction, ground_truth, **kwargs):
+    all_lines = prediction.lstrip('\n').split('\n')
+    prediction = ""
+    for line in all_lines:
+        if ('`' not in line) and ('#' not in line) and ('//' not in line):
+            prediction = line          # lấy DÒNG ĐẦU không phải comment
+            break
+    return (fuzz.ratio(prediction, ground_truth) / 100)
+```
+
+`fuzz.ratio` là độ tương tự dựa trên khoảng cách Levenshtein. 100 = dòng sinh ra giống hệt
+đáp án, 0 = không giống gì. `eval.py` nhân 100 rồi làm tròn 2 chữ số.
+
+**Hệ quả phải nhớ:** metric chỉ chấm **một dòng**. Trúng thì ~100, trượt thì ~0, nên phân bố
+điểm rất nhị cực. Phân bố 20 mẫu đầu của All-KV:
+
+```
+0, 0, 0, 31, 33, 36, 38, 42, 43, 47, 48, 49, 55, 58, 58, 93, 99, 100, 100, 100
+```
+
+SD từng mẫu **32,83**. Trên 500 mẫu, sai số chuẩn của riêng một trung bình là 1,49 — nên
+**so hai số trung bình là vô dụng**, phải dùng ghép cặp (SE 0,69, ngưỡng phát hiện 1,27 điểm).
+Dùng [scripts/compare_runs.py](scripts/compare_runs.py), đừng trừ hai con số.
+
+---
+
+#### Vì sao hai lượt All-KV bằng nhau đến từng chữ số
+
+**All-KV tất định tuyệt đối. Sq-70% thì không.** Đo trực tiếp bằng cách so từng prediction
+giữa lượt 17/8 và 28/8 (ghép theo `dataidx`, đã xác minh trường `answers` khớp từng dòng):
+
+| Cấu hình | Số prediction khác nhau giữa hai lượt |
+|---|---|
+| **All-KV** | **0 / 500** — trùng từng ký tự |
+| **Sq-70%** | **66 / 500** (13,2%) |
+
+All-KV bằng nhau vì đường đi của nó không có nguồn ngẫu nhiên nào:
+
+1. `pred.py` giải mã **tham lam** — `do_sample=False`, `num_beams=1`, luôn chọn token xác
+   suất cao nhất. Seed torch/numpy không ảnh hưởng gì đến output.
+2. Không dùng centroid, nên chạy attention chuẩn của `modeling_llama` — kernel tất định.
+3. Cùng weights, cùng `truncate_fn`, cùng `model2maxlen=31500` → cùng prompt.
+
+Đó là lý do 54,83 là **mốc chắc chắn nhất** trong toàn bộ Phase 0: lệch khỏi nó nghĩa là môi
+trường đã đổi, không phải nhiễu.
+
+#### Vì sao Sq-70% KHÔNG tất định — phát hiện 28/8
+
+66/500 mẫu đổi văn bản giữa hai lượt, dù:
+
+- cùng centroid (1495/1500 file trùng bit; 5 file sinh lại nằm **ngoài** 66 mẫu đó),
+- cùng seed, cùng giải mã tham lam,
+- `modeling_llama.py` sửa lần cuối **16/8**, tức trước cả hai lượt,
+- `model2maxlen` = 31500 ở cả hai lượt, và **0/66 mẫu** có length > 31500 nên truncation
+  không giải thích được (length lớn nhất trong nhóm khác nhau là 9.203).
+
+All-KV trùng bit tuyệt đối ⇒ prompt giống hệt nhau. Loại trừ hết, chỉ còn một chỗ: **kernel
+Triton tra centroid của đường Squeezed Attention không tất định trên GPU.** Thứ tự rút gọn
+đổi → logit đổi ở chữ số cuối → thỉnh thoảng argmax tham lam chọn token khác.
+
+**Hệ quả cho thiết kế thí nghiệm.** Phương sai có **hai** nguồn, không phải một như giả định
+ban đầu ở mục 0.10:
+
+| Nguồn | Biên độ đã đo | Cách đo |
+|---|---|---|
+| Kernel SA không tất định (cùng centroid) | **~0,55 điểm** | lặp `pred.py`, ~2h40, không tốn đĩa |
+| Seed K-means (phân hoạch khác) | **chưa đo** | clustering lại, 6h15 + 70 GB/seed |
+
+Mọi so sánh "cải tiến vs baseline" về sau phải tính đến sàn nhiễu ~0,5 điểm của riêng nhánh
+SA, cộng ngưỡng phát hiện 1,27 điểm của phép ghép cặp trên 500 mẫu.
+
+---
+
+#### Vì sao All-KV (54,83) THẤP HƠN Sq-70% (56,63)
+
+Ba tầng trả lời, từ nông tới sâu.
+
+**1. Bài gốc cũng vậy.** Table 2 cột LCC, mọi mức Sq/H-Sq đều ≥ All-KV, ở cả ba model:
+
+| Model | All-KV | Sq-70% | Sq-80% | Sq-90% | H-Sq-90% |
+|---|---|---|---|---|---|
+| LongChat-7B | 56,64 | 56,93 | 57,17 | 56,95 | 57,20 |
+| LLaMA-2-7B-32K | 59,14 | 59,53 | 59,78 | 59,37 | 59,61 |
+| LWM-Text-Chat-1M | 40,72 | 40,76 | 41,89 | 43,80 | 43,34 |
+
+Dao động toàn bộ cột LongChat chỉ **0,56 điểm** trong khi budget tụt từ 100% xuống 12,2%.
+**Đó mới là luận điểm của bài**: bỏ gần hết KV cache mà chất lượng không đổi — không phải
+"SA cho điểm cao hơn". Chênh +0,29 của bài nằm gọn trong dải nhiễu đó.
+
+**2. Chênh lệch nhỏ và không ổn định giữa các lượt.** Ta đo được +1,25 (17/8) và +1,80 (28/8)
+cho cùng một đại lượng. Riêng Sq-70% dao động 0,55 điểm giữa hai lượt vì kernel không tất
+định. Một con số đơn lẻ không đủ để nói SA "tốt hơn".
+
+**3. Nếu hiệu ứng có thật thì cơ chế hợp lý là làm sắc attention.** Attention trên context dài
+rải trọng số lên rất nhiều key chỉ liên quan mờ nhạt; từng cái nhỏ nhưng cộng lại làm loãng
+tín hiệu. Cắt bớt đuôi giống như lọc nhiễu. Nhưng **dữ liệu của ta không đủ để khẳng định
+điều đó** — chỉ đủ để nói "cắt 67,5% KV cache mà không mất điểm", vốn đã đúng là điều bài gốc
+muốn chứng minh.
+
+**Điều đáng lo hơn:** context LCC trung vị chỉ **3.055 token** (p25 2.393 · p75 4.709 · max
+31.494), trong khi Squeezed Attention sinh ra để nén fixed context *dài* (bài đo ở 32K-128K).
+Ở 3k token thì gần như không có gì để nén, và attention đầy đủ vốn đã rẻ. Điều này giải thích
+luôn vì sao hai cấu hình gần như hoà nhau: **không phải SA giỏi giữ chất lượng, mà là ở độ dài
+này bài toán chưa đủ khó để phân biệt.** Khớp với ghi chú ở D4: RepoBench v1.1 là bộ duy nhất
+thoả premise "một fixed context dài, nhiều query".
+
+LCC đủ để xác nhận đường ống chạy đúng — mục tiêu của Phase 0, đã đạt — nhưng có thể không đủ
+để chứng minh cải tiến ở các phase sau.
+
+---
+
+#### Sự cố 27/8 — 5 centroid hỏng và lượt chạy dở đội lốt kết quả
+
+Lượt `repro_lcc.sh` ngày 27/8 báo Sq-70% = 57,28, nhưng đó là điểm của **226/500 mẫu**.
+`pred.py` chết ở mẫu 226 vì `PytorchStreamReader failed reading zip archive`. Quét CRC tìm ra
+**5/1500 file centroid hỏng** có sẵn từ lượt 17/8 (mẫu 226, 269, 315, 373, 398) — kiểu hỏng im
+lặng của MooseFS, xem [docs/POD_RUNBOOK.md §9.1](docs/POD_RUNBOOK.md).
+
+Con số sai lọt được tới bảng tổng hợp vì **ba tầng đều im lặng**, mỗi tầng "làm đúng việc của
+nó":
+
+| Tầng | Lỗi |
+|---|---|
+| `pred.py` | `p.join()` không kiểm `exitcode` → worker chết mà cha vẫn thoát 0 → `set -e` không bắt |
+| `eval.py` | chấm 226 mẫu và ghi `result.json` như thật, không đánh dấu gì |
+| `aggregate_runs.py` | xếp 57,28 (226 mẫu) cạnh 54,83 (500 mẫu), in "delta +2,45" |
+
+Đã chặn cả ba (commit `ef2c98e`): `pred.py` kiểm `exitcode` mọi worker; `eval.py --expect N`
+từ chối ghi khi thiếu mẫu; `aggregate_runs.py` thêm cột `số mẫu` và báo `[SAI]` khi các cấu
+hình lệch nhau. Thêm nữa, `repro_lcc.sh` giờ chạy `check_cluster_integrity.py` **cả khi
+`--skip-cluster`** — centroid tái dùng lại càng phải kiểm.
+
+Sau khi sinh lại 5 mẫu đó bằng đúng seed 0: **1500/1500 file CRC đúng**, và 5 mẫu ấy cho
+prediction trùng khít bản 17/8.
+
+---
+
+#### Có cần chạy thêm một lượt nữa không?
+
+**Không, nếu mục tiêu là đóng Phase 0.** Đã có n=2 cho cả hai cấu hình, All-KV tái lập bit-for-bit,
+centroid sạch, môi trường đã ghi. Baseline đủ vững để các phase sau dựa vào.
+
+**Có, nếu muốn con số std đáng tin.** n=2 cho std = 0,39 với đúng một bậc tự do — đó là ước
+lượng rất thô. Một lượt Sq-70% nữa (~2h40, **không tốn thêm đĩa** vì dùng lại centroid seed 0)
+cho n=3, đúng yêu cầu "mean±std qua ≥3 lượt" của protocol.
+
+**Ưu tiên cao hơn cả hai: đo phương sai theo seed K-means.** Luận điểm của cả bài là *phân cụm
+theo AST tốt hơn K-means*. Vậy câu hỏi "một phân hoạch ngẫu nhiên khác thì điểm dịch bao
+nhiêu" chính là **phân bố null mà cải tiến phải vượt qua**. Không có nó thì sau này AST hơn
+baseline 1,5 điểm cũng không phân biệt được với một lần chia cụm may mắn.
+
+Chi phí: 6h15 clustering (một lượt forward cho cả seed 1 và 2) + 2 × 2h40 pred ≈ **12 giờ**,
+và cần xoá centroid seed 0 trước để có đủ 140 GB — giờ xoá được, vì Sq-70% seed 0 đã xong.
+
+---
 
 **Đã kiểm, không phải lo:** 8 tham số SA đều có default trong `configuration_llama.py` (nên `pred.py` không set `return_qkv_states` vẫn chạy); `reset_context = hidden_states.shape[1] > 1` nên centroid nạp lại đúng mỗi sample; `rope_scaling` linear factor 8 của LongChat được fork chấp nhận.
 
