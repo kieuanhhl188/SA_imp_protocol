@@ -8,6 +8,45 @@ Môi trường: A100-SXM4-80GB · torch 2.3.1+cu121 · transformers 4.40.0.dev0 
 
 ---
 
+> ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — quay về LongChat-7B + LCC-only
+>
+> Model chính đổi từ `qwen2.5-coder-7b-instruct` **trở lại `longchat-v1.5-7b-32k`**, chỉ LCC,
+> **không `--force_chat`** — khớp phạm vi đã thu hẹp ở Phase 0 ([PHASE0.md §8](PHASE0.md)) và
+> dùng đúng model của bài gốc (Table 2). Toàn bộ Bảng 1–8 bên dưới là **hồ sơ lượt Qwen 20/8**,
+> giữ làm tham chiếu, không phải trạng thái hiện tại.
+>
+> **Phần RIÊNG còn lại của Phase 1 cho LongChat** = dữ liệu 1.4 (offset byte + ký tự) + gate
+> dữ liệu 5 bước, đều CPU. Phần accuracy trùng Phase 0, không đo lại ở đây.
+>
+> ### ✅ Gate dữ liệu LongChat — PASS 29/8/2026
+>
+> `python scripts/check_phase1_data.py longchat-v1.5-7b-32k --dataset lcc` → **PASS toàn bộ**.
+> Sản phẩm: `phase1_data/longchat-v1.5-7b-32k/` (`lcc_meta.jsonl` 500 dòng + `lcc_offsets.npz`
+> 1000 mảng: `offsets_` ký tự + `offsets_bytes_` byte).
+>
+> | Bước | Kết quả |
+> |---|---|
+> | 1 — ngôn ngữ đúng từng mẫu | ✅ `python 182 · java 160 · csharp 158` · 0 mẫu lệch · 0 mẫu phải đoán |
+> | 2 — đủ mẫu (meta + npz) | ✅ 500/500 |
+> | 3 — offset: fast==slow · không giảm · phủ kín · byte↔ký tự | ✅ 0 lệch token id · hở ≤8 ký tự · **byte cắt ra đúng chuỗi ký tự 500/500** |
+> | 4 — `fixed_context`: `sp_len` khớp · `n_ctx>0` · context không mất | ✅ 0 mẫu lệch · 0 mẫu mất context |
+> | 5 — tổng kết | ✅ **PASS** |
+>
+> | Số đo | LongChat / LCC |
+> |---|---:|
+> | Token đã kiểm | **2.094.562** (khác Qwen 1.559.310 do tokenizer LLaMA) |
+> | Mẫu bị truncate | 1/500 |
+> | Token vắt biên unit | 1 / 2.094.562 ≈ 0,00% |
+> | Unit/mẫu ở level function (trung vị · min · max) | 15 · 2 · 280 |
+> | Mẫu suy biến (U ≤ 2) | 12/500 (2,4%) |
+> | Mẫu chứa Unicode | 0/500 — phép thử vi sai không áp dụng (LCC thuần ASCII) |
+>
+> **Accuracy lấy từ Phase 0** (LongChat / LCC, **n=3**, chốt 29/8): All-KV **54,83 ± 0,00** ·
+> Sq-70% **56,36 ± 0,28** (56,08 / 56,63 / 56,38, đều seed K-means 0) · hiệu ghép cặp từng lượt
+> +1,25 / +1,80 / +1,54 — hai lượt gần nhất bootstrap KTC95 loại trừ 0.
+
+---
+
 ## Bảng 1 — Kết quả chính: bản port Squeezed Attention sang Qwen2 (GQA)
 
 Qwen2.5-Coder-7B **base**, LongBench LCC, 20 mẫu đầu, Sq-70% (5% centroid, percentile 0,7)

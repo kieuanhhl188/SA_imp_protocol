@@ -97,10 +97,22 @@ Không còn số đích từ ngoài. Cái được báo cáo là:
 
 | Cấu hình | n | mean | std | min | max | số mẫu đổi điểm giữa các lượt |
 |---|---|---|---|---|---|---|
-| baseline (All-KV) | | | | | | |
-| PC5_PERC0.7 (Sq-70%) | | | | | | |
+| baseline (All-KV) | 3 | 54,83 | 0,00 | 54,83 | 54,83 | 0/500 (mọi cặp) |
+| PC5_PERC0.7 (Sq-70%) | 3 | 56,36 | 0,28 | 56,08 | 56,63 | 66/500 (17↔28/8) · 13/500 (28↔29/8) |
 
-cộng với hiệu số ghép cặp Sq-70% − All-KV trên từng mẫu (KTC95 + sign test).
+n=3 chốt 29/8 (17/8 · 28/8 · 29/8), **cả ba đều seed K-means 0** → std 0,28 là sàn nhiễu
+kernel SA, chưa phải phương sai theo seed. Kết quả:
+`LongBench/pred/longchat-v1.5-7b-32k_{baseline,PC5_PERC0.7}_runs0{,b}/`.
+
+Hiệu số ghép cặp Sq-70% − All-KV trên từng mẫu (bootstrap KTC95, 20.000 lần):
+
+| Lượt | Hiệu TB | KTC95 bootstrap | % lấy mẫu lại ≤ 0 |
+|---|---:|---|---:|
+| 17/8 | +1,25 | [−0,10; +2,59] *(xấp xỉ chuẩn, p=0,39)* | — |
+| 28/8 | +1,80 | [+0,56; +3,13] | 0,2% |
+| 29/8 | +1,54 | [+0,31; +2,87] | 0,7% |
+
+Hai lượt gần nhất loại trừ 0. Hiệu ứng nhỏ, cỡ +1 đến +2 điểm.
 
 ### ⚠️ Đường ống này gần như tất định — đọc trước khi diễn giải std
 

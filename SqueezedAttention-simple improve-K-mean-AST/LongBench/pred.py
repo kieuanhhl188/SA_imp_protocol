@@ -66,6 +66,11 @@ def parse_args(args=None):
                              "lai CUNG mot cau hinh nhieu lan (mean+-std), vi ten thu muc mac "
                              "dinh chi gom model + percent_clusters + percentile -> lan sau ghi "
                              "de lan truoc va khong con gi de lay trung binh.")
+    parser.add_argument("--resume", action="store_true",
+                        help="neu file .jsonl da co, bo qua nhung dataidx da xong va chay "
+                             "tiep phan con lai (append). Khong dung chung voi --overwrite. "
+                             "eval.py key per_sample theo dataidx nen file khong theo thu tu "
+                             "van cham dung.")
     parser.add_argument("--overwrite", action="store_true",
                         help="xoá file .jsonl cũ trước khi chạy. pred.py ghi ở chế độ append, "
                              "chạy lại mà không có cờ này sẽ nhân đôi prediction -> eval.py ra số sai")
@@ -266,14 +271,28 @@ if __name__ == '__main__':
         if not os.path.exists(savepath):
             os.makedirs(savepath)
         out_path = savepath + f"/{dataset}.jsonl"
+        done_idx = set()
         if os.path.exists(out_path):
+            if args.overwrite and args.resume:
+                raise SystemExit('[ERROR] --overwrite va --resume loai tru nhau.')
             if args.overwrite:
                 print(f'[overwrite] xoa ket qua cu: {out_path}')
                 os.remove(out_path)
+            elif args.resume:
+                with open(out_path, encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            done_idx.add(json.loads(line)['dataidx'])
+                        except (ValueError, KeyError):
+                            pass  # dong cuoi co the bi cat cut khi bi kill giua chung
+                print(f'[resume] {out_path}: da co {len(done_idx)} dataidx -> bo qua, chay tiep')
             else:
                 print(f'[CANH BAO] {out_path} da ton tai va pred.py ghi o che do append.')
                 print(f'           Ket qua se bi nhan doi va eval.py se ra so sai.')
-                print(f'           Dung --overwrite hoac xoa file truoc khi chay lai.')
+                print(f'           Dung --overwrite / --resume hoac xoa file truoc khi chay lai.')
 
         prompt_format = dataset2prompt[dataset]
         prompt_only_format = dataset2prompt[dataset + '_prompt']
@@ -288,6 +307,16 @@ if __name__ == '__main__':
         if args.limit > 0:
             data_all = data_all[:args.limit]
             print(f'[limit] chi chay {len(data_all)}/{len(data)} sample dau -> {savepath}')
+
+        # --resume: bo qua nhung mau da co trong file. Loc SAU khi cat --limit va SAU khi
+        # gan different_prefix_index -> anh xa index<->ten file centroid van dung.
+        if done_idx:
+            before = len(data_all)
+            data_all = [d for d in data_all if d['different_prefix_index'] not in done_idx]
+            print(f'[resume] con {len(data_all)}/{before} mau chua chay')
+            if not data_all:
+                print('[resume] tat ca mau da xong, khong con gi de chay.')
+                continue
 
         data_subsets = [data_all[i::world_size] for i in range(world_size)]
 

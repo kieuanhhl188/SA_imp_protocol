@@ -17,9 +17,9 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 
 | Phase | Nội dung | Hạn | Tiến độ |
 |---|---|---|---|
-| 0 | Môi trường + tái lập baseline SA | — | ✅ **baseline vững** — All-KV 54,83 ± 0,00 · Sq-70% 56,36 ± 0,39 (n=2, LCC 500 mẫu). Còn tuỳ chọn: đo phương sai theo seed K-means |
-| 1 | Chuẩn bị dữ liệu code | — | 🟡 **đổi về LongChat + LCC-only 28/8** — dữ liệu 1.4 cần sinh lại (CPU); accuracy = Phase 0 |
-| 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code · lượt Qwen 22/8 xong · **đổi về LongChat 28/8 → chạy lại 3 nhánh trên GPU** |
+| 0 | Môi trường + tái lập baseline SA | — | ✅ **baseline vững** — All-KV 54,83 ± 0,00 · Sq-70% 56,36 ± 0,28 (**n=3**, LCC 500 mẫu, đều seed K-means 0). Còn tuỳ chọn: đo phương sai theo seed K-means |
+| 1 | Chuẩn bị dữ liệu code | — | ✅ **LongChat + LCC-only** — dữ liệu 1.4 sinh lại + gate dữ liệu **PASS 29/8** (500 mẫu LCC, CPU); accuracy = Phase 0 |
+| 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code · lượt Qwen 22/8 xong · **LongChat: smoke 3 mẫu ✅ 29/8 (bất biến xanh) → chờ chạy full `LIMIT_P2=200` (~8h, ~88 GB)** |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
 | 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | ❌ 0/5 |
@@ -31,7 +31,7 @@ Phase 2 và 3 là phần *cài đặt* mà Phase 5/6 sẽ đo.
 
 ---
 
-### Phase 0 — Môi trường + tái lập baseline SA · ✅ baseline vững (n=2)
+### Phase 0 — Môi trường + tái lập baseline SA · ✅ baseline vững (n=3)
 
 Mục tiêu: dựng lại đúng pipeline SA để mọi cải tiến là ablation trên cùng một nền.
 
@@ -52,8 +52,8 @@ Danh sách đầy đủ những gì bị bỏ: [docs/PHASE0.md §8](docs/PHASE0.
 | 0.8 | Chạy 1 lượt (17/8) | ✅ | LCC 500 mẫu: All-KV **54,83** · Sq-70% **56,08** (delta **+1,25**). Bằng chứng: [phase0_evidence/](phase0_evidence/) |
 | 0.9 | Hậu kiểm prediction thô | ✅ | Thêm 17/8. `inspect_preds.py` trên cả 500 mẫu: dòng chấm rỗng **14,6%** (All-KV) / **12,6%** (Sq-70%), dưới ngưỡng 25%. Prediction là code thật → 54,83 không phải số ảo. Xem mục 6 |
 | 0.10 | Sửa: seed không tới được K-means | ✅ 27/8 | `KMeans(random_state=0)` bị hardcode trong [squeezedattention/clustering.py](squeezedattention/clustering.py). Cộng với giải mã tham lam của `pred.py`, **toàn bộ đường ống không có nguồn ngẫu nhiên nào** → chạy lặp bao nhiêu lượt cũng ra std = 0,00. Đã đưa seed vào `random_state`, thêm `--seeds` cho `offline_clustering.py` và `--run_tag` cho `pred.py`/`eval.py` |
-| 0.11 | Chạy lặp lấy mean±std | 🟡 **n=2 xong 28/8** | All-KV **54,83 ± 0,00** · Sq-70% **56,36 ± 0,39**. Ghép cặp cặp 28/8: **+1,80**, bootstrap KTC95 [+0,57; +3,13]. Kết quả: `LongBench/pred/longchat-v1.5-7b-32k_*_runs0/result_detail.json` |
-| 0.13 | **Kernel SA không tất định** | ✅ đo 28/8 | 66/500 mẫu đổi prediction giữa hai lượt cùng centroid, trong khi All-KV **0/500**. Phương sai có hai nguồn chứ không một như giả định ở 0.10 |
+| 0.11 | Chạy lặp lấy mean±std | ✅ **n=3 xong 29/8** | All-KV **54,83 ± 0,00** · Sq-70% **56,36 ± 0,28** (56,08 / 56,63 / 56,38; đều seed K-means 0). Ghép cặp: 17/8 **+1,25** · 28/8 **+1,80** (bootCI95 [+0,56; +3,13]) · 29/8 **+1,54** (bootCI95 [+0,31; +2,87]). Kết quả: `LongBench/pred/longchat-v1.5-7b-32k_*_runs0{,b}/result_detail.json`. Đủ yêu cầu "mean±std qua ≥3 lượt" của protocol; **vẫn còn** đo phương sai theo seed K-means (seed 1, 2) |
+| 0.13 | **Kernel SA không tất định** | ✅ đo 28/8, xác nhận 29/8 | Cùng centroid seed 0: 66/500 mẫu đổi prediction giữa 17/8↔28/8, **13/500** giữa 28/8↔29/8; All-KV **0/500** ở mọi cặp. Phương sai có hai nguồn chứ không một như giả định ở 0.10 |
 | 0.14 | Sự cố 5 centroid hỏng + lượt dở đội lốt kết quả | ✅ sửa 27-28/8 | 5/1500 file hỏng từ lượt 17/8 làm `pred.py` chết ở mẫu 226/500, mà cả ba tầng đều im lặng để 57,28 lọt vào bảng. Đã chặn ba tầng, sinh lại 5 mẫu, CRC nay 1500/1500 sạch |
 | 0.12 | Chốt an toàn đĩa cho chạy nhiều seed | ✅ 27/8 | Centroid LCC LongChat **~70 GB/seed** → 3 seed ≈ 210 GB, **quá volume 200 GB**. `repro_lcc.sh` nay: cảnh báo dung lượng trước khi chạy, bắt buộc `check_cluster_integrity.py` sau clustering (MooseFS cắt cụt im lặng, resume bỏ qua đúng mẫu hỏng), và `--purge-after` xoá centroid từng seed sau khi pred xong. `SQA_CLUSTER_DIR_PATTERN` dẫn xuất từ `SQA_CLUSTER_DIR` nên vẫn nằm trên volume |
 
@@ -72,30 +72,36 @@ All-KV **16 phut 29** · Sq-70% **~2h40** (16,5-21 s/mau).
 
 #### Kết quả — LCC 500 mẫu, LongChat-7B-v1.5-32K, seed K-means 0
 
-| Cấu hình | 17/8 | 28/8 | mean ± std (n=2) | Prediction rỗng |
-|---|---|---|---|---|
-| All-KV | 54,83 | 54,83 | **54,83 ± 0,00** | 0 / 0 |
-| Sq-70% | 56,08 | 56,63 | **56,36 ± 0,39** | 0 / 0 |
+| Cấu hình | 17/8 | 28/8 | 29/8 | mean ± std (n=3) | Prediction rỗng |
+|---|---|---|---|---|---|
+| All-KV | 54,83 | 54,83 | 54,83 | **54,83 ± 0,00** | 0 / 0 |
+| Sq-70% | 56,08 | 56,63 | 56,38 | **56,36 ± 0,28** | 0 / 0 |
 
-Kiểm định ghép cặp trên cặp 28/8 (cả hai lượt đều đủ `dataidx` 0…499, không trùng lặp):
+Ba lượt đều **dùng lại centroid seed K-means 0** — chênh giữa các lượt chỉ do kernel SA
+không tất định (0.13), không phải do phân hoạch K-means khác. Std 0,28 vì thế là **sàn
+nhiễu của riêng nhánh SA**, chưa phải phương sai theo seed.
 
-| | |
-|---|---|
-| Hiệu số từng mẫu (Sq-70% − All-KV) | **+1,80** |
-| KTC95 xấp xỉ chuẩn | [+0,53; +3,07] |
-| **KTC95 bootstrap** (20.000 lần) | **[+0,57; +3,13]**, chỉ 0,2% lần lấy mẫu lại ra ≤ 0 |
-| Tốt hơn / xấu hơn / y hệt | 47 / 32 / **421** mẫu |
-| Sign test | p = 0,115 |
-| SD điểm từng mẫu (All-KV) | 33,32 → ngưỡng phát hiện được của phép ghép cặp ≈ **1,27 điểm** |
+Kiểm định ghép cặp Sq-70% − All-KV, từng lượt (mỗi lượt đủ `dataidx` 0…499, không trùng):
 
-Dùng bootstrap làm số chính vì phân bố hiệu số rất lệch — 421/500 mẫu hiệu số bằng đúng 0,
-phần còn lại nhảy tới ±100 — nên xấp xỉ chuẩn không đáng tin. Sign test không thấy khác biệt
-(p = 0,115) vì nó **bỏ qua độ lớn**: Sq-70% thắng 47 thua 32, nhưng thắng đậm hơn (9 mẫu
-thắng >50 điểm so với 5 mẫu thua >50).
+| Lượt | Hiệu số TB | KTC95 bootstrap (20.000 lần) | Tốt/xấu/y hệt | % lấy mẫu lại ≤ 0 |
+|---|---:|---|---:|---:|
+| 17/8 | **+1,25** | [−0,10; +2,59] *(xấp xỉ chuẩn, p = 0,39)* | — | — |
+| 28/8 | **+1,80** | **[+0,56; +3,13]** | 47 / 32 / 421 | 0,2% |
+| 29/8 | **+1,54** | **[+0,31; +2,87]** | 45 / 35 / 420 | 0,7% |
+| **gộp 3 lượt** *(điểm mỗi mẫu = TB qua các lượt)* | **+1,67** | [+0,41; +2,93] *(xấp xỉ chuẩn)* · sign p = 0,278 | 48 / 37 / 415 | — |
 
-Cặp 17/8 cho ước lượng thứ hai của cùng đại lượng: **+1,25**, KTC95 [−0,10; +2,59], p = 0,39.
-Đọc hai con số cạnh nhau: hiệu ứng nhiều khả năng có thật và nhỏ, cỡ **+1 đến +2 điểm**,
-nhưng một lượt đơn lẻ không chốt được — KTC của lượt này chứa 0, lượt kia không.
+Dòng "gộp" là số của `aggregate_runs.py` (`phase0_results/phase0_lcc_n3.md`) — lấy trung bình
+điểm từng mẫu qua 3 lượt trước khi ghép cặp, tức đã lọc bớt nhiễu kernel. Đó là ước lượng
+điểm tốt nhất hiện có: **+1,67, KTC95 loại trừ 0**.
+
+SD điểm từng mẫu (All-KV) ≈ 33 → ngưỡng phát hiện được của phép ghép cặp ≈ **1,27 điểm**.
+
+Dùng bootstrap làm số chính cho từng lượt vì phân bố hiệu số rất lệch — ~420/500 mẫu hiệu số
+bằng đúng 0, phần còn lại nhảy tới ±100 — nên xấp xỉ chuẩn không đáng tin.
+
+**Đọc ba con số cạnh nhau:** hiệu ứng nhiều khả năng có thật và nhỏ, cỡ **+1 đến +2 điểm**.
+Hai lượt gần nhất (28/8, 29/8) đều có KTC bootstrap **loại trừ 0**; lượt 17/8 thì không.
+Chưa lượt nào đo phương sai theo seed K-means — đó vẫn là việc còn treo (xem cuối Phase 0).
 
 ---
 
@@ -244,14 +250,12 @@ prediction trùng khít bản 17/8.
 
 #### Có cần chạy thêm một lượt nữa không?
 
-**Không, nếu mục tiêu là đóng Phase 0.** Đã có n=2 cho cả hai cấu hình, All-KV tái lập bit-for-bit,
-centroid sạch, môi trường đã ghi. Baseline đủ vững để các phase sau dựa vào.
+**Đóng Phase 0: xong.** n=3 cho cả hai cấu hình (Sq-70% lượt 3 chạy 29/8, ~2h40, dùng lại
+centroid seed 0 nên không tốn đĩa), All-KV tái lập bit-for-bit qua cả ba lượt, centroid
+sạch, môi trường đã ghi. Đủ yêu cầu "mean±std qua ≥3 lượt" của protocol. Baseline đủ vững
+để các phase sau dựa vào.
 
-**Có, nếu muốn con số std đáng tin.** n=2 cho std = 0,39 với đúng một bậc tự do — đó là ước
-lượng rất thô. Một lượt Sq-70% nữa (~2h40, **không tốn thêm đĩa** vì dùng lại centroid seed 0)
-cho n=3, đúng yêu cầu "mean±std qua ≥3 lượt" của protocol.
-
-**Ưu tiên cao hơn cả hai: đo phương sai theo seed K-means.** Luận điểm của cả bài là *phân cụm
+**Việc còn treo — đo phương sai theo seed K-means.** Luận điểm của cả bài là *phân cụm
 theo AST tốt hơn K-means*. Vậy câu hỏi "một phân hoạch ngẫu nhiên khác thì điểm dịch bao
 nhiêu" chính là **phân bố null mà cải tiến phải vượt qua**. Không có nó thì sau này AST hơn
 baseline 1,5 điểm cũng không phân biệt được với một lần chia cụm may mắn.
@@ -265,7 +269,7 @@ và cần xoá centroid seed 0 trước để có đủ 140 GB — giờ xoá đ
 
 ---
 
-### Phase 1 — Chuẩn bị dữ liệu code · ✅ **GATE PASS** · dữ liệu ✅ **PASS 19/8 (500+500 mẫu)**
+### Phase 1 — Chuẩn bị dữ liệu code · ✅ **GATE PASS** · dữ liệu LongChat ✅ **PASS 29/8 (500 mẫu LCC)** · Qwen ✅ 19/8
 
 > ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — quay về LongChat-7B + LCC-only
 >
@@ -290,6 +294,13 @@ và cần xoá centroid seed 0 trước để có đủ 140 GB — giờ xoá đ
 > ```bash
 > bash scripts/phase1_gate.sh --data-only     # prepare_code_data + check_phase1_data, ~1-2 phút
 > ```
+>
+> **✅ ĐÃ CHẠY 29/8.** `phase1_data/longchat-v1.5-7b-32k/` sinh lại 500 mẫu LCC (`lcc_meta.jsonl`
+> + `lcc_offsets.npz` có cả `offsets_` ký tự và `offsets_bytes_`). `check_phase1_data.py
+> longchat-v1.5-7b-32k --dataset lcc` → **PASS toàn bộ**: token id nhanh==chậm 0 lệch · offset
+> byte cắt ra đúng chuỗi ký tự 500/500 · shared_prefix_length khớp meta 0 lệch · 1/500 truncate
+> · 12/500 (2,4%) mẫu suy biến U≤2 · unit/mẫu function trung vị 15. 2.094.562 token kiểm (khác
+> Qwen 1.559.310 do tokenizer LLaMA). LCC thuần ASCII nên phép thử vi sai Unicode không áp dụng.
 >
 > Số accuracy lấy từ Phase 0: All-KV **54,83** · Sq-70% **56,08** · hiệu ghép cặp **+1,25**
 > (p=0,39). Các bước chạy trên pod: [docs/POD_RUNBOOK.md §4](docs/POD_RUNBOOK.md).
@@ -546,7 +557,7 @@ chạy trước mọi bước dùng GPU và dừng cả gate nếu FAIL.
 | 1.1 | LongBench LCC + RepoBench-P | ✅ | Có sẵn trong pipeline, metric `code_sim_score`, so trực tiếp được với Table 2 |
 | 1.2 | CrossCodeEval + RepoEval/RepoBench | 🟡 | **Đo lại đầy đủ 19/8, cả ba bộ.** RepoBench v1.1 **dùng được ở dạng nguyên bản**: 1.646 fixed context ≥16k dùng chung (Py+Java), tới 99,9K token. RepoEval **khớp premise tốt nhất**: 200 query/context, repo 192K–1,19M token. CrossCodeEval **loại** — 9/9 biến thể đều trần ~10,2K token. Khảo sát 15/8 sai do đọc shard 0 + nhóm sai khoá. Xem [docs/PHASE1_DATASETS.md](docs/PHASE1_DATASETS.md). Còn lại: viết loader |
 | 1.3 | Chuẩn hoá split `fixed_context` / `user_input` | ✅ | Chốt theo D2: giữ định nghĩa LongBench. Kiểm 19/8: **LCC vốn đã khớp protocol** (`{context}` = toàn bộ code trước con trỏ), xung đột chỉ ở `repobench-p`. Gate Phase 0 chạy LCC nên không ảnh hưởng |
-| 1.4 | Lưu offset **byte + ký tự** từng token | ✅ | **Qwen 500/500 LCC + 500/500 RepoBench-P (19/8)**, 0 lệch token id; trước đó LongChat 500/500 LCC · Qwen 20/20. Ngôn ngữ nay lấy từ **trường `language` của từng mẫu**, không còn hardcode. Dữ liệu ở `phase1_data/<model>/`; `load_phase1` của Phase 2 kiểm tên model và **số mẫu**, thiếu là dừng chứ không [WARN] rồi bỏ qua |
+| 1.4 | Lưu offset **byte + ký tự** từng token | ✅ | **LongChat 500/500 LCC sinh lại + gate PASS 29/8** (2.094.562 token, 0 lệch token id, offset byte↔ký tự khớp tuyệt đối). Trước đó: Qwen 500/500 LCC + 500/500 RepoBench-P (19/8). Ngôn ngữ nay lấy từ **trường `language` của từng mẫu**, không còn hardcode. Dữ liệu ở `phase1_data/<model>/`; `load_phase1` của Phase 2 kiểm tên model và **số mẫu**, thiếu là dừng chứ không [WARN] rồi bỏ qua |
 | 1.5 | Model chính **Qwen2.5-Coder-7B (base)** | ✅ | Chạy thật trên A100. **Đổi từ Instruct sang base** sau khi đo: Instruct 17,60 vs base **65,35** cùng dữ liệu. `model2maxlen` = 31500 (không phải 128K) — xem D5. Đã sửa 3 bug chặn, xem mục 6 |
 | 1.6 | GQA: chọn key per-head (QUEST Appendix G) | ✅ | `repeat_interleave` centroid/label từ 4 head KV lên 28 head Q. **Xác nhận trên GPU**: `num_key_value_heads=4`, assert `shared_prefix_length` qua cả 20 mẫu, 14/20 mẫu cho prediction y hệt All-KV |
 | 1.7 | Gate cho bản port | ✅ | [scripts/phase1_gate.sh](scripts/phase1_gate.sh) + [scripts/check_phase1.py](scripts/check_phase1.py). Tiêu chí là **paired test** trên hiệu số từng mẫu, không phải ngưỡng điểm cố định — ±2,0 gọi cả ca hỏng (−42,30) lẫn ca chạy được (−2,80) là FAIL |
@@ -627,8 +638,9 @@ thấp hơn nhiều so với ~24 của PreFixQA; và mọi số trên LCC/RepoBe
 >
 > **Mọi con số bên dưới + [docs/PHASE2_RESULTS.md](docs/PHASE2_RESULTS.md) là hồ sơ lượt Qwen
 > 22/8, giữ làm tham chiếu.** Đổi theo model: GQA→MHA (LongChat 32 lớp × 32 head, không per-head
-> QUEST App.G); dung lượng ×8 (~150 GB ba nhánh); bất biến D đối chiếu với reference LongChat.
-> Không đổi (tính chất LCC): K1 bị chặn ở số function, chính sách skip D6, thứ tự level.
+> QUEST App.G); **đĩa ~232 GB ba nhánh full → phải `LIMIT_P2=200`** (đo 29/8, xem "Smoke GPU
+> 29/8"); bất biến D đối chiếu với reference LongChat. Không đổi (tính chất LCC): K1 bị chặn ở
+> số function, chính sách skip D6, thứ tự level.
 >
 > File đã sửa: [scripts/run_phase2_phase5_lcc.sh](scripts/run_phase2_phase5_lcc.sh) ·
 > [scripts/check_phase2_invariants.py](scripts/check_phase2_invariants.py) (default model) ·
@@ -651,12 +663,55 @@ lệch >5% — **nguyên nhân chưa biết**, xem đính chính 24/8 bên dư�
 |---|---|---|---|
 | 2.1 | Parse AST bằng tree-sitter, có byte offset | ✅ | `parse_units` — 5 level (`file`/`class`/`function`/`block`/`statement`), 5 ngôn ngữ. Dùng API tree_sitter mới, **không cần** `tree_sitter_languages` (gói đó không cài được). Level thô gộp vào level mịn nên mọi token đều có unit bao |
 | 2.2 | Gán `unit_id` cho từng key token ở từng level | ✅ | `assign_token_units` — sắp span theo kích thước giảm dần rồi ghi đè bằng `searchsorted`, O(U log S) thay cho O(S×U) của bản cũ. Offset lấy từ Phase 1.4 nên không đụng lỗi `use_fast=False` |
-| 2.3 | **Hard boundary** — K-means độc lập trong từng unit, unit nhỏ → 1 centroid, tổng K vẫn ~5% | 🟡 | **Code xong + đã nối pipeline** (`--method hard_boundary`). Test bất biến: không cluster nào vắt qua hai unit. Chờ chạy GPU |
-| 2.4 | **StructHierarchy** — L2 = trong-function, L1 = trung bình theo function/file | 🟡 | **Code xong + đã chạy smoke GPU 20/8** (`--method struct_hierarchy`). `build_l1_groups` ép K1 về 1% context **khi làm được**, ghi K1 thực tế ra `k1_stats_*.pt`. ⚠️ Trên LCC thường KHÔNG làm được — xem ghi chú dưới bảng |
+| 2.3 | **Hard boundary** — K-means độc lập trong từng unit, unit nhỏ → 1 centroid, tổng K vẫn ~5% | 🟡 | **Code xong + smoke LongChat 29/8** (`--method hard_boundary`, 3 mẫu): 0,0% cluster vắt biên cả 3 mẫu. Chờ chạy full |
+| 2.4 | **StructHierarchy** — L2 = trong-function, L1 = trung bình theo function/file | 🟡 | **Code xong + smoke LongChat 29/8** (`--method struct_hierarchy`, 3 mẫu): 0,0% vắt biên. `build_l1_groups` ép K1 về 1% context **khi làm được**, ghi K1 thực tế ra `k1_stats_*.pt`. ⚠️ Trên LCC thường KHÔNG làm được — xem ghi chú dưới bảng |
 | 2.5 | Ablation tách bạch: SA / +HardBoundary / +StructHierarchy | ✅ | `offline_clustering_struct.py --method {sa,hard_boundary,struct_hierarchy}`. Nhánh `sa` gọi thẳng `run_clustering` gốc để mọi nhánh đi qua cùng một đường code |
 | 2.6 | Giữ nguyên Si, threshold, kernel | ✅ | `struct_clustering.py` **chỉ** sinh centroid + label, cùng layout `[1,H,K,D]`/`[1,H,S]` với `run_clustering`. Token-type weighting (Hướng 2(b) sẵn có trong repo) giữ lại làm cờ `token_weights`, **mặc định tắt**; test xác nhận tắt cờ ra kết quả trùng bit-for-bit |
 
+#### Smoke GPU 29/8 — LongChat, 3 mẫu · ✅ bất biến xanh, và số đo đĩa/thời gian thật
+
+`LIMIT_P2=3 bash scripts/run_phase2_phase5_lcc.sh` trên A100. Cả 3 nhánh xong, output
+`/workspace/p2-longchat/`, log `/workspace/p2_invariants_longchat.log`:
+
+| Kiểm (`check_phase2_invariants.py`) | Kết quả |
+|---|---|
+| [B] cùng budget K ba nhánh | dataidx 0/1/2 = K 897/194/136, khớp cả 3 nhánh ✅ |
+| [A] `hard_boundary` + `struct_hierarchy` vắt biên | **0,0%** cả 3 mẫu ✅ |
+| [A] `sa` (đối chứng) vắt biên | 22,8% / 33,7% / 36,7% ✅ (SA gốc phá ranh giới — can thiệp có liều) |
+| [C] shape `[1,32,K,128]` / `[1,32,n_ctx]` · ô rỗng | đúng · 0,0% ✅ |
+| Phase 5 smoke (`phase5_recall.py`) | `hard_boundary@70` recall 0,748 · mass 0,954 — chạy được trên LongChat ✅ |
+
+**Số đo đĩa (đo trực tiếp, không còn ngoại suy ×8).** File centroid mỗi mẫu:
+`centroids_tensor` = 32 lớp × `[1,32,K,128]` fp32 ≈ 0,5 MB × K · `labels` ≈ 8 KB × n_ctx.
+Với K = 5% n_ctx → **~33 KB/token**. Tổng n_ctx 500 mẫu LCC = 2.095.062 token:
+
+| Nhánh | 500 mẫu (full) | `LIMIT_P2=200` |
+|---|---:|---:|
+| `sa` | ~69 GB | ~26 GB |
+| `hard_boundary` | ~69 GB | ~26 GB |
+| `struct_hierarchy` | ~94 GB (×1,36) | ~36 GB |
+| **Ba nhánh** | **~232 GB** | **~88 GB** |
+
+Full 500 **vượt volume 200 GB** — chưa kể 68 GB centroid seed-0 phải giữ tại chỗ (nhánh
+`sa` + `diag_invariant_d.py` đối chiếu). **Phải chạy `LIMIT_P2=200`** (hoặc 150 cho đệm rộng).
+Đúng tinh thần D6: so trên tập giao mẫu khả thi, không phải toàn bộ 500.
+
+**Số đo thời gian.** Mỗi lần gọi `offline_clustering_struct.py` tự chạy forward pass riêng
+qua toàn bộ mẫu (dòng 396, không cache qkv giữa các nhánh). Clustering scale ~8× theo số KV
+head (LongChat 32 vs Qwen 4) — khớp Phase 0 (`offline_clustering.py` LongChat 6h15 vs Qwen
+45 phút = 8,3×). Lượt Qwen full 3 nhánh + Phase 5 = **4h50** (23/8). Ước LongChat:
+
+| | Full 500 | `LIMIT_P2=200` | `LIMIT_P2=150` |
+|---|---|---|---|
+| 3 nhánh + Phase 5 | **~18–24h** | **~7–10h** | ~5–7h |
+
+Nhánh `sa` một mình ≈ `offline_clustering.py` của Phase 0 ≈ **~6h15** ở full. Sai số lớn
+(cuML k-means siêu tuyến tính theo n_ctx) — xem ETA thanh tiến trình nhánh 1 sau ~20 mẫu.
+
 #### Smoke GPU 20/8 — cả ba nhánh chạy được, và một phát hiện về tầng L1
+
+> Lượt Qwen. Ước "30–45 phút/nhánh cho 500 mẫu" bên dưới là **của Qwen** — LongChat ~8×,
+> xem số đo 29/8 phía trên.
 
 `offline_clustering_struct.py --limit 3` trên A100, cả `sa` / `hard_boundary` /
 `struct_hierarchy` đều xong: `heads Q=28 KV=4` (hook đúng chỗ, trước `repeat_kv`), đủ bộ ba

@@ -1,0 +1,20 @@
+{
+  "k1_stats_0": {
+    "k1_actual": 51,
+    "k1_target": 179,
+    "k1_raw": 2,
+    "mode": "split"
+  },
+  "k1_stats_1": {
+    "k1_actual": 23,
+    "k1_target": 38,
+    "k1_raw": 4,
+    "mode": "split"
+  },
+  "k1_stats_2": {
+    "k1_actual": 20,
+    "k1_target": 27,
+    "k1_raw": 4,
+    "mode": "split"
+  }
+}

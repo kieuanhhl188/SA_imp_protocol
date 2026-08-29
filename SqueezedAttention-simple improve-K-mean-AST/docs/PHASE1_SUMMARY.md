@@ -5,6 +5,22 @@ Chi tiết đầy đủ: [PHASE1_RESULTS.md](PHASE1_RESULTS.md) (8 bảng)
 
 ---
 
+> ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — quay về LongChat-7B + LCC-only
+>
+> Model chính đổi từ Qwen **trở lại `longchat-v1.5-7b-32k`**, LCC-only, khớp Phase 0. Mục 1–6
+> bên dưới là hồ sơ lượt Qwen 20/8, giữ làm tham chiếu.
+>
+> **Trạng thái Phase 1 cho LongChat (29/8):** ✅ gate dữ liệu 1.4 **PASS** — `check_phase1_data.py
+> longchat-v1.5-7b-32k --dataset lcc`, cả 5 bước. 500 mẫu LCC, 2.094.562 token kiểm, 0 lệch
+> token id, offset byte↔ký tự khớp tuyệt đối 500/500, 1/500 truncate, 2,4% mẫu suy biến, unit
+> trung vị 15. Sản phẩm: `phase1_data/longchat-v1.5-7b-32k/`.
+>
+> Accuracy lấy từ Phase 0 (**n=3**, 29/8): All-KV **54,83 ± 0,00** · Sq-70% **56,36 ± 0,28** ·
+> hiệu ghép cặp +1,25 / +1,80 / +1,54 (hai lượt gần nhất bootCI95 loại trừ 0). Chi tiết:
+> [PHASE1_RESULTS.md](PHASE1_RESULTS.md).
+
+---
+
 ## 1. Kết quả chính
 
 Bản port Squeezed Attention sang Qwen2 (GQA) **chạy đúng**. LongBench LCC, 20 mẫu:

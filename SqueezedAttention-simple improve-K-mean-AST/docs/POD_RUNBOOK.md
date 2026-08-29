@@ -144,8 +144,10 @@ Việc nó làm:
 | [1] `prepare_code_data.py` | sinh offset **byte + ký tự** từng token của LCC (500 mẫu), `language` lấy per-sample | `/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}` |
 | [1b] `check_phase1_data.py` | gate 5 bước: ngôn ngữ đúng từng mẫu · đủ 500 mẫu · offset fast==slow, phủ kín, byte↔ký tự khớp · `fixed_context` không mất khúc nào | PASS/FAIL trên console |
 
-Số đã biết (tất định, LCC thuần ASCII): ~1.559.310 token, 0 lệch fast/slow, unit/mẫu
-trung vị 15, 12/500 mẫu suy biến (U≤2), 1/500 truncate. **Kỳ vọng PASS.**
+**✅ ĐÃ CHẠY 29/8/2026 — PASS.** Số đo (tất định, LCC thuần ASCII): **2.094.562 token**
+(tokenizer LLaMA, khác Qwen 1.559.310), 0 lệch fast/slow, offset byte↔ký tự khớp tuyệt đối
+500/500, `shared_prefix_length` khớp meta 0 lệch, unit/mẫu function trung vị 15, 12/500 mẫu
+suy biến (U≤2), 1/500 truncate. Sản phẩm: `phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}`.
 
 Bước này chạy được cả trên máy Windows — không bắt buộc lên pod.
 
@@ -205,18 +207,23 @@ ls /workspace/phase1_data/longchat-v1.5-7b-32k/lcc_meta.jsonl   # phải có
 ```
 `run_phase2_phase5_lcc.sh` dừng ngay nếu thiếu file này (khác tokenizer → offset khác).
 
-### Bước 1 — smoke 3 mẫu để biết s/mẫu thật TRƯỚC khi chạy full
+### Bước 1 — smoke 3 mẫu · ✅ ĐÃ CHẠY 29/8
 
 ```bash
 LIMIT_P2=3 bash scripts/run_phase2_phase5_lcc.sh
 ```
-Chưa đo clustering trên LongChat bao giờ. Nhân s/mẫu × 500 × 3 nhánh rồi mới quyết.
+Kết quả 29/8: cả 3 nhánh xong, `p2_invariants_longchat.log` xanh — `hard_boundary` +
+`struct_hierarchy` 0,0% vắt biên, `sa` 22,8–36,7%, Phase 5 smoke recall 0,748.
 
-### Bước 2 — chạy full
+### Bước 2 — chạy `LIMIT_P2=200` (KHÔNG full 500)
 
 ```bash
-bash scripts/run_phase2_phase5_lcc.sh
+LIMIT_P2=200 bash scripts/run_phase2_phase5_lcc.sh
 ```
+
+Full 500 tốn **~232 GB đĩa** (vượt volume 200 GB) và **~18–24h**. `LIMIT_P2=200` → ~88 GB,
+~7–10h, và Phase 5 vốn chỉ đánh giá `--limit 100` nên không mất độ phủ. Dùng 150 nếu muốn
+đệm đĩa rộng hơn (~66 GB). Xem [EXPERIMENT_LOG.md "Smoke GPU 29/8"](../EXPERIMENT_LOG.md).
 
 Thứ tự trong script **có chủ đích**: chạy `hard_boundary` trước, rồi smoke Phase 5 trên 3 mẫu
 ngay lập tức. Nếu `phase5_recall.py` hỏng thì hỏng sớm chứ không phải sau nhiều giờ.
@@ -229,22 +236,25 @@ Script `run_phase2_phase5_lcc.sh` nay `source configs/phase1.sh` nên lấy đú
 Cấu hình còn lại, không đổi: `--dataset lcc`, `--level function --level_l1 class`,
 `--percent_clusters 5`, `--observation_window 100`.
 
-Thời gian: **chưa đo trên LongChat**. Mốc thô — Phase 0 `offline_clustering.py` mất ~6h15 cho
-LCC 500 mẫu (MHA). Ước mỗi nhánh ~4–8 giờ (dùng smoke ở Bước 1 để chốt).
-Chạy lại được — `offline_clustering_struct.py` bỏ qua mẫu đã đủ file.
+**Thời gian** (clustering scale ~8× theo số KV head — Phase 0: LongChat 6h15 vs Qwen 45 phút;
+lượt Qwen full 3 nhánh + Phase 5 = 4h50): full 500 ~18–24h · **`LIMIT_P2=200` ~7–10h** ·
+`LIMIT_P2=150` ~5–7h. Nhánh `sa` một mình ≈ Phase 0 `offline_clustering.py` ≈ 6h15 ở full.
+Mỗi nhánh chạy forward pass RIÊNG (không cache qkv giữa các nhánh). Chạy lại được —
+`offline_clustering_struct.py` bỏ qua mẫu đã đủ file.
 
-⚠️ **Dung lượng: LongChat tốn gấp ~8 lần Qwen** (32 KV head vs 4). Lượt Qwen 22/8: 5,8 / 5,8 /
-7,8 GB. Ngoại suy LongChat: ~46 / ~46 / ~62 GB → ba nhánh ~150 GB, sát trần volume 200 GB.
-Nhẹ hơn: `LIMIT_P2=200 bash scripts/run_phase2_phase5_lcc.sh`.
+⚠️ **Dung lượng: ~33 KB/token** (đo 29/8, không còn ngoại suy ×8). `sa` / `hard_boundary`
+~69 GB mỗi nhánh ở full 500 · `struct_hierarchy` ~94 GB → **ba nhánh ~232 GB, vượt volume
+200 GB**. Cộng 68 GB centroid seed-0 phải giữ tại chỗ. `LIMIT_P2=200` → ~88 GB (26/26/36).
 
 **Kết quả cuối:**
 
 ```
 /workspace/p2_invariants_longchat.log    <- kiểm bất biến Phase 2, ĐỌC CÁI NÀY
-$P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/   <- centroid ba nhánh, ~150 GB
+$P2_DIR/{sa,hard_boundary,struct_hierarchy}/lcc/   <- centroid ba nhánh, ~88 GB voi LIMIT_P2=200
 ```
 
 `$P2_DIR` mặc định là `/workspace/p2-longchat`, đổi bằng biến môi trường `P2_DIR`.
+Chạy Phase 5 riêng thì phải `export P2_DIR=/workspace/p2-longchat` trước (§6 dùng biến này).
 
 ### Bất biến D — giới hạn đã biết, chưa giải
 
@@ -273,13 +283,14 @@ Quét `--level_l1` trên LCC/function ra cùng kết quả mọi giá trị; mu�
 
 ## 6. Phase 5 — C2 recall@budget
 
-Chạy kèm trong script Phase 2 ở trên, hoặc riêng:
+Chạy kèm trong script Phase 2 ở trên, hoặc riêng (đặt `P2` cho khớp `$P2_DIR` của script):
 
 ```bash
+P2=/workspace/p2-longchat
 python phase5_recall.py longchat-v1.5-7b-32k --dataset lcc \
-    --cluster_dir "sa=$P2_DIR/sa/lcc" \
-    --cluster_dir "hard_boundary=$P2_DIR/hard_boundary/lcc" \
-    --cluster_dir "struct_hierarchy=$P2_DIR/struct_hierarchy/lcc" \
+    --cluster_dir "sa=$P2/sa/lcc" \
+    --cluster_dir "hard_boundary=$P2/hard_boundary/lcc" \
+    --cluster_dir "struct_hierarchy=$P2/struct_hierarchy/lcc" \
     --sparsity 70 80 90 --limit 100 --out /workspace/phase5_lcc.json
 ```
 

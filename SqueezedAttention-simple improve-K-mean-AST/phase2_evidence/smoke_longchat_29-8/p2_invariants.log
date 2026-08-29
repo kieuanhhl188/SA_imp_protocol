@@ -1,0 +1,55 @@
+========================================================================
+  KIEM BAT BIEN PHASE 2 — dataset=lcc level=function
+    sa                   3 mau  <- /workspace/p2-longchat/sa/lcc
+    hard_boundary        3 mau  <- /workspace/p2-longchat/hard_boundary/lcc
+    struct_hierarchy     3 mau  <- /workspace/p2-longchat/struct_hierarchy/lcc
+========================================================================
+
+[B] Cung budget — tong K bang nhau giua cac nhanh
+    dataidx   0: sa=897 · hard_boundary=897 · struct_hierarchy=897   ✅
+    dataidx   1: sa=194 · hard_boundary=194 · struct_hierarchy=194   ✅
+    dataidx   2: sa=136 · hard_boundary=136 · struct_hierarchy=136   ✅
+
+[C] Shape + do dai — sa
+    dataidx   0: centroids (1, 32, 897, 128) ✅ · labels (1, 32, 17956) (mong 17956) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 194, 128) ✅ · labels (1, 32, 3893) (mong 3893) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 136, 128) ✅ · labels (1, 32, 2721) (mong 2721) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — sa   (NHOM DOI CHUNG — mong doi vat bien NHIEU)
+    (dung lai prompt sau truncation — can dataset + tokenizer)
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+    dataidx   0:  918528 cluster · vat qua >1 unit: 209815 ( 22.8%)  (doi chung)  (U=51)
+        vi du: layer 0 head 0 cluster 1 chua unit 39..49
+    dataidx   1:  198656 cluster · vat qua >1 unit:  66874 ( 33.7%)  (doi chung)  (U=23)
+        vi du: layer 0 head 0 cluster 1 chua unit 10..11
+    dataidx   2:  139264 cluster · vat qua >1 unit:  51128 ( 36.7%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 3..6
+
+[C] Shape + do dai — hard_boundary
+    dataidx   0: centroids (1, 32, 897, 128) ✅ · labels (1, 32, 17956) (mong 17956) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 194, 128) ✅ · labels (1, 32, 3893) (mong 3893) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 136, 128) ✅ · labels (1, 32, 2721) (mong 2721) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — hard_boundary
+    dataidx   0:  918527 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=51)
+    dataidx   1:  198655 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx   2:  139263 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+
+[C] Shape + do dai — struct_hierarchy
+    dataidx   0: centroids (1, 32, 897, 128) ✅ · labels (1, 32, 17956) (mong 17956) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 194, 128) ✅ · labels (1, 32, 3893) (mong 3893) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 136, 128) ✅ · labels (1, 32, 2721) (mong 2721) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — struct_hierarchy
+    dataidx   0:  918527 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=51)
+    dataidx   1:  198655 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx   2:  139263 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+
+========================================================================
+  ✅ MOI BAT BIEN QUA
+========================================================================
