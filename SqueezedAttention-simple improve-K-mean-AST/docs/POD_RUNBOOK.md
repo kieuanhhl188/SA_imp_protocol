@@ -51,6 +51,51 @@ tmux attach -t p0       # quay lại
 # Ctrl-B rồi D để thoát mà job vẫn chạy
 ```
 
+### 1.1 Điều kiện chạy các phase 
+
+Các phase **không nối tiếp nhau** trừ Phase 5. Phase 2 KHÔNG cần Phase 0, KHÔNG cần
+`phase1_gate.sh --full` — chỉ cần dữ liệu 1.4.
+
+| Phase | Lệnh | Điều kiện tiên quyết | GPU | Weight model | Đĩa thêm | Thời gian |
+|---|---|---|:--:|:--:|---|---|
+| setup | `bash scripts/setup_pod.sh` | pod có driver NVIDIA + `/workspace` | – | – | ~15 GB (venv) | ~30 ph |
+| **0** | `bash scripts/repro_lcc.sh --seeds "0 1 2"` | setup | ✅ | ✅ | ~70 GB/seed | 6h15 + ~3h/seed |
+| **1** dữ liệu | `bash scripts/phase1_gate.sh --data-only` | setup | – | – | vài MB | ~2 ph (CPU) |
+| **1** `--full` *(tuỳ chọn)* | `bash scripts/phase1_gate.sh --full --skip-cluster` | setup + dữ liệu 1.4 + centroid Phase 0 | ✅ | ✅ | +70 GB nếu không skip | ≈ Phase 0 |
+| **2** | `LIMIT_P2=200 bash scripts/run_phase2_phase5_lcc.sh` | setup + **dữ liệu 1.4** | ✅ | ✅ | ~88 GB | 7–10h |
+| **5** | trong script Phase 2, hoặc `python phase5_recall.py …` | setup + dữ liệu 1.4 + **centroid Phase 2** | ✅ | ✅ | vài MB | ~20 ph |
+
+Weight model (`longchat-v1.5-7b-32k`, ~14 GB) **tự tải** về `$HF_HOME` ở lần chạy GPU đầu.
+
+### 1.2 Kết nối trên pod mới
+
+Mọi thứ các phase cần đều nằm trên `/workspace` (venv, weight, dữ liệu 1.4, centroid).
+`/workspace` là network volume — sống độc lập với container.
+
+**Pod mới, gắn lại đúng volume `/workspace`** (trường hợp thường):
+
+```bash
+source /workspace/env.sh
+cd "/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST"
+ls /workspace/venv310/bin/python \
+   /workspace/phase1_data/longchat-v1.5-7b-32k/lcc_meta.jsonl && echo "OK — chạy thẳng phase cần"
+```
+
+Có `OK` → không dựng lại gì, chạy thẳng Phase 0/2/5. Chỉ cần cập nhật `~/.ssh/config` ở
+Windows (endpoint đổi mỗi lần khởi động).
+
+**Pod mới, volume trắng** — mất hết, dựng lại theo thứ tự:
+
+```bash
+bash scripts/setup_pod.sh                       # 1. môi trường, ~30 ph
+source /workspace/env.sh
+bash scripts/phase1_gate.sh --data-only         # 2. dữ liệu 1.4, ~2 ph
+LIMIT_P2=200 bash scripts/run_phase2_phase5_lcc.sh   # 3. Phase 2 + 5 (weight tự tải)
+```
+
+Centroid Phase 0 (`fixed-prompt-clusters_seed*`) chỉ sinh lại khi cần chạy Phase 0 —
+`bash scripts/repro_lcc.sh --seeds "0 1 2"`, hoặc chép từ backup.
+
 ---
 
 ## 2. Kết quả cuối cùng của từng phase nằm ở đâu
@@ -75,8 +120,7 @@ Ba thứ dùng chung cho mọi phase:
 | Nhật ký tổng | `EXPERIMENT_LOG.md` trong repo — **nguồn sự thật duy nhất** |
 
 > **Kết quả cần giữ chỉ vài MB.** Toàn bộ dung lượng lớn là centroid trung gian. Với LongChat
-> trên LCC là **~70 GB/seed**; với Qwen (4 head KV thay vì 32) chỉ **~5 GB**. Sinh lại được
-> bất cứ lúc nào từ đúng seed, nên xoá thoải mái sau khi đã có `result.json`.
+> trên LCC là **~70 GB/seed**
 
 ---
 
@@ -124,68 +168,69 @@ lượt 17/8 và lượt 27/8. Lệch khỏi nó nghĩa là môi trường đã 
 
 ## 4. Phase 1 — chuẩn bị dữ liệu code
 
-**CHỐT 28/8: model = `longchat-v1.5-7b-32k`, LCC-only, KHÔNG `--force_chat`.**
-Quay về đúng model của bài gốc (Table 2) và khớp phạm vi đã thu hẹp ở Phase 0
-([docs/PHASE0.md §8](PHASE0.md)). Cấu hình ở [configs/phase1.sh](../configs/phase1.sh) —
-nó `source` `phase0.sh` rồi chỉ ghi đè `SQA_MODEL_CODE` + `SQA_FORCE_CHAT=0`.
-
-### Phần RIÊNG của Phase 1 = dữ liệu 1.4 + gate dữ liệu — **chạy CPU**
+### Phải chạy: một lệnh, CPU, ~1–2 phút
 
 ```bash
-bash scripts/phase1_gate.sh --data-only     # 500 mẫu, ~1-2 phút CPU (không GPU)
+bash scripts/phase1_gate.sh --data-only
 ```
 
-`--data-only` mặc định chạy **toàn bộ 500 mẫu** (không phải smoke 20) — Phase 2 đọc cả 500.
+Sinh dữ liệu 1.4 (offset byte + ký tự từng token của LCC, 500 mẫu — `prepare_code_data.py`)
+rồi gate 5 bước (`check_phase1_data.py`: ngôn ngữ đúng từng mẫu · đủ 500 mẫu · offset
+fast==slow, phủ kín, byte↔ký tự khớp · `fixed_context` không mất khúc nào).
 
-Việc nó làm:
+Không cần GPU, không cần weight model — chạy được cả trên máy Windows. `--data-only` mặc
+định chạy **toàn bộ 500 mẫu** (Phase 2 đọc cả 500).
 
-| Bước | Nội dung | Output |
-|---|---|---|
-| [1] `prepare_code_data.py` | sinh offset **byte + ký tự** từng token của LCC (500 mẫu), `language` lấy per-sample | `/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}` |
-| [1b] `check_phase1_data.py` | gate 5 bước: ngôn ngữ đúng từng mẫu · đủ 500 mẫu · offset fast==slow, phủ kín, byte↔ký tự khớp · `fixed_context` không mất khúc nào | PASS/FAIL trên console |
-
-**✅ ĐÃ CHẠY 29/8/2026 — PASS.** Số đo (tất định, LCC thuần ASCII): **2.094.562 token**
-(tokenizer LLaMA, khác Qwen 1.559.310), 0 lệch fast/slow, offset byte↔ký tự khớp tuyệt đối
-500/500, `shared_prefix_length` khớp meta 0 lệch, unit/mẫu function trung vị 15, 12/500 mẫu
-suy biến (U≤2), 1/500 truncate. Sản phẩm: `phase1_data/longchat-v1.5-7b-32k/lcc_{meta.jsonl,offsets.npz}`.
-
-Bước này chạy được cả trên máy Windows — không bắt buộc lên pod.
-
-### Phần accuracy (Sq-70% vs All-KV trên LongChat/LCC) = **KHÔNG chạy ở đây**
-
-LongChat là MHA (không GQA) và đi thẳng đường `modeling_llama` gốc → bước [2]–[6] của
-`phase1_gate.sh` **trùng hoàn toàn với Phase 0** (`repro_lcc.sh`: cùng model, cùng LCC,
-cùng centroid). Lấy số từ đó: All-KV **54,83** · Sq-70% **56,08** · hiệu ghép cặp **+1,25**
-(p=0,39, KTC95 [−0,10; +2,59]).
-
-Chỉ chạy `bash scripts/phase1_gate.sh --full` khi muốn một lần **kiểm độc lập** bằng
-paired test của [check_phase1.py](../scripts/check_phase1.py). Lưu ý:
-- Nó sinh **thêm ~70 GB** centroid ở `/workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc/`
-  (thư mục riêng), trong khi đĩa là ràng buộc chặt nhất của pod ([§9.1](#91-moosefs-cắt-cụt-file-im-lặng), [§9.2](#92-df-không-cho-biết-hạn-mức)).
-- Muốn tiết kiệm: `--skip-cluster` rồi symlink centroid Phase 0 vào đúng chỗ:
-  ```bash
-  mkdir -p /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k
-  ln -sfn /workspace/fixed-prompt-clusters_seed0/lcc \
-          /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc
-  bash scripts/phase1_gate.sh --full --skip-cluster
-  ```
-- `phase1_gate.sh` gọi `check_phase1.py --no_log_md` → **không** đụng `EXPERIMENT_LOG.md`.
-
-**Kết quả cuối (bản `--full` nếu chạy):**
+**Sản phẩm — đầu vào bắt buộc của Phase 2:**
 
 ```
-LongBench/pred/longchat-v1.5-7b-32k_baseline{,_lim20}/result.json
-LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7{,_lim20}/result.json
-/workspace/phase0_results/env_record_phase1.json
-/workspace/phase0_results/logs/<TS>_phase1_gate.log
+/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_meta.jsonl
+/workspace/phase1_data/longchat-v1.5-7b-32k/lcc_offsets.npz
 ```
 
-> ⚠️ Bộ dữ liệu 1.4 sinh **trước 22/8** (LongChat cũ) không có `offsets_bytes_*` và đã bị
-> thư mục Qwen ghi đè — phải sinh lại. Sinh lại **không** ảnh hưởng centroid Phase 2/Phase 0
-> đã có: offset ký tự và `shared_prefix_length` không đổi, chỉ thêm một mảng byte mới.
+Hai file này còn đó thì **không cần chạy lại**. `/workspace` là network volume, sống qua
+restart — **pod mới gắn lại đúng volume này thì file vẫn còn**, chỉ chạy lại khi:
+volume trắng (pod mới + volume mới), hoặc bộ 1.4 là bản **trước 22/8** (thiếu
+`offsets_bytes_*`). Sinh lại chỉ 2 phút CPU, tất định — nghi ngờ thì cứ chạy.
 
-> Bước 1.6 (GQA per-head, QUEST App. G) là **N/A** với LongChat (`num_key_value_heads = 32
-> = num_heads`). Chỉ bật lại khi thêm model cross-check có GQA.
+Đã chạy 29/8/2026, PASS (tất định, LCC thuần ASCII): 2.094.562 token, 0 lệch fast/slow,
+byte↔ký tự khớp 500/500, `shared_prefix_length` khớp meta, function trung vị 15 unit/mẫu,
+12/500 mẫu suy biến (U≤2), 1/500 truncate.
+
+### KHÔNG chạy phần accuracy ở đây
+
+`phase1_gate.sh` bỏ `--data-only` sẽ chạy tiếp bước [2]–[6] (pred All-KV + Sq-70% + paired
+test). Với LongChat (MHA, đi thẳng `modeling_llama`) mấy bước đó **trùng hoàn toàn Phase 0**
+— cùng model, cùng LCC, cùng centroid. Lấy số từ Phase 0: All-KV **54,83** · Sq-70%
+**56,08** · hiệu ghép cặp **+1,25** (p=0,39, KTC95 [−0,10; +2,59]).
+
+`bash scripts/phase1_gate.sh --full` chỉ để **một lần kiểm độc lập** bằng paired test của
+[check_phase1.py](../scripts/check_phase1.py) — **không bắt buộc** cho Phase 2/5. Nó sinh
+thêm ~70 GB centroid (thư mục riêng), trong khi đĩa là ràng buộc chặt nhất của pod
+([§9.1](#91-moosefs-cắt-cụt-file-và-df-nói-dối-về-đĩa)). Tiết kiệm bằng `--skip-cluster` +
+symlink centroid Phase 0:
+
+```bash
+mkdir -p /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k
+ln -sfn /workspace/fixed-prompt-clusters_seed0/lcc \
+        /workspace/fixed-prompt-clusters/longchat-v1.5-7b-32k/lcc
+bash scripts/phase1_gate.sh --full --skip-cluster
+```
+
+Kết quả bản `--full`: `LongBench/pred/longchat-v1.5-7b-32k_{baseline,PC5_PERC0.7}/result.json`
++ `phase0_results/{env_record_phase1.json,logs/<TS>_phase1_gate.log}`. `phase1_gate.sh` gọi
+`check_phase1.py --no_log_md` nên không đụng `EXPERIMENT_LOG.md`.
+
+### Cấu hình & lưu ý
+
+- **Chốt 28/8: `longchat-v1.5-7b-32k`, LCC-only, KHÔNG `--force_chat`** — khớp Phase 0
+  ([PHASE0.md §8](PHASE0.md)). Cấu hình ở [configs/phase1.sh](../configs/phase1.sh)
+  (`source` `phase0.sh` rồi chỉ ghi đè `SQA_MODEL_CODE` + `SQA_FORCE_CHAT=0`).
+- ⚠️ Bộ 1.4 sinh **trước 22/8** thiếu `offsets_bytes_*` và đã bị thư mục Qwen ghi đè — phải
+  sinh lại. Sinh lại **không** ảnh hưởng centroid Phase 0/2 đã có (offset ký tự và
+  `shared_prefix_length` không đổi, chỉ thêm mảng byte mới).
+- Bước 1.6 (GQA per-head, QUEST App. G) **N/A** với LongChat (`num_key_value_heads =
+  num_heads = 32`). Chỉ bật khi thêm model cross-check có GQA.
 
 ---
 
@@ -334,16 +379,17 @@ Ghi lại để biết mà đọc đúng chỗ, **chưa sửa**:
 
 ---
 
-## 9. Cạm bẫy trên pod này
+## 9. Lưu ý riêng của pod này
 
-Bốn thứ đã cắn thật, mất tổng cộng hơn 10 giờ GPU.
+### 9.1 MooseFS cắt cụt file, và `df` nói dối về đĩa
 
-### 9.1 MooseFS cắt cụt file im lặng
+`/workspace` không phải ổ đĩa trong máy mà là **MooseFS** — một hệ thống file mạng phân
+tán, dữ liệu nằm trên cụm máy chủ khác, mount vào pod qua FUSE. Nó cư xử khác ổ local ở
+hai chỗ chết người.
 
-`/workspace` là MooseFS qua FUSE. Vượt hạn mức thì **`torch.save` không raise** — file bị cắt
-cụt, và vòng resume của `offline_clustering.py` thấy file *tồn tại* nên **bỏ qua đúng mẫu
-hỏng**. `pred.py` chạy vài giờ rồi mới chết vì
-`PytorchStreamReader failed reading zip archive`.
+Thứ nhất: vượt hạn mức thì `torch.save` **không raise** — file bị cắt cụt, vòng resume của
+`offline_clustering.py` thấy file *tồn tại* nên bỏ qua mẫu hỏng, rồi `pred.py` chạy vài giờ
+mới chết vì `PytorchStreamReader failed reading zip archive`.
 
 Chỉ kiểm CRC mới bắt được. Chạy sau **mọi** lượt clustering, kể cả khi tái dùng centroid cũ:
 
@@ -352,79 +398,54 @@ python scripts/check_cluster_integrity.py /workspace/fixed-prompt-clusters/lcc/ 
 python scripts/check_cluster_integrity.py /workspace/fixed-prompt-clusters/lcc/ --delete
 ```
 
-`--delete` xoá **cả bộ ba file** của mẫu hỏng, không chỉ file hỏng — nếu chỉ xoá file hỏng
-thì `global_threshold` còn lại làm resume bỏ qua mẫu đó mãi mãi.
+`--delete` xoá **cả bộ ba file** của mẫu hỏng — chỉ xoá file hỏng thì `global_threshold`
+còn lại làm resume bỏ qua mẫu đó mãi mãi. (27/8: 5/1500 file hỏng từ lượt 17/8, `pred.py`
+chết ở mẫu 226/500.)
 
-Sự cố 27/8: 5/1500 file hỏng có sẵn từ lượt 17/8, `pred.py` chạy 226/500 mẫu rồi chết.
+Thứ hai: `df /workspace` báo dung lượng **cả cụm** (404 TB), không có `mfsgetquota` — hạn
+mức thật chỉ thấy trên dashboard RunPod. (16/8: tưởng 200 GB, thật ~50 GB, clustering chết
+ở mẫu 113.)
 
-### 9.2 `df` không cho biết hạn mức
+### 9.2 Git treo trên MooseFS
 
-`df /workspace` báo dung lượng **cả cụm MooseFS** (404 TB), không biết gì về hạn mức của bạn.
-Không có `mfsgetquota`. **Chỉ dashboard RunPod mới cho biết con số thật.**
-
-Ngày 16/8 volume thật chỉ được cấp ~50-55 GB trong khi tôi tưởng là 200 GB — job clustering
-chết ở mẫu 113/500.
-
-### 9.3 Git treo trên MooseFS
-
-Thao tác ghi ref của git (`git fetch`/`pull`) **kẹt trong FUSE** và để lại
-`refs/remotes/origin/main.lock`, làm mọi lệnh git sau đó hỏng. Tiến trình rơi vào trạng thái
-`D` — `kill` không có tác dụng. Đã xảy ra 3 lần.
-
-Đọc/ghi file thường thì bình thường (~600 MB/s). Chỉ khoá POSIX là hỏng.
-
+`git fetch`/`pull` ghi ref → **kẹt trong FUSE**, để lại `refs/remotes/origin/main.lock`,
+mọi lệnh git sau đó hỏng, tiến trình vào trạng thái `D` không kill được. Đã xảy ra 3 lần.
 **Đừng bấm Sync/Pull trong panel Source Control của VS Code trên pod.**
 
-Gỡ khi đã kẹt — file lock đã chứa sẵn đúng SHA, chỉ cần làm nốt việc git bỏ dở:
+Gỡ khi đã kẹt (file lock đã chứa đúng SHA, chỉ cần làm nốt):
 
 ```bash
-ps aux | grep "[g]it fetch"          # kiểm không còn tiến trình sống
-kill <pid>
-cd /workspace/SA_imp_protocol/.git/refs/remotes/origin
-mv main.lock main
+ps aux | grep "[g]it fetch"          # chắc chắn không còn tiến trình sống
+cd /workspace/SA_imp_protocol/.git/refs/remotes/origin && mv main.lock main
 ```
 
-**Cách đồng bộ code an toàn** — object đã tải về rồi thì không cần mạng:
-
-```bash
-cd /workspace/SA_imp_protocol
-P="SqueezedAttention-simple improve-K-mean-AST"
-git checkout <sha> -- "$P/LongBench/pred.py" "$P/scripts/repro_lcc.sh"
-```
-
-Hoặc bỏ git hẳn, scp từ Windows (quote **một lớp**, scp đời mới dùng SFTP nên không expand
-shell ở đầu xa):
+Sync code an toàn: `git checkout <sha> -- <path>` (object tải rồi thì không cần mạng), hoặc
+scp từ Windows — quote **một lớp**, scp đời mới dùng SFTP nên không expand shell ở đầu xa:
 
 ```bash
 R="/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST"
 scp scripts/repro_lcc.sh runpod:"$R/scripts/"
 ```
 
-Commit và push làm ở máy Windows, pod chỉ nhận.
+Commit/push làm ở Windows, pod chỉ nhận.
 
-### 9.4 Lượt chạy dở đội lốt kết quả
+### 9.3 Lượt chạy dở đội lốt kết quả
 
-`pred.py` cũ `join()` mà không kiểm `exitcode`: worker chết vì exception nhưng tiến trình cha
-vẫn thoát 0, `set -e` không bắt, `eval.py` chấm 226 mẫu và ghi `result.json` như thật.
-
-Đã chặn ba tầng (commit `ef2c98e`): `pred.py` kiểm `exitcode` mọi worker; `eval.py --expect N`
-từ chối ghi khi thiếu mẫu; `aggregate_runs.py` in cột `số mẫu` và báo `[SAI]` khi các cấu hình
-lệch nhau.
-
-Nếu chạy tay không qua `repro_lcc.sh`, **luôn đếm dòng trước khi chấm điểm**:
+`pred.py` cũ thoát 0 kể cả khi worker chết giữa chừng → `eval.py` chấm phần dở, ghi
+`result.json` như thật. Đã chặn ba tầng ở `ef2c98e` (`pred.py` kiểm `exitcode`,
+`eval.py --expect N`, `aggregate_runs.py` in cột số mẫu). Chạy tay không qua `repro_lcc.sh`
+thì tự đếm trước khi chấm:
 
 ```bash
 wc -l < pred/longchat-v1.5-7b-32k_PC5_PERC0.7_runs0/lcc.jsonl    # phải đúng 500
 ```
 
-### 9.5 `model2maxlen` phải là 31500
+### 9.4 `model2maxlen` phải là 31500
 
-Không phải 32768. LongChat có đúng 32768 vị trí RoPE; đặt sát trần thì token tràn ra ngoài dải
-và **kết quả là rác, không phải sai số**. 31500 = native trừ lề, đã chốt ở
+Không phải 32768. LongChat có đúng 32768 vị trí RoPE; đặt sát trần thì token tràn dải và
+**kết quả là rác, không phải sai số**. Đổi con số này còn làm `shared_prefix_length` khác
+→ tên file centroid khác → `pred.py` chết vì không tìm thấy file. Chốt ở
 [EXPERIMENT_LOG](../EXPERIMENT_LOG.md) mục **D7**.
-
-Đổi con số này còn làm `shared_prefix_length` khác đi → `num_centroids` khác → tên file centroid
-khác → `pred.py` chết giữa chừng vì không tìm thấy file.
 
 ```bash
 grep longchat LongBench/config/model2maxlen.json    # phải ra 31500
@@ -443,19 +464,9 @@ scp -r runpod:"/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mea
 ```
 
 **Một chiều duy nhất: pod sinh số → Windows ghi nhật ký → push.** Đừng để pod tự ghi vào
-`EXPERIMENT_LOG.md` (file có trong git), vì hai bên cùng sửa là conflict — đã xảy ra với 51
-dòng gate tự phụ lục ngày 26/8.
+`EXPERIMENT_LOG.md` (file có trong git), vì hai bên cùng sửa là conflict — đã xảy ra 26/8.
 
-`scripts/repro_lcc.sh` đã theo quy ước này: nó ghi ra `$SQA_RESULT_DIR` và **không** truyền
-`--log_md`, nên không đụng vào file trong git.
-
-`scripts/phase1_gate.sh` (từ 28/8) đã gọi `check_phase1.py --no_log_md` nên **không** đụng
-`EXPERIMENT_LOG.md`. Nếu chạy `check_phase1.py` tay thì tự thêm `--no_log_md` — mặc định của
-nó vẫn ghi thẳng vào file trong git.
-
-Đã lỡ ghi rồi thì cất phần pod thêm ra ngoài trước khi đồng bộ code — xem [§9.3](#93-git-treo-trên-moosefs):
-
-```bash
-cp EXPERIMENT_LOG.md /workspace/EXPERIMENT_LOG_pod_<ngày>.md
-git checkout HEAD -- "SqueezedAttention-simple improve-K-mean-AST/EXPERIMENT_LOG.md"
-```
+`repro_lcc.sh` và `phase1_gate.sh` đã theo quy ước này (không truyền `--log_md` / gọi
+`check_phase1.py --no_log_md`). Chạy `check_phase1.py` tay thì tự thêm `--no_log_md` —
+mặc định của nó ghi thẳng vào file trong git. Đã lỡ ghi thì `git checkout HEAD -- <file>`
+sau khi copy bản pod ra ngoài.
