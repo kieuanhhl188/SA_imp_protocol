@@ -17,3 +17,8 @@ phase1_data/
 # duoc trong vai phut, va nang. Loader thi trong git, du lieu thi khong.
 crosscodeeval_data/
 repobench_v11_groups/
+
+# Output eval smoke test (--limit nho): chi la so kiem tra duong ong, khong phai deliverable.
+# Ket qua that (n>=3, 500 mau) nam o LongBench/pred/*_runs0{,b}/ va van duoc track.
+LongBench/pred/*lim20*/
+LongBench/pred/*_smoke*/
