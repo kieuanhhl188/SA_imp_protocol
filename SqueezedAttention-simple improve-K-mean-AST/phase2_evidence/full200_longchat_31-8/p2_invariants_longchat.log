@@ -1,0 +1,1631 @@
+========================================================================
+  KIEM BAT BIEN PHASE 2 — dataset=lcc level=function
+    sa                 200 mau  <- /workspace/p2-longchat/sa/lcc
+    hard_boundary      200 mau  <- /workspace/p2-longchat/hard_boundary/lcc
+    struct_hierarchy   200 mau  <- /workspace/p2-longchat/struct_hierarchy/lcc
+========================================================================
+
+[B] Cung budget — tong K bang nhau giua cac nhanh
+    dataidx   0: sa=897 · hard_boundary=897 · struct_hierarchy=897   ✅
+    dataidx   1: sa=194 · hard_boundary=194 · struct_hierarchy=194   ✅
+    dataidx   2: sa=136 · hard_boundary=136 · struct_hierarchy=136   ✅
+    dataidx   3: sa=118 · hard_boundary=118 · struct_hierarchy=118   ✅
+    dataidx   4: sa=153 · hard_boundary=153 · struct_hierarchy=153   ✅
+    dataidx   5: sa=260 · hard_boundary=260 · struct_hierarchy=260   ✅
+    dataidx   6: sa=158 · hard_boundary=158 · struct_hierarchy=158   ✅
+    dataidx   7: sa=221 · hard_boundary=221 · struct_hierarchy=221   ✅
+    dataidx   8: sa=144 · hard_boundary=144 · struct_hierarchy=144   ✅
+    dataidx   9: sa=129 · hard_boundary=129 · struct_hierarchy=129   ✅
+    dataidx  10: sa=272 · hard_boundary=272 · struct_hierarchy=272   ✅
+    dataidx  11: sa=162 · hard_boundary=162 · struct_hierarchy=162   ✅
+    dataidx  12: sa=223 · hard_boundary=223 · struct_hierarchy=223   ✅
+    dataidx  13: sa=129 · hard_boundary=129 · struct_hierarchy=129   ✅
+    dataidx  14: sa=132 · hard_boundary=132 · struct_hierarchy=132   ✅
+    dataidx  15: sa=125 · hard_boundary=125 · struct_hierarchy=125   ✅
+    dataidx  16: sa=227 · hard_boundary=227 · struct_hierarchy=227   ✅
+    dataidx  17: sa=166 · hard_boundary=166 · struct_hierarchy=166   ✅
+    dataidx  18: sa=196 · hard_boundary=196 · struct_hierarchy=196   ✅
+    dataidx  19: sa=101 · hard_boundary=101 · struct_hierarchy=101   ✅
+    dataidx  20: sa=197 · hard_boundary=197 · struct_hierarchy=197   ✅
+    dataidx  21: sa=92 · hard_boundary=92 · struct_hierarchy=92   ✅
+    dataidx  22: sa=560 · hard_boundary=560 · struct_hierarchy=560   ✅
+    dataidx  23: sa=276 · hard_boundary=276 · struct_hierarchy=276   ✅
+    dataidx  24: sa=858 · hard_boundary=858 · struct_hierarchy=858   ✅
+    dataidx  25: sa=111 · hard_boundary=111 · struct_hierarchy=111   ✅
+    dataidx  26: sa=174 · hard_boundary=174 · struct_hierarchy=174   ✅
+    dataidx  27: sa=361 · hard_boundary=361 · struct_hierarchy=361   ✅
+    dataidx  28: sa=116 · hard_boundary=116 · struct_hierarchy=116   ✅
+    dataidx  29: sa=189 · hard_boundary=189 · struct_hierarchy=189   ✅
+    dataidx  30: sa=145 · hard_boundary=145 · struct_hierarchy=145   ✅
+    dataidx  31: sa=546 · hard_boundary=546 · struct_hierarchy=546   ✅
+    dataidx  32: sa=181 · hard_boundary=181 · struct_hierarchy=181   ✅
+    dataidx  33: sa=184 · hard_boundary=184 · struct_hierarchy=184   ✅
+    dataidx  34: sa=107 · hard_boundary=107 · struct_hierarchy=107   ✅
+    dataidx  35: sa=146 · hard_boundary=146 · struct_hierarchy=146   ✅
+    dataidx  36: sa=94 · hard_boundary=94 · struct_hierarchy=94   ✅
+    dataidx  37: sa=109 · hard_boundary=109 · struct_hierarchy=109   ✅
+    dataidx  38: sa=86 · hard_boundary=86 · struct_hierarchy=86   ✅
+    dataidx  39: sa=112 · hard_boundary=112 · struct_hierarchy=112   ✅
+    dataidx  40: sa=81 · hard_boundary=81 · struct_hierarchy=81   ✅
+    dataidx  41: sa=126 · hard_boundary=126 · struct_hierarchy=126   ✅
+    dataidx  42: sa=179 · hard_boundary=179 · struct_hierarchy=179   ✅
+    dataidx  43: sa=290 · hard_boundary=290 · struct_hierarchy=290   ✅
+    dataidx  44: sa=91 · hard_boundary=91 · struct_hierarchy=91   ✅
+    dataidx  45: sa=103 · hard_boundary=103 · struct_hierarchy=103   ✅
+    dataidx  46: sa=302 · hard_boundary=302 · struct_hierarchy=302   ✅
+    dataidx  47: sa=235 · hard_boundary=235 · struct_hierarchy=235   ✅
+    dataidx  48: sa=265 · hard_boundary=265 · struct_hierarchy=265   ✅
+    dataidx  49: sa=149 · hard_boundary=149 · struct_hierarchy=149   ✅
+    dataidx  50: sa=385 · hard_boundary=385 · struct_hierarchy=385   ✅
+    dataidx  51: sa=111 · hard_boundary=111 · struct_hierarchy=111   ✅
+    dataidx  52: sa=98 · hard_boundary=98 · struct_hierarchy=98   ✅
+    dataidx  53: sa=137 · hard_boundary=137 · struct_hierarchy=137   ✅
+    dataidx  54: sa=876 · hard_boundary=876 · struct_hierarchy=876   ✅
+    dataidx  55: sa=168 · hard_boundary=168 · struct_hierarchy=168   ✅
+    dataidx  56: sa=146 · hard_boundary=146 · struct_hierarchy=146   ✅
+    dataidx  57: sa=178 · hard_boundary=178 · struct_hierarchy=178   ✅
+    dataidx  58: sa=122 · hard_boundary=122 · struct_hierarchy=122   ✅
+    dataidx  59: sa=154 · hard_boundary=154 · struct_hierarchy=154   ✅
+    dataidx  60: sa=158 · hard_boundary=158 · struct_hierarchy=158   ✅
+    dataidx  61: sa=132 · hard_boundary=132 · struct_hierarchy=132   ✅
+    dataidx  62: sa=113 · hard_boundary=113 · struct_hierarchy=113   ✅
+    dataidx  63: sa=167 · hard_boundary=167 · struct_hierarchy=167   ✅
+    dataidx  64: sa=166 · hard_boundary=166 · struct_hierarchy=166   ✅
+    dataidx  65: sa=205 · hard_boundary=205 · struct_hierarchy=205   ✅
+    dataidx  66: sa=105 · hard_boundary=105 · struct_hierarchy=105   ✅
+    dataidx  67: sa=250 · hard_boundary=250 · struct_hierarchy=250   ✅
+    dataidx  68: sa=163 · hard_boundary=163 · struct_hierarchy=163   ✅
+    dataidx  69: sa=96 · hard_boundary=96 · struct_hierarchy=96   ✅
+    dataidx  70: sa=176 · hard_boundary=176 · struct_hierarchy=176   ✅
+    dataidx  71: sa=81 · hard_boundary=81 · struct_hierarchy=81   ✅
+    dataidx  72: sa=237 · hard_boundary=237 · struct_hierarchy=237   ✅
+    dataidx  73: sa=80 · hard_boundary=80 · struct_hierarchy=80   ✅
+    dataidx  74: sa=341 · hard_boundary=341 · struct_hierarchy=341   ✅
+    dataidx  75: sa=106 · hard_boundary=106 · struct_hierarchy=106   ✅
+    dataidx  76: sa=239 · hard_boundary=239 · struct_hierarchy=239   ✅
+    dataidx  77: sa=98 · hard_boundary=98 · struct_hierarchy=98   ✅
+    dataidx  78: sa=208 · hard_boundary=208 · struct_hierarchy=208   ✅
+    dataidx  79: sa=181 · hard_boundary=181 · struct_hierarchy=181   ✅
+    dataidx  80: sa=349 · hard_boundary=349 · struct_hierarchy=349   ✅
+    dataidx  81: sa=180 · hard_boundary=180 · struct_hierarchy=180   ✅
+    dataidx  82: sa=109 · hard_boundary=109 · struct_hierarchy=109   ✅
+    dataidx  83: sa=146 · hard_boundary=146 · struct_hierarchy=146   ✅
+    dataidx  84: sa=92 · hard_boundary=92 · struct_hierarchy=92   ✅
+    dataidx  85: sa=319 · hard_boundary=319 · struct_hierarchy=319   ✅
+    dataidx  86: sa=565 · hard_boundary=565 · struct_hierarchy=565   ✅
+    dataidx  87: sa=132 · hard_boundary=132 · struct_hierarchy=132   ✅
+    dataidx  88: sa=100 · hard_boundary=100 · struct_hierarchy=100   ✅
+    dataidx  89: sa=105 · hard_boundary=105 · struct_hierarchy=105   ✅
+    dataidx  90: sa=133 · hard_boundary=133 · struct_hierarchy=133   ✅
+    dataidx  91: sa=106 · hard_boundary=106 · struct_hierarchy=106   ✅
+    dataidx  92: sa=289 · hard_boundary=289 · struct_hierarchy=289   ✅
+    dataidx  93: sa=177 · hard_boundary=177 · struct_hierarchy=177   ✅
+    dataidx  94: sa=126 · hard_boundary=126 · struct_hierarchy=126   ✅
+    dataidx  95: sa=729 · hard_boundary=729 · struct_hierarchy=729   ✅
+    dataidx  96: sa=86 · hard_boundary=86 · struct_hierarchy=86   ✅
+    dataidx  97: sa=92 · hard_boundary=92 · struct_hierarchy=92   ✅
+    dataidx  98: sa=170 · hard_boundary=170 · struct_hierarchy=170   ✅
+    dataidx  99: sa=59 · hard_boundary=59 · struct_hierarchy=59   ✅
+    dataidx 100: sa=138 · hard_boundary=138 · struct_hierarchy=138   ✅
+    dataidx 101: sa=331 · hard_boundary=331 · struct_hierarchy=331   ✅
+    dataidx 102: sa=314 · hard_boundary=314 · struct_hierarchy=314   ✅
+    dataidx 103: sa=153 · hard_boundary=153 · struct_hierarchy=153   ✅
+    dataidx 104: sa=633 · hard_boundary=633 · struct_hierarchy=633   ✅
+    dataidx 105: sa=164 · hard_boundary=164 · struct_hierarchy=164   ✅
+    dataidx 106: sa=139 · hard_boundary=139 · struct_hierarchy=139   ✅
+    dataidx 107: sa=246 · hard_boundary=246 · struct_hierarchy=246   ✅
+    dataidx 108: sa=102 · hard_boundary=102 · struct_hierarchy=102   ✅
+    dataidx 109: sa=158 · hard_boundary=158 · struct_hierarchy=158   ✅
+    dataidx 110: sa=172 · hard_boundary=172 · struct_hierarchy=172   ✅
+    dataidx 111: sa=182 · hard_boundary=182 · struct_hierarchy=182   ✅
+    dataidx 112: sa=234 · hard_boundary=234 · struct_hierarchy=234   ✅
+    dataidx 113: sa=178 · hard_boundary=178 · struct_hierarchy=178   ✅
+    dataidx 114: sa=165 · hard_boundary=165 · struct_hierarchy=165   ✅
+    dataidx 115: sa=80 · hard_boundary=80 · struct_hierarchy=80   ✅
+    dataidx 116: sa=123 · hard_boundary=123 · struct_hierarchy=123   ✅
+    dataidx 117: sa=204 · hard_boundary=204 · struct_hierarchy=204   ✅
+    dataidx 118: sa=77 · hard_boundary=77 · struct_hierarchy=77   ✅
+    dataidx 119: sa=613 · hard_boundary=613 · struct_hierarchy=613   ✅
+    dataidx 120: sa=95 · hard_boundary=95 · struct_hierarchy=95   ✅
+    dataidx 121: sa=173 · hard_boundary=173 · struct_hierarchy=173   ✅
+    dataidx 122: sa=169 · hard_boundary=169 · struct_hierarchy=169   ✅
+    dataidx 123: sa=233 · hard_boundary=233 · struct_hierarchy=233   ✅
+    dataidx 124: sa=144 · hard_boundary=144 · struct_hierarchy=144   ✅
+    dataidx 125: sa=401 · hard_boundary=401 · struct_hierarchy=401   ✅
+    dataidx 126: sa=119 · hard_boundary=119 · struct_hierarchy=119   ✅
+    dataidx 127: sa=251 · hard_boundary=251 · struct_hierarchy=251   ✅
+    dataidx 128: sa=118 · hard_boundary=118 · struct_hierarchy=118   ✅
+    dataidx 129: sa=109 · hard_boundary=109 · struct_hierarchy=109   ✅
+    dataidx 130: sa=133 · hard_boundary=133 · struct_hierarchy=133   ✅
+    dataidx 131: sa=110 · hard_boundary=110 · struct_hierarchy=110   ✅
+    dataidx 132: sa=302 · hard_boundary=302 · struct_hierarchy=302   ✅
+    dataidx 133: sa=82 · hard_boundary=82 · struct_hierarchy=82   ✅
+    dataidx 134: sa=97 · hard_boundary=97 · struct_hierarchy=97   ✅
+    dataidx 135: sa=235 · hard_boundary=235 · struct_hierarchy=235   ✅
+    dataidx 136: sa=103 · hard_boundary=103 · struct_hierarchy=103   ✅
+    dataidx 137: sa=93 · hard_boundary=93 · struct_hierarchy=93   ✅
+    dataidx 138: sa=279 · hard_boundary=279 · struct_hierarchy=279   ✅
+    dataidx 139: sa=228 · hard_boundary=228 · struct_hierarchy=228   ✅
+    dataidx 140: sa=83 · hard_boundary=83 · struct_hierarchy=83   ✅
+    dataidx 141: sa=125 · hard_boundary=125 · struct_hierarchy=125   ✅
+    dataidx 142: sa=123 · hard_boundary=123 · struct_hierarchy=123   ✅
+    dataidx 143: sa=399 · hard_boundary=399 · struct_hierarchy=399   ✅
+    dataidx 144: sa=349 · hard_boundary=349 · struct_hierarchy=349   ✅
+    dataidx 145: sa=113 · hard_boundary=113 · struct_hierarchy=113   ✅
+    dataidx 146: sa=103 · hard_boundary=103 · struct_hierarchy=103   ✅
+    dataidx 147: sa=143 · hard_boundary=143 · struct_hierarchy=143   ✅
+    dataidx 148: sa=111 · hard_boundary=111 · struct_hierarchy=111   ✅
+    dataidx 149: sa=117 · hard_boundary=117 · struct_hierarchy=117   ✅
+    dataidx 150: sa=353 · hard_boundary=353 · struct_hierarchy=353   ✅
+    dataidx 151: sa=211 · hard_boundary=211 · struct_hierarchy=211   ✅
+    dataidx 152: sa=131 · hard_boundary=131 · struct_hierarchy=131   ✅
+    dataidx 153: sa=102 · hard_boundary=102 · struct_hierarchy=102   ✅
+    dataidx 154: sa=154 · hard_boundary=154 · struct_hierarchy=154   ✅
+    dataidx 155: sa=101 · hard_boundary=101 · struct_hierarchy=101   ✅
+    dataidx 156: sa=105 · hard_boundary=105 · struct_hierarchy=105   ✅
+    dataidx 157: sa=333 · hard_boundary=333 · struct_hierarchy=333   ✅
+    dataidx 158: sa=117 · hard_boundary=117 · struct_hierarchy=117   ✅
+    dataidx 159: sa=275 · hard_boundary=275 · struct_hierarchy=275   ✅
+    dataidx 160: sa=190 · hard_boundary=190 · struct_hierarchy=190   ✅
+    dataidx 161: sa=151 · hard_boundary=151 · struct_hierarchy=151   ✅
+    dataidx 162: sa=362 · hard_boundary=362 · struct_hierarchy=362   ✅
+    dataidx 163: sa=421 · hard_boundary=421 · struct_hierarchy=421   ✅
+    dataidx 164: sa=315 · hard_boundary=315 · struct_hierarchy=315   ✅
+    dataidx 165: sa=102 · hard_boundary=102 · struct_hierarchy=102   ✅
+    dataidx 166: sa=179 · hard_boundary=179 · struct_hierarchy=179   ✅
+    dataidx 167: sa=133 · hard_boundary=133 · struct_hierarchy=133   ✅
+    dataidx 168: sa=147 · hard_boundary=147 · struct_hierarchy=147   ✅
+    dataidx 169: sa=189 · hard_boundary=189 · struct_hierarchy=189   ✅
+    dataidx 170: sa=170 · hard_boundary=170 · struct_hierarchy=170   ✅
+    dataidx 171: sa=169 · hard_boundary=169 · struct_hierarchy=169   ✅
+    dataidx 172: sa=255 · hard_boundary=255 · struct_hierarchy=255   ✅
+    dataidx 173: sa=323 · hard_boundary=323 · struct_hierarchy=323   ✅
+    dataidx 174: sa=124 · hard_boundary=124 · struct_hierarchy=124   ✅
+    dataidx 175: sa=111 · hard_boundary=111 · struct_hierarchy=111   ✅
+    dataidx 176: sa=167 · hard_boundary=167 · struct_hierarchy=167   ✅
+    dataidx 177: sa=106 · hard_boundary=106 · struct_hierarchy=106   ✅
+    dataidx 178: sa=651 · hard_boundary=651 · struct_hierarchy=651   ✅
+    dataidx 179: sa=189 · hard_boundary=189 · struct_hierarchy=189   ✅
+    dataidx 180: sa=168 · hard_boundary=168 · struct_hierarchy=168   ✅
+    dataidx 181: sa=127 · hard_boundary=127 · struct_hierarchy=127   ✅
+    dataidx 182: sa=111 · hard_boundary=111 · struct_hierarchy=111   ✅
+    dataidx 183: sa=124 · hard_boundary=124 · struct_hierarchy=124   ✅
+    dataidx 184: sa=142 · hard_boundary=142 · struct_hierarchy=142   ✅
+    dataidx 185: sa=80 · hard_boundary=80 · struct_hierarchy=80   ✅
+    dataidx 186: sa=331 · hard_boundary=331 · struct_hierarchy=331   ✅
+    dataidx 187: sa=150 · hard_boundary=150 · struct_hierarchy=150   ✅
+    dataidx 188: sa=368 · hard_boundary=368 · struct_hierarchy=368   ✅
+    dataidx 189: sa=230 · hard_boundary=230 · struct_hierarchy=230   ✅
+    dataidx 190: sa=97 · hard_boundary=97 · struct_hierarchy=97   ✅
+    dataidx 191: sa=109 · hard_boundary=109 · struct_hierarchy=109   ✅
+    dataidx 192: sa=404 · hard_boundary=404 · struct_hierarchy=404   ✅
+    dataidx 193: sa=102 · hard_boundary=102 · struct_hierarchy=102   ✅
+    dataidx 194: sa=112 · hard_boundary=112 · struct_hierarchy=112   ✅
+    dataidx 195: sa=98 · hard_boundary=98 · struct_hierarchy=98   ✅
+    dataidx 196: sa=119 · hard_boundary=119 · struct_hierarchy=119   ✅
+    dataidx 197: sa=117 · hard_boundary=117 · struct_hierarchy=117   ✅
+    dataidx 198: sa=206 · hard_boundary=206 · struct_hierarchy=206   ✅
+    dataidx 199: sa=178 · hard_boundary=178 · struct_hierarchy=178   ✅
+
+[C] Shape + do dai — sa
+    dataidx   0: centroids (1, 32, 897, 128) ✅ · labels (1, 32, 17956) (mong 17956) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 194, 128) ✅ · labels (1, 32, 3893) (mong 3893) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 136, 128) ✅ · labels (1, 32, 2721) (mong 2721) ✅ · o rong 0.0%
+    dataidx   3: centroids (1, 32, 118, 128) ✅ · labels (1, 32, 2370) (mong 2370) ✅ · o rong 0.0%
+    dataidx   4: centroids (1, 32, 153, 128) ✅ · labels (1, 32, 3069) (mong 3069) ✅ · o rong 0.0%
+    dataidx   5: centroids (1, 32, 260, 128) ✅ · labels (1, 32, 5202) (mong 5202) ✅ · o rong 0.0%
+    dataidx   6: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3175) (mong 3175) ✅ · o rong 0.0%
+    dataidx   7: centroids (1, 32, 221, 128) ✅ · labels (1, 32, 4428) (mong 4428) ✅ · o rong 0.0%
+    dataidx   8: centroids (1, 32, 144, 128) ✅ · labels (1, 32, 2880) (mong 2880) ✅ · o rong 0.0%
+    dataidx   9: centroids (1, 32, 129, 128) ✅ · labels (1, 32, 2596) (mong 2596) ✅ · o rong 0.0%
+    dataidx  10: centroids (1, 32, 272, 128) ✅ · labels (1, 32, 5440) (mong 5440) ✅ · o rong 0.0%
+    dataidx  11: centroids (1, 32, 162, 128) ✅ · labels (1, 32, 3242) (mong 3242) ✅ · o rong 0.0%
+    dataidx  12: centroids (1, 32, 223, 128) ✅ · labels (1, 32, 4460) (mong 4460) ✅ · o rong 0.0%
+    dataidx  13: centroids (1, 32, 129, 128) ✅ · labels (1, 32, 2591) (mong 2591) ✅ · o rong 0.0%
+    dataidx  14: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2653) (mong 2653) ✅ · o rong 0.0%
+    dataidx  15: centroids (1, 32, 125, 128) ✅ · labels (1, 32, 2514) (mong 2514) ✅ · o rong 0.0%
+    dataidx  16: centroids (1, 32, 227, 128) ✅ · labels (1, 32, 4554) (mong 4554) ✅ · o rong 0.0%
+    dataidx  17: centroids (1, 32, 166, 128) ✅ · labels (1, 32, 3330) (mong 3330) ✅ · o rong 0.0%
+    dataidx  18: centroids (1, 32, 196, 128) ✅ · labels (1, 32, 3931) (mong 3931) ✅ · o rong 0.0%
+    dataidx  19: centroids (1, 32, 101, 128) ✅ · labels (1, 32, 2031) (mong 2031) ✅ · o rong 0.0%
+    dataidx  20: centroids (1, 32, 197, 128) ✅ · labels (1, 32, 3940) (mong 3940) ✅ · o rong 0.0%
+    dataidx  21: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1840) (mong 1840) ✅ · o rong 0.0%
+    dataidx  22: centroids (1, 32, 560, 128) ✅ · labels (1, 32, 11207) (mong 11207) ✅ · o rong 0.0%
+    dataidx  23: centroids (1, 32, 276, 128) ✅ · labels (1, 32, 5539) (mong 5539) ✅ · o rong 0.0%
+    dataidx  24: centroids (1, 32, 858, 128) ✅ · labels (1, 32, 17171) (mong 17171) ✅ · o rong 0.0%
+    dataidx  25: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2237) (mong 2237) ✅ · o rong 0.0%
+    dataidx  26: centroids (1, 32, 174, 128) ✅ · labels (1, 32, 3499) (mong 3499) ✅ · o rong 0.0%
+    dataidx  27: centroids (1, 32, 361, 128) ✅ · labels (1, 32, 7229) (mong 7229) ✅ · o rong 0.0%
+    dataidx  28: centroids (1, 32, 116, 128) ✅ · labels (1, 32, 2331) (mong 2331) ✅ · o rong 0.0%
+    dataidx  29: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3780) (mong 3780) ✅ · o rong 0.0%
+    dataidx  30: centroids (1, 32, 145, 128) ✅ · labels (1, 32, 2915) (mong 2915) ✅ · o rong 0.0%
+    dataidx  31: centroids (1, 32, 546, 128) ✅ · labels (1, 32, 10927) (mong 10927) ✅ · o rong 0.0%
+    dataidx  32: centroids (1, 32, 181, 128) ✅ · labels (1, 32, 3639) (mong 3639) ✅ · o rong 0.0%
+    dataidx  33: centroids (1, 32, 184, 128) ✅ · labels (1, 32, 3684) (mong 3684) ✅ · o rong 0.0%
+    dataidx  34: centroids (1, 32, 107, 128) ✅ · labels (1, 32, 2158) (mong 2158) ✅ · o rong 0.0%
+    dataidx  35: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2931) (mong 2931) ✅ · o rong 0.0%
+    dataidx  36: centroids (1, 32, 94, 128) ✅ · labels (1, 32, 1896) (mong 1896) ✅ · o rong 0.0%
+    dataidx  37: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2190) (mong 2190) ✅ · o rong 0.0%
+    dataidx  38: centroids (1, 32, 86, 128) ✅ · labels (1, 32, 1733) (mong 1733) ✅ · o rong 0.0%
+    dataidx  39: centroids (1, 32, 112, 128) ✅ · labels (1, 32, 2242) (mong 2242) ✅ · o rong 0.0%
+    dataidx  40: centroids (1, 32, 81, 128) ✅ · labels (1, 32, 1637) (mong 1637) ✅ · o rong 0.0%
+    dataidx  41: centroids (1, 32, 126, 128) ✅ · labels (1, 32, 2534) (mong 2534) ✅ · o rong 0.0%
+    dataidx  42: centroids (1, 32, 179, 128) ✅ · labels (1, 32, 3596) (mong 3596) ✅ · o rong 0.0%
+    dataidx  43: centroids (1, 32, 290, 128) ✅ · labels (1, 32, 5819) (mong 5819) ✅ · o rong 0.0%
+    dataidx  44: centroids (1, 32, 91, 128) ✅ · labels (1, 32, 1832) (mong 1832) ✅ · o rong 0.0%
+    dataidx  45: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2072) (mong 2072) ✅ · o rong 0.0%
+    dataidx  46: centroids (1, 32, 302, 128) ✅ · labels (1, 32, 6049) (mong 6049) ✅ · o rong 0.0%
+    dataidx  47: centroids (1, 32, 235, 128) ✅ · labels (1, 32, 4703) (mong 4703) ✅ · o rong 0.0%
+    dataidx  48: centroids (1, 32, 265, 128) ✅ · labels (1, 32, 5311) (mong 5311) ✅ · o rong 0.0%
+    dataidx  49: centroids (1, 32, 149, 128) ✅ · labels (1, 32, 2989) (mong 2989) ✅ · o rong 0.0%
+    dataidx  50: centroids (1, 32, 385, 128) ✅ · labels (1, 32, 7707) (mong 7707) ✅ · o rong 0.0%
+    dataidx  51: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2237) (mong 2237) ✅ · o rong 0.0%
+    dataidx  52: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1961) (mong 1961) ✅ · o rong 0.0%
+    dataidx  53: centroids (1, 32, 137, 128) ✅ · labels (1, 32, 2744) (mong 2744) ✅ · o rong 0.0%
+    dataidx  54: centroids (1, 32, 876, 128) ✅ · labels (1, 32, 17534) (mong 17534) ✅ · o rong 0.0%
+    dataidx  55: centroids (1, 32, 168, 128) ✅ · labels (1, 32, 3376) (mong 3376) ✅ · o rong 0.0%
+    dataidx  56: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2938) (mong 2938) ✅ · o rong 0.0%
+    dataidx  57: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3562) (mong 3562) ✅ · o rong 0.0%
+    dataidx  58: centroids (1, 32, 122, 128) ✅ · labels (1, 32, 2452) (mong 2452) ✅ · o rong 0.0%
+    dataidx  59: centroids (1, 32, 154, 128) ✅ · labels (1, 32, 3092) (mong 3092) ✅ · o rong 0.0%
+    dataidx  60: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3169) (mong 3169) ✅ · o rong 0.0%
+    dataidx  61: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2648) (mong 2648) ✅ · o rong 0.0%
+    dataidx  62: centroids (1, 32, 113, 128) ✅ · labels (1, 32, 2279) (mong 2279) ✅ · o rong 0.0%
+    dataidx  63: centroids (1, 32, 167, 128) ✅ · labels (1, 32, 3358) (mong 3358) ✅ · o rong 0.0%
+    dataidx  64: centroids (1, 32, 166, 128) ✅ · labels (1, 32, 3332) (mong 3332) ✅ · o rong 0.0%
+    dataidx  65: centroids (1, 32, 205, 128) ✅ · labels (1, 32, 4116) (mong 4116) ✅ · o rong 0.0%
+    dataidx  66: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2107) (mong 2107) ✅ · o rong 0.0%
+    dataidx  67: centroids (1, 32, 250, 128) ✅ · labels (1, 32, 5000) (mong 5000) ✅ · o rong 0.0%
+    dataidx  68: centroids (1, 32, 163, 128) ✅ · labels (1, 32, 3277) (mong 3277) ✅ · o rong 0.0%
+    dataidx  69: centroids (1, 32, 96, 128) ✅ · labels (1, 32, 1922) (mong 1922) ✅ · o rong 0.0%
+    dataidx  70: centroids (1, 32, 176, 128) ✅ · labels (1, 32, 3538) (mong 3538) ✅ · o rong 0.0%
+    dataidx  71: centroids (1, 32, 81, 128) ✅ · labels (1, 32, 1635) (mong 1635) ✅ · o rong 0.0%
+    dataidx  72: centroids (1, 32, 237, 128) ✅ · labels (1, 32, 4746) (mong 4746) ✅ · o rong 0.0%
+    dataidx  73: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1607) (mong 1607) ✅ · o rong 0.0%
+    dataidx  74: centroids (1, 32, 341, 128) ✅ · labels (1, 32, 6825) (mong 6825) ✅ · o rong 0.0%
+    dataidx  75: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2137) (mong 2137) ✅ · o rong 0.0%
+    dataidx  76: centroids (1, 32, 239, 128) ✅ · labels (1, 32, 4788) (mong 4788) ✅ · o rong 0.0%
+    dataidx  77: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1960) (mong 1960) ✅ · o rong 0.0%
+    dataidx  78: centroids (1, 32, 208, 128) ✅ · labels (1, 32, 4171) (mong 4171) ✅ · o rong 0.0%
+    dataidx  79: centroids (1, 32, 181, 128) ✅ · labels (1, 32, 3638) (mong 3638) ✅ · o rong 0.0%
+    dataidx  80: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6990) (mong 6990) ✅ · o rong 0.0%
+    dataidx  81: centroids (1, 32, 180, 128) ✅ · labels (1, 32, 3607) (mong 3607) ✅ · o rong 0.0%
+    dataidx  82: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2184) (mong 2184) ✅ · o rong 0.0%
+    dataidx  83: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2924) (mong 2924) ✅ · o rong 0.0%
+    dataidx  84: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1848) (mong 1848) ✅ · o rong 0.0%
+    dataidx  85: centroids (1, 32, 319, 128) ✅ · labels (1, 32, 6382) (mong 6382) ✅ · o rong 0.0%
+    dataidx  86: centroids (1, 32, 565, 128) ✅ · labels (1, 32, 11310) (mong 11310) ✅ · o rong 0.0%
+    dataidx  87: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2648) (mong 2648) ✅ · o rong 0.0%
+    dataidx  88: centroids (1, 32, 100, 128) ✅ · labels (1, 32, 2009) (mong 2009) ✅ · o rong 0.0%
+    dataidx  89: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2104) (mong 2104) ✅ · o rong 0.0%
+    dataidx  90: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2673) (mong 2673) ✅ · o rong 0.0%
+    dataidx  91: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2131) (mong 2131) ✅ · o rong 0.0%
+    dataidx  92: centroids (1, 32, 289, 128) ✅ · labels (1, 32, 5786) (mong 5786) ✅ · o rong 0.0%
+    dataidx  93: centroids (1, 32, 177, 128) ✅ · labels (1, 32, 3544) (mong 3544) ✅ · o rong 0.0%
+    dataidx  94: centroids (1, 32, 126, 128) ✅ · labels (1, 32, 2537) (mong 2537) ✅ · o rong 0.0%
+    dataidx  95: centroids (1, 32, 729, 128) ✅ · labels (1, 32, 14596) (mong 14596) ✅ · o rong 0.0%
+    dataidx  96: centroids (1, 32, 86, 128) ✅ · labels (1, 32, 1732) (mong 1732) ✅ · o rong 0.0%
+    dataidx  97: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1846) (mong 1846) ✅ · o rong 0.0%
+    dataidx  98: centroids (1, 32, 170, 128) ✅ · labels (1, 32, 3405) (mong 3405) ✅ · o rong 0.0%
+    dataidx  99: centroids (1, 32, 59, 128) ✅ · labels (1, 32, 1180) (mong 1180) ✅ · o rong 0.0%
+    dataidx 100: centroids (1, 32, 138, 128) ✅ · labels (1, 32, 2777) (mong 2777) ✅ · o rong 0.0%
+    dataidx 101: centroids (1, 32, 331, 128) ✅ · labels (1, 32, 6633) (mong 6633) ✅ · o rong 0.0%
+    dataidx 102: centroids (1, 32, 314, 128) ✅ · labels (1, 32, 6292) (mong 6292) ✅ · o rong 0.0%
+    dataidx 103: centroids (1, 32, 153, 128) ✅ · labels (1, 32, 3072) (mong 3072) ✅ · o rong 0.0%
+    dataidx 104: centroids (1, 32, 633, 128) ✅ · labels (1, 32, 12674) (mong 12674) ✅ · o rong 0.0%
+    dataidx 105: centroids (1, 32, 164, 128) ✅ · labels (1, 32, 3281) (mong 3281) ✅ · o rong 0.0%
+    dataidx 106: centroids (1, 32, 139, 128) ✅ · labels (1, 32, 2780) (mong 2780) ✅ · o rong 0.0%
+    dataidx 107: centroids (1, 32, 246, 128) ✅ · labels (1, 32, 4935) (mong 4935) ✅ · o rong 0.0%
+    dataidx 108: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2043) (mong 2043) ✅ · o rong 0.0%
+    dataidx 109: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3168) (mong 3168) ✅ · o rong 0.0%
+    dataidx 110: centroids (1, 32, 172, 128) ✅ · labels (1, 32, 3447) (mong 3447) ✅ · o rong 0.0%
+    dataidx 111: centroids (1, 32, 182, 128) ✅ · labels (1, 32, 3652) (mong 3652) ✅ · o rong 0.0%
+    dataidx 112: centroids (1, 32, 234, 128) ✅ · labels (1, 32, 4683) (mong 4683) ✅ · o rong 0.0%
+    dataidx 113: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3560) (mong 3560) ✅ · o rong 0.0%
+    dataidx 114: centroids (1, 32, 165, 128) ✅ · labels (1, 32, 3300) (mong 3300) ✅ · o rong 0.0%
+    dataidx 115: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1600) (mong 1600) ✅ · o rong 0.0%
+    dataidx 116: centroids (1, 32, 123, 128) ✅ · labels (1, 32, 2473) (mong 2473) ✅ · o rong 0.0%
+    dataidx 117: centroids (1, 32, 204, 128) ✅ · labels (1, 32, 4087) (mong 4087) ✅ · o rong 0.0%
+    dataidx 118: centroids (1, 32, 77, 128) ✅ · labels (1, 32, 1556) (mong 1556) ✅ · o rong 0.0%
+    dataidx 119: centroids (1, 32, 613, 128) ✅ · labels (1, 32, 12275) (mong 12275) ✅ · o rong 0.0%
+    dataidx 120: centroids (1, 32, 95, 128) ✅ · labels (1, 32, 1902) (mong 1902) ✅ · o rong 0.0%
+    dataidx 121: centroids (1, 32, 173, 128) ✅ · labels (1, 32, 3466) (mong 3466) ✅ · o rong 0.0%
+    dataidx 122: centroids (1, 32, 169, 128) ✅ · labels (1, 32, 3383) (mong 3383) ✅ · o rong 0.0%
+    dataidx 123: centroids (1, 32, 233, 128) ✅ · labels (1, 32, 4670) (mong 4670) ✅ · o rong 0.0%
+    dataidx 124: centroids (1, 32, 144, 128) ✅ · labels (1, 32, 2882) (mong 2882) ✅ · o rong 0.0%
+    dataidx 125: centroids (1, 32, 401, 128) ✅ · labels (1, 32, 8035) (mong 8035) ✅ · o rong 0.0%
+    dataidx 126: centroids (1, 32, 119, 128) ✅ · labels (1, 32, 2387) (mong 2387) ✅ · o rong 0.0%
+    dataidx 127: centroids (1, 32, 251, 128) ✅ · labels (1, 32, 5023) (mong 5023) ✅ · o rong 0.0%
+    dataidx 128: centroids (1, 32, 118, 128) ✅ · labels (1, 32, 2360) (mong 2360) ✅ · o rong 0.0%
+    dataidx 129: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2192) (mong 2192) ✅ · o rong 0.0%
+    dataidx 130: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2666) (mong 2666) ✅ · o rong 0.0%
+    dataidx 131: centroids (1, 32, 110, 128) ✅ · labels (1, 32, 2202) (mong 2202) ✅ · o rong 0.0%
+    dataidx 132: centroids (1, 32, 302, 128) ✅ · labels (1, 32, 6048) (mong 6048) ✅ · o rong 0.0%
+    dataidx 133: centroids (1, 32, 82, 128) ✅ · labels (1, 32, 1641) (mong 1641) ✅ · o rong 0.0%
+    dataidx 134: centroids (1, 32, 97, 128) ✅ · labels (1, 32, 1955) (mong 1955) ✅ · o rong 0.0%
+    dataidx 135: centroids (1, 32, 235, 128) ✅ · labels (1, 32, 4704) (mong 4704) ✅ · o rong 0.0%
+    dataidx 136: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2067) (mong 2067) ✅ · o rong 0.0%
+    dataidx 137: centroids (1, 32, 93, 128) ✅ · labels (1, 32, 1862) (mong 1862) ✅ · o rong 0.0%
+    dataidx 138: centroids (1, 32, 279, 128) ✅ · labels (1, 32, 5585) (mong 5585) ✅ · o rong 0.0%
+    dataidx 139: centroids (1, 32, 228, 128) ✅ · labels (1, 32, 4571) (mong 4571) ✅ · o rong 0.0%
+    dataidx 140: centroids (1, 32, 83, 128) ✅ · labels (1, 32, 1679) (mong 1679) ✅ · o rong 0.0%
+    dataidx 141: centroids (1, 32, 125, 128) ✅ · labels (1, 32, 2517) (mong 2517) ✅ · o rong 0.0%
+    dataidx 142: centroids (1, 32, 123, 128) ✅ · labels (1, 32, 2464) (mong 2464) ✅ · o rong 0.0%
+    dataidx 143: centroids (1, 32, 399, 128) ✅ · labels (1, 32, 7981) (mong 7981) ✅ · o rong 0.0%
+    dataidx 144: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6994) (mong 6994) ✅ · o rong 0.0%
+    dataidx 145: centroids (1, 32, 113, 128) ✅ · labels (1, 32, 2273) (mong 2273) ✅ · o rong 0.0%
+    dataidx 146: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2071) (mong 2071) ✅ · o rong 0.0%
+    dataidx 147: centroids (1, 32, 143, 128) ✅ · labels (1, 32, 2867) (mong 2867) ✅ · o rong 0.0%
+    dataidx 148: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2230) (mong 2230) ✅ · o rong 0.0%
+    dataidx 149: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2358) (mong 2358) ✅ · o rong 0.0%
+    dataidx 150: centroids (1, 32, 353, 128) ✅ · labels (1, 32, 7061) (mong 7061) ✅ · o rong 0.0%
+    dataidx 151: centroids (1, 32, 211, 128) ✅ · labels (1, 32, 4233) (mong 4233) ✅ · o rong 0.0%
+    dataidx 152: centroids (1, 32, 131, 128) ✅ · labels (1, 32, 2624) (mong 2624) ✅ · o rong 0.0%
+    dataidx 153: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2050) (mong 2050) ✅ · o rong 0.0%
+    dataidx 154: centroids (1, 32, 154, 128) ✅ · labels (1, 32, 3083) (mong 3083) ✅ · o rong 0.0%
+    dataidx 155: centroids (1, 32, 101, 128) ✅ · labels (1, 32, 2024) (mong 2024) ✅ · o rong 0.0%
+    dataidx 156: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2111) (mong 2111) ✅ · o rong 0.0%
+    dataidx 157: centroids (1, 32, 333, 128) ✅ · labels (1, 32, 6673) (mong 6673) ✅ · o rong 0.0%
+    dataidx 158: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2344) (mong 2344) ✅ · o rong 0.0%
+    dataidx 159: centroids (1, 32, 275, 128) ✅ · labels (1, 32, 5514) (mong 5514) ✅ · o rong 0.0%
+    dataidx 160: centroids (1, 32, 190, 128) ✅ · labels (1, 32, 3807) (mong 3807) ✅ · o rong 0.0%
+    dataidx 161: centroids (1, 32, 151, 128) ✅ · labels (1, 32, 3038) (mong 3038) ✅ · o rong 0.0%
+    dataidx 162: centroids (1, 32, 362, 128) ✅ · labels (1, 32, 7247) (mong 7247) ✅ · o rong 0.0%
+    dataidx 163: centroids (1, 32, 421, 128) ✅ · labels (1, 32, 8429) (mong 8429) ✅ · o rong 0.0%
+    dataidx 164: centroids (1, 32, 315, 128) ✅ · labels (1, 32, 6313) (mong 6313) ✅ · o rong 0.0%
+    dataidx 165: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2056) (mong 2056) ✅ · o rong 0.0%
+    dataidx 166: centroids (1, 32, 179, 128) ✅ · labels (1, 32, 3597) (mong 3597) ✅ · o rong 0.0%
+    dataidx 167: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2673) (mong 2673) ✅ · o rong 0.0%
+    dataidx 168: centroids (1, 32, 147, 128) ✅ · labels (1, 32, 2955) (mong 2955) ✅ · o rong 0.0%
+    dataidx 169: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3799) (mong 3799) ✅ · o rong 0.0%
+    dataidx 170: centroids (1, 32, 170, 128) ✅ · labels (1, 32, 3410) (mong 3410) ✅ · o rong 0.0%
+    dataidx 171: centroids (1, 32, 169, 128) ✅ · labels (1, 32, 3384) (mong 3384) ✅ · o rong 0.0%
+    dataidx 172: centroids (1, 32, 255, 128) ✅ · labels (1, 32, 5104) (mong 5104) ✅ · o rong 0.0%
+    dataidx 173: centroids (1, 32, 323, 128) ✅ · labels (1, 32, 6462) (mong 6462) ✅ · o rong 0.0%
+    dataidx 174: centroids (1, 32, 124, 128) ✅ · labels (1, 32, 2494) (mong 2494) ✅ · o rong 0.0%
+    dataidx 175: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2235) (mong 2235) ✅ · o rong 0.0%
+    dataidx 176: centroids (1, 32, 167, 128) ✅ · labels (1, 32, 3346) (mong 3346) ✅ · o rong 0.0%
+    dataidx 177: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2132) (mong 2132) ✅ · o rong 0.0%
+    dataidx 178: centroids (1, 32, 651, 128) ✅ · labels (1, 32, 13021) (mong 13021) ✅ · o rong 0.0%
+    dataidx 179: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3792) (mong 3792) ✅ · o rong 0.0%
+    dataidx 180: centroids (1, 32, 168, 128) ✅ · labels (1, 32, 3371) (mong 3371) ✅ · o rong 0.0%
+    dataidx 181: centroids (1, 32, 127, 128) ✅ · labels (1, 32, 2545) (mong 2545) ✅ · o rong 0.0%
+    dataidx 182: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2238) (mong 2238) ✅ · o rong 0.0%
+    dataidx 183: centroids (1, 32, 124, 128) ✅ · labels (1, 32, 2490) (mong 2490) ✅ · o rong 0.0%
+    dataidx 184: centroids (1, 32, 142, 128) ✅ · labels (1, 32, 2858) (mong 2858) ✅ · o rong 0.0%
+    dataidx 185: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1615) (mong 1615) ✅ · o rong 0.0%
+    dataidx 186: centroids (1, 32, 331, 128) ✅ · labels (1, 32, 6639) (mong 6639) ✅ · o rong 0.0%
+    dataidx 187: centroids (1, 32, 150, 128) ✅ · labels (1, 32, 3013) (mong 3013) ✅ · o rong 0.0%
+    dataidx 188: centroids (1, 32, 368, 128) ✅ · labels (1, 32, 7371) (mong 7371) ✅ · o rong 0.0%
+    dataidx 189: centroids (1, 32, 230, 128) ✅ · labels (1, 32, 4615) (mong 4615) ✅ · o rong 0.0%
+    dataidx 190: centroids (1, 32, 97, 128) ✅ · labels (1, 32, 1958) (mong 1958) ✅ · o rong 0.0%
+    dataidx 191: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2184) (mong 2184) ✅ · o rong 0.0%
+    dataidx 192: centroids (1, 32, 404, 128) ✅ · labels (1, 32, 8095) (mong 8095) ✅ · o rong 0.0%
+    dataidx 193: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2044) (mong 2044) ✅ · o rong 0.0%
+    dataidx 194: centroids (1, 32, 112, 128) ✅ · labels (1, 32, 2258) (mong 2258) ✅ · o rong 0.0%
+    dataidx 195: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1970) (mong 1970) ✅ · o rong 0.0%
+    dataidx 196: centroids (1, 32, 119, 128) ✅ · labels (1, 32, 2385) (mong 2385) ✅ · o rong 0.0%
+    dataidx 197: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2355) (mong 2355) ✅ · o rong 0.0%
+    dataidx 198: centroids (1, 32, 206, 128) ✅ · labels (1, 32, 4124) (mong 4124) ✅ · o rong 0.0%
+    dataidx 199: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3564) (mong 3564) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — sa   (NHOM DOI CHUNG — mong doi vat bien NHIEU)
+    (dung lai prompt sau truncation — can dataset + tokenizer)
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+    dataidx   0:  918528 cluster · vat qua >1 unit: 209815 ( 22.8%)  (doi chung)  (U=51)
+        vi du: layer 0 head 0 cluster 1 chua unit 39..49
+    dataidx   1:  198656 cluster · vat qua >1 unit:  66874 ( 33.7%)  (doi chung)  (U=23)
+        vi du: layer 0 head 0 cluster 1 chua unit 10..11
+    dataidx   2:  139264 cluster · vat qua >1 unit:  51128 ( 36.7%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 3..6
+    dataidx   3:  120832 cluster · vat qua >1 unit:  46193 ( 38.2%)  (doi chung)  (U=27)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..14
+    dataidx   4:  156672 cluster · vat qua >1 unit:  20571 ( 13.1%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 4 chua unit 4..5
+    dataidx   5:  266240 cluster · vat qua >1 unit:  90041 ( 33.8%)  (doi chung)  (U=39)
+        vi du: layer 0 head 0 cluster 1 chua unit 4..37
+    dataidx   6:  161792 cluster · vat qua >1 unit:  27615 ( 17.1%)  (doi chung)  (U=8)
+        vi du: layer 0 head 0 cluster 2 chua unit 5..6
+    dataidx   7:  226304 cluster · vat qua >1 unit:  93005 ( 41.1%)  (doi chung)  (U=42)
+        vi du: layer 0 head 0 cluster 0 chua unit 7..11
+    dataidx   8:  147456 cluster · vat qua >1 unit:  60405 ( 41.0%)  (doi chung)  (U=23)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..8
+    dataidx   9:  132096 cluster · vat qua >1 unit:  56423 ( 42.7%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 0 chua unit 2..12
+    dataidx  10:  278528 cluster · vat qua >1 unit:  54036 ( 19.4%)  (doi chung)  (U=19)
+        vi du: layer 0 head 0 cluster 1 chua unit 8..14
+    dataidx  11:  165888 cluster · vat qua >1 unit:  72076 ( 43.4%)  (doi chung)  (U=31)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..13
+    dataidx  12:  228352 cluster · vat qua >1 unit:  91671 ( 40.1%)  (doi chung)  (U=28)
+        vi du: layer 0 head 0 cluster 1 chua unit 22..24
+    dataidx  13:  132096 cluster · vat qua >1 unit:  51888 ( 39.3%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 2 chua unit 6..7
+    dataidx  14:  135168 cluster · vat qua >1 unit:  42096 ( 31.1%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 0 chua unit 8..16
+    dataidx  15:  128000 cluster · vat qua >1 unit:  30726 ( 24.0%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..2
+    dataidx  16:  232448 cluster · vat qua >1 unit: 102224 ( 44.0%)  (doi chung)  (U=50)
+        vi du: layer 0 head 0 cluster 1 chua unit 44..48
+    dataidx  17:  169984 cluster · vat qua >1 unit:  41293 ( 24.3%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 3 chua unit 0..2
+    dataidx  18:  200704 cluster · vat qua >1 unit:  69099 ( 34.4%)  (doi chung)  (U=15)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..3
+    dataidx  19:  103424 cluster · vat qua >1 unit:  63853 ( 61.7%)  (doi chung)  (U=29)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..14
+    dataidx  20:  201728 cluster · vat qua >1 unit:  28843 ( 14.3%)  (doi chung)  (U=8)
+        vi du: layer 0 head 0 cluster 0 chua unit 4..5
+    dataidx  21:   94208 cluster · vat qua >1 unit:  37245 ( 39.5%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..6
+    dataidx  22:  573440 cluster · vat qua >1 unit: 144012 ( 25.1%)  (doi chung)  (U=47)
+        vi du: layer 0 head 0 cluster 1 chua unit 19..28
+    dataidx  23:  282624 cluster · vat qua >1 unit:  77879 ( 27.6%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..3
+    dataidx  24:  878592 cluster · vat qua >1 unit: 262414 ( 29.9%)  (doi chung)  (U=91)
+        vi du: layer 0 head 0 cluster 0 chua unit 7..20
+    dataidx  25:  113664 cluster · vat qua >1 unit:  37795 ( 33.3%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 3 chua unit 4..5
+    dataidx  26:  178176 cluster · vat qua >1 unit:  36321 ( 20.4%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 5 chua unit 0..7
+    dataidx  27:  369664 cluster · vat qua >1 unit:  22732 (  6.1%)  (doi chung)  (U=6)
+        vi du: layer 0 head 0 cluster 15 chua unit 4..5
+    dataidx  28:  118784 cluster · vat qua >1 unit:  20503 ( 17.3%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 3 chua unit 4..5
+    dataidx  29:  193536 cluster · vat qua >1 unit:  59313 ( 30.6%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..5
+    dataidx  30:  148480 cluster · vat qua >1 unit:  84860 ( 57.2%)  (doi chung)  (U=37)
+        vi du: layer 0 head 0 cluster 2 chua unit 16..35
+    dataidx  31:  559104 cluster · vat qua >1 unit: 186874 ( 33.4%)  (doi chung)  (U=55)
+        vi du: layer 0 head 0 cluster 2 chua unit 5..15
+    dataidx  32:  185344 cluster · vat qua >1 unit:  39858 ( 21.5%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 2 chua unit 5..7
+    dataidx  33:  188416 cluster · vat qua >1 unit:  65895 ( 35.0%)  (doi chung)  (U=22)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..20
+    dataidx  34:  109568 cluster · vat qua >1 unit:  49837 ( 45.5%)  (doi chung)  (U=26)
+        vi du: layer 0 head 0 cluster 0 chua unit 10..12
+    dataidx  35:  149504 cluster · vat qua >1 unit:  50103 ( 33.5%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..16
+    dataidx  36:   96256 cluster · vat qua >1 unit:  56290 ( 58.5%)  (doi chung)  (U=30)
+        vi du: layer 0 head 0 cluster 1 chua unit 22..26
+    dataidx  37:  111616 cluster · vat qua >1 unit:  68325 ( 61.2%)  (doi chung)  (U=30)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..23
+    dataidx  38:   88064 cluster · vat qua >1 unit:  18122 ( 20.6%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 3 chua unit 1..2
+    dataidx  39:  114688 cluster · vat qua >1 unit:  41385 ( 36.1%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 0 chua unit 3..4
+    dataidx  40:   82944 cluster · vat qua >1 unit:  40736 ( 49.1%)  (doi chung)  (U=15)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..6
+    dataidx  41:  129024 cluster · vat qua >1 unit:  41284 ( 32.0%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 2 chua unit 3..4
+    dataidx  42:  183296 cluster · vat qua >1 unit:  51026 ( 27.8%)  (doi chung)  (U=21)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..12
+    dataidx  43:  296960 cluster · vat qua >1 unit:  76952 ( 25.9%)  (doi chung)  (U=26)
+        vi du: layer 0 head 0 cluster 2 chua unit 0..13
+    dataidx  44:   93184 cluster · vat qua >1 unit:  41025 ( 44.0%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..12
+    dataidx  45:  105472 cluster · vat qua >1 unit:  55291 ( 52.4%)  (doi chung)  (U=28)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..26
+    dataidx  46:  309248 cluster · vat qua >1 unit:  53855 ( 17.4%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 5 chua unit 1..2
+    dataidx  47:  240640 cluster · vat qua >1 unit:  62851 ( 26.1%)  (doi chung)  (U=15)
+        vi du: layer 0 head 0 cluster 4 chua unit 1..4
+    dataidx  48:  271360 cluster · vat qua >1 unit:  41123 ( 15.2%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 5 chua unit 2..9
+    dataidx  49:  152576 cluster · vat qua >1 unit:  25730 ( 16.9%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 6 chua unit 1..2
+    dataidx  50:  394240 cluster · vat qua >1 unit:  51196 ( 13.0%)  (doi chung)  (U=16)
+        vi du: layer 0 head 0 cluster 6 chua unit 4..5
+    dataidx  51:  113664 cluster · vat qua >1 unit:  46969 ( 41.3%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 1 chua unit 14..15
+    dataidx  52:  100352 cluster · vat qua >1 unit:  38365 ( 38.2%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..2
+    dataidx  53:  140288 cluster · vat qua >1 unit:  37817 ( 27.0%)  (doi chung)  (U=8)
+        vi du: layer 0 head 0 cluster 2 chua unit 3..6
+    dataidx  54:  897024 cluster · vat qua >1 unit: 464524 ( 51.8%)  (doi chung)  (U=248)
+        vi du: layer 0 head 0 cluster 1 chua unit 188..195
+    dataidx  55:  172032 cluster · vat qua >1 unit:  44265 ( 25.7%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..1
+    dataidx  56:  149504 cluster · vat qua >1 unit:  31262 ( 20.9%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 1 chua unit 5..7
+    dataidx  57:  182272 cluster · vat qua >1 unit:  88490 ( 48.5%)  (doi chung)  (U=39)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..10
+    dataidx  58:  124928 cluster · vat qua >1 unit:  41367 ( 33.1%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 2 chua unit 10..11
+    dataidx  59:  157696 cluster · vat qua >1 unit:  43720 ( 27.7%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 0 chua unit 2..10
+    dataidx  60:  161792 cluster · vat qua >1 unit:  56024 ( 34.6%)  (doi chung)  (U=22)
+        vi du: layer 0 head 0 cluster 2 chua unit 6..7
+    dataidx  61:  135168 cluster · vat qua >1 unit:  36538 ( 27.0%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..10
+    dataidx  62:  115712 cluster · vat qua >1 unit:  33540 ( 29.0%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 5 chua unit 0..4
+    dataidx  63:  171008 cluster · vat qua >1 unit:  46747 ( 27.3%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 1 chua unit 8..10
+    dataidx  64:  169984 cluster · vat qua >1 unit:  54660 ( 32.2%)  (doi chung)  (U=21)
+        vi du: layer 0 head 0 cluster 1 chua unit 17..19
+    dataidx  65:  209920 cluster · vat qua >1 unit: 107790 ( 51.3%)  (doi chung)  (U=40)
+        vi du: layer 0 head 0 cluster 0 chua unit 8..11
+    dataidx  66:  107520 cluster · vat qua >1 unit:  31367 ( 29.2%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 2..3
+    dataidx  67:  256000 cluster · vat qua >1 unit:  49522 ( 19.3%)  (doi chung)  (U=19)
+        vi du: layer 0 head 0 cluster 4 chua unit 8..16
+    dataidx  68:  166912 cluster · vat qua >1 unit:  22331 ( 13.4%)  (doi chung)  (U=6)
+        vi du: layer 0 head 0 cluster 3 chua unit 2..4
+    dataidx  69:   98304 cluster · vat qua >1 unit:  56057 ( 57.0%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..6
+    dataidx  70:  180224 cluster · vat qua >1 unit:  49656 ( 27.6%)  (doi chung)  (U=16)
+        vi du: layer 0 head 0 cluster 0 chua unit 7..14
+    dataidx  71:   82944 cluster · vat qua >1 unit:  36219 ( 43.7%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 1 chua unit 8..11
+    dataidx  72:  242688 cluster · vat qua >1 unit:  66587 ( 27.4%)  (doi chung)  (U=25)
+        vi du: layer 0 head 0 cluster 0 chua unit 3..4
+    dataidx  73:   81920 cluster · vat qua >1 unit:  36298 ( 44.3%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 2 chua unit 2..9
+    dataidx  74:  349184 cluster · vat qua >1 unit:   7016 (  2.0%)  (doi chung)  (U=3)
+        vi du: layer 0 head 0 cluster 21 chua unit 0..1
+    dataidx  75:  108544 cluster · vat qua >1 unit:  43355 ( 39.9%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 2 chua unit 3..4
+    dataidx  76:  244736 cluster · vat qua >1 unit:  98764 ( 40.4%)  (doi chung)  (U=30)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..7
+    dataidx  77:  100352 cluster · vat qua >1 unit:  40827 ( 40.7%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 4..6
+    dataidx  78:  212992 cluster · vat qua >1 unit: 102087 ( 47.9%)  (doi chung)  (U=33)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..6
+    dataidx  79:  185344 cluster · vat qua >1 unit:  31317 ( 16.9%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..5
+    dataidx  80:  357376 cluster · vat qua >1 unit:  54494 ( 15.2%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 4 chua unit 1..2
+    dataidx  81:  184320 cluster · vat qua >1 unit:  34747 ( 18.9%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..7
+    dataidx  82:  111616 cluster · vat qua >1 unit:  52467 ( 47.0%)  (doi chung)  (U=19)
+        vi du: layer 0 head 0 cluster 3 chua unit 2..4
+    dataidx  83:  149504 cluster · vat qua >1 unit:  13186 (  8.8%)  (doi chung)  (U=4)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..1
+    dataidx  84:   94208 cluster · vat qua >1 unit:  23274 ( 24.7%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 2 chua unit 4..5
+    dataidx  85:  326656 cluster · vat qua >1 unit:   7536 (  2.3%)  (doi chung)  (U=3)
+        vi du: layer 0 head 0 cluster 13 chua unit 0..1
+    dataidx  86:  578560 cluster · vat qua >1 unit: 236686 ( 40.9%)  (doi chung)  (U=102)
+        vi du: layer 0 head 0 cluster 0 chua unit 11..12
+    dataidx  87:  135168 cluster · vat qua >1 unit: 109721 ( 81.2%)  (doi chung)  (U=90)
+        vi du: layer 0 head 0 cluster 0 chua unit 11..20
+    dataidx  88:  102400 cluster · vat qua >1 unit:  34677 ( 33.9%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 2 chua unit 2..6
+    dataidx  89:  107520 cluster · vat qua >1 unit:  33373 ( 31.0%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 5 chua unit 9..11
+    dataidx  90:  136192 cluster · vat qua >1 unit:  53550 ( 39.3%)  (doi chung)  (U=19)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..8
+    dataidx  91:  108544 cluster · vat qua >1 unit:  46952 ( 43.3%)  (doi chung)  (U=19)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..2
+    dataidx  92:  295936 cluster · vat qua >1 unit:  70340 ( 23.8%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 1 chua unit 9..10
+    dataidx  93:  181248 cluster · vat qua >1 unit:  19280 ( 10.6%)  (doi chung)  (U=5)
+        vi du: layer 0 head 0 cluster 4 chua unit 2..3
+    dataidx  94:  129024 cluster · vat qua >1 unit:  42449 ( 32.9%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 1 chua unit 9..10
+    dataidx  95:  746496 cluster · vat qua >1 unit: 360398 ( 48.3%)  (doi chung)  (U=160)
+        vi du: layer 0 head 0 cluster 0 chua unit 29..33
+    dataidx  96:   88064 cluster · vat qua >1 unit:  25350 ( 28.8%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..3
+    dataidx  97:   94208 cluster · vat qua >1 unit:  36936 ( 39.2%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..5
+    dataidx  98:  174080 cluster · vat qua >1 unit:  57216 ( 32.9%)  (doi chung)  (U=28)
+        vi du: layer 0 head 0 cluster 1 chua unit 25..26
+    dataidx  99:   60416 cluster · vat qua >1 unit:  51462 ( 85.2%)  (doi chung)  (U=38)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..36
+    dataidx 100:  141312 cluster · vat qua >1 unit:  72823 ( 51.5%)  (doi chung)  (U=32)
+        vi du: layer 0 head 0 cluster 0 chua unit 11..12
+    dataidx 101:  338944 cluster · vat qua >1 unit: 180029 ( 53.1%)  (doi chung)  (U=71)
+        vi du: layer 0 head 0 cluster 0 chua unit 4..9
+    dataidx 102:  321536 cluster · vat qua >1 unit:  40479 ( 12.6%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 13 chua unit 7..9
+    dataidx 103:  156672 cluster · vat qua >1 unit:  54541 ( 34.8%)  (doi chung)  (U=25)
+        vi du: layer 0 head 0 cluster 2 chua unit 7..11
+    dataidx 104:  648192 cluster · vat qua >1 unit: 283641 ( 43.8%)  (doi chung)  (U=99)
+        vi du: layer 0 head 0 cluster 2 chua unit 53..97
+    dataidx 105:  167936 cluster · vat qua >1 unit:  69176 ( 41.2%)  (doi chung)  (U=21)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..7
+    dataidx 106:  142336 cluster · vat qua >1 unit:  24762 ( 17.4%)  (doi chung)  (U=8)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..2
+    dataidx 107:  251904 cluster · vat qua >1 unit:  66604 ( 26.4%)  (doi chung)  (U=33)
+        vi du: layer 0 head 0 cluster 2 chua unit 9..31
+    dataidx 108:  104448 cluster · vat qua >1 unit:  36310 ( 34.8%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 2 chua unit 5..10
+    dataidx 109:  161792 cluster · vat qua >1 unit:  38582 ( 23.8%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 1 chua unit 3..5
+    dataidx 110:  176128 cluster · vat qua >1 unit:  20649 ( 11.7%)  (doi chung)  (U=5)
+        vi du: layer 0 head 0 cluster 1 chua unit 2..3
+    dataidx 111:  186368 cluster · vat qua >1 unit:  47984 ( 25.7%)  (doi chung)  (U=25)
+        vi du: layer 0 head 0 cluster 0 chua unit 7..8
+    dataidx 112:  239616 cluster · vat qua >1 unit:  69159 ( 28.9%)  (doi chung)  (U=22)
+        vi du: layer 0 head 0 cluster 10 chua unit 3..4
+    dataidx 113:  182272 cluster · vat qua >1 unit:  43275 ( 23.7%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 0 chua unit 2..3
+    dataidx 114:  168960 cluster · vat qua >1 unit:  37347 ( 22.1%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..1
+    dataidx 115:   81920 cluster · vat qua >1 unit:  42088 ( 51.4%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..4
+    dataidx 116:  125952 cluster · vat qua >1 unit:  53777 ( 42.7%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 1 chua unit 16..18
+    dataidx 117:  208896 cluster · vat qua >1 unit:  84590 ( 40.5%)  (doi chung)  (U=30)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..14
+    dataidx 118:   78848 cluster · vat qua >1 unit:  27183 ( 34.5%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 6..7
+    dataidx 119:  627712 cluster · vat qua >1 unit: 105035 ( 16.7%)  (doi chung)  (U=32)
+        vi du: layer 0 head 0 cluster 8 chua unit 27..30
+    dataidx 120:   97280 cluster · vat qua >1 unit:  42725 ( 43.9%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..9
+    dataidx 121:  177152 cluster · vat qua >1 unit:  58731 ( 33.2%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 0 chua unit 5..6
+    dataidx 122:  173056 cluster · vat qua >1 unit:   2437 (  1.4%)  (doi chung)  (U=2)
+        vi du: layer 0 head 0 cluster 3 chua unit 0..1
+    dataidx 123:  238592 cluster · vat qua >1 unit:  18438 (  7.7%)  (doi chung)  (U=6)
+        vi du: layer 0 head 0 cluster 2 chua unit 1..2
+    dataidx 124:  147456 cluster · vat qua >1 unit:  79076 ( 53.6%)  (doi chung)  (U=23)
+        vi du: layer 0 head 0 cluster 2 chua unit 4..14
+    dataidx 125:  410624 cluster · vat qua >1 unit: 145126 ( 35.3%)  (doi chung)  (U=52)
+        vi du: layer 0 head 0 cluster 2 chua unit 11..32
+    dataidx 126:  121856 cluster · vat qua >1 unit:  45256 ( 37.1%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 2 chua unit 13..16
+    dataidx 127:  257024 cluster · vat qua >1 unit:  43028 ( 16.7%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 17 chua unit 0..6
+    dataidx 128:  120832 cluster · vat qua >1 unit:  24060 ( 19.9%)  (doi chung)  (U=8)
+        vi du: layer 0 head 0 cluster 1 chua unit 4..5
+    dataidx 129:  111616 cluster · vat qua >1 unit:  32895 ( 29.5%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 1 chua unit 8..11
+    dataidx 130:  136192 cluster · vat qua >1 unit:  27876 ( 20.5%)  (doi chung)  (U=6)
+        vi du: layer 0 head 0 cluster 6 chua unit 1..2
+    dataidx 131:  112640 cluster · vat qua >1 unit:  36261 ( 32.2%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..10
+    dataidx 132:  309248 cluster · vat qua >1 unit:  42115 ( 13.6%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 12 chua unit 6..7
+    dataidx 133:   83968 cluster · vat qua >1 unit:  23435 ( 27.9%)  (doi chung)  (U=6)
+        vi du: layer 0 head 0 cluster 1 chua unit 3..4
+    dataidx 134:   99328 cluster · vat qua >1 unit:  50304 ( 50.6%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 4..5
+    dataidx 135:  240640 cluster · vat qua >1 unit:  74905 ( 31.1%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 1 chua unit 13..14
+    dataidx 136:  105472 cluster · vat qua >1 unit:  45640 ( 43.3%)  (doi chung)  (U=16)
+        vi du: layer 0 head 0 cluster 0 chua unit 3..4
+    dataidx 137:   95232 cluster · vat qua >1 unit:  42883 ( 45.0%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..9
+    dataidx 138:  285696 cluster · vat qua >1 unit: 192780 ( 67.5%)  (doi chung)  (U=110)
+        vi du: layer 0 head 0 cluster 0 chua unit 25..108
+    dataidx 139:  233472 cluster · vat qua >1 unit:  41488 ( 17.8%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..3
+    dataidx 140:   84992 cluster · vat qua >1 unit:  43281 ( 50.9%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..4
+    dataidx 141:  128000 cluster · vat qua >1 unit:  38322 ( 29.9%)  (doi chung)  (U=17)
+        vi du: layer 0 head 0 cluster 1 chua unit 13..15
+    dataidx 142:  125952 cluster · vat qua >1 unit:  39288 ( 31.2%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..4
+    dataidx 143:  408576 cluster · vat qua >1 unit:  97751 ( 23.9%)  (doi chung)  (U=36)
+        vi du: layer 0 head 0 cluster 8 chua unit 19..34
+    dataidx 144:  357376 cluster · vat qua >1 unit:  39157 ( 11.0%)  (doi chung)  (U=14)
+        vi du: layer 0 head 0 cluster 10 chua unit 0..4
+    dataidx 145:  115712 cluster · vat qua >1 unit:  35577 ( 30.7%)  (doi chung)  (U=12)
+        vi du: layer 0 head 0 cluster 2 chua unit 0..6
+    dataidx 146:  105472 cluster · vat qua >1 unit:  39187 ( 37.2%)  (doi chung)  (U=10)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..7
+    dataidx 147:  146432 cluster · vat qua >1 unit:  56373 ( 38.5%)  (doi chung)  (U=17)
+        vi du: layer 0 head 0 cluster 0 chua unit 2..3
+    dataidx 148:  113664 cluster · vat qua >1 unit:  63950 ( 56.3%)  (doi chung)  (U=28)
+        vi du: layer 0 head 0 cluster 2 chua unit 12..13
+    dataidx 149:  119808 cluster · vat qua >1 unit:  24443 ( 20.4%)  (doi chung)  (U=5)
+        vi du: layer 0 head 0 cluster 4 chua unit 1..3
+    dataidx 150:  361472 cluster · vat qua >1 unit:  83727 ( 23.2%)  (doi chung)  (U=24)
+        vi du: layer 0 head 0 cluster 2 chua unit 16..17
+    dataidx 151:  216064 cluster · vat qua >1 unit:  70253 ( 32.5%)  (doi chung)  (U=27)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..12
+    dataidx 152:  134144 cluster · vat qua >1 unit:  35381 ( 26.4%)  (doi chung)  (U=15)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..9
+    dataidx 153:  104448 cluster · vat qua >1 unit:  56129 ( 53.7%)  (doi chung)  (U=30)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..16
+    dataidx 154:  157696 cluster · vat qua >1 unit:  71775 ( 45.5%)  (doi chung)  (U=30)
+        vi du: layer 0 head 0 cluster 1 chua unit 22..26
+    dataidx 155:  103424 cluster · vat qua >1 unit:  50419 ( 48.7%)  (doi chung)  (U=19)
+        vi du: layer 0 head 0 cluster 0 chua unit 6..17
+    dataidx 156:  107520 cluster · vat qua >1 unit:  47725 ( 44.4%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..7
+    dataidx 157:  340992 cluster · vat qua >1 unit:  85528 ( 25.1%)  (doi chung)  (U=29)
+        vi du: layer 0 head 0 cluster 2 chua unit 17..18
+    dataidx 158:  119808 cluster · vat qua >1 unit:  34365 ( 28.7%)  (doi chung)  (U=10)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..2
+    dataidx 159:  281600 cluster · vat qua >1 unit:  51827 ( 18.4%)  (doi chung)  (U=15)
+        vi du: layer 0 head 0 cluster 3 chua unit 1..13
+    dataidx 160:  194560 cluster · vat qua >1 unit:  93298 ( 48.0%)  (doi chung)  (U=32)
+        vi du: layer 0 head 0 cluster 0 chua unit 8..9
+    dataidx 161:  154624 cluster · vat qua >1 unit:  75674 ( 48.9%)  (doi chung)  (U=39)
+        vi du: layer 0 head 0 cluster 0 chua unit 9..14
+    dataidx 162:  370688 cluster · vat qua >1 unit:  98955 ( 26.7%)  (doi chung)  (U=26)
+        vi du: layer 0 head 0 cluster 0 chua unit 7..24
+    dataidx 163:  431104 cluster · vat qua >1 unit: 167301 ( 38.8%)  (doi chung)  (U=62)
+        vi du: layer 0 head 0 cluster 0 chua unit 13..18
+    dataidx 164:  322560 cluster · vat qua >1 unit:   1986 (  0.6%)  (doi chung)  (U=2)
+        vi du: layer 0 head 0 cluster 39 chua unit 0..1
+    dataidx 165:  104448 cluster · vat qua >1 unit:  43624 ( 41.8%)  (doi chung)  (U=21)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..10
+    dataidx 166:  183296 cluster · vat qua >1 unit:  18304 ( 10.0%)  (doi chung)  (U=7)
+        vi du: layer 0 head 0 cluster 8 chua unit 1..2
+    dataidx 167:  136192 cluster · vat qua >1 unit:  61566 ( 45.2%)  (doi chung)  (U=25)
+        vi du: layer 0 head 0 cluster 2 chua unit 14..16
+    dataidx 168:  150528 cluster · vat qua >1 unit:  59518 ( 39.5%)  (doi chung)  (U=22)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..7
+    dataidx 169:  193536 cluster · vat qua >1 unit:   8287 (  4.3%)  (doi chung)  (U=3)
+        vi du: layer 0 head 0 cluster 10 chua unit 0..1
+    dataidx 170:  174080 cluster · vat qua >1 unit:   7191 (  4.1%)  (doi chung)  (U=3)
+        vi du: layer 0 head 0 cluster 6 chua unit 0..1
+    dataidx 171:  173056 cluster · vat qua >1 unit:  68489 ( 39.6%)  (doi chung)  (U=26)
+        vi du: layer 0 head 0 cluster 0 chua unit 4..24
+    dataidx 172:  261120 cluster · vat qua >1 unit:  15408 (  5.9%)  (doi chung)  (U=4)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..2
+    dataidx 173:  330752 cluster · vat qua >1 unit: 152885 ( 46.2%)  (doi chung)  (U=75)
+        vi du: layer 0 head 0 cluster 0 chua unit 19..21
+    dataidx 174:  126976 cluster · vat qua >1 unit:  43170 ( 34.0%)  (doi chung)  (U=20)
+        vi du: layer 0 head 0 cluster 0 chua unit 11..13
+    dataidx 175:  113664 cluster · vat qua >1 unit:  28318 ( 24.9%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 1 chua unit 0..9
+    dataidx 176:  171008 cluster · vat qua >1 unit:  28945 ( 16.9%)  (doi chung)  (U=8)
+        vi du: layer 0 head 0 cluster 1 chua unit 4..5
+    dataidx 177:  108544 cluster · vat qua >1 unit:  39574 ( 36.5%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 2 chua unit 0..6
+    dataidx 178:  666624 cluster · vat qua >1 unit: 116404 ( 17.5%)  (doi chung)  (U=46)
+        vi du: layer 0 head 0 cluster 0 chua unit 10..44
+    dataidx 179:  193536 cluster · vat qua >1 unit:  51904 ( 26.8%)  (doi chung)  (U=17)
+        vi du: layer 0 head 0 cluster 1 chua unit 10..12
+    dataidx 180:  172032 cluster · vat qua >1 unit:  91594 ( 53.2%)  (doi chung)  (U=24)
+        vi du: layer 0 head 0 cluster 0 chua unit 3..22
+    dataidx 181:  130048 cluster · vat qua >1 unit:  45145 ( 34.7%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 1 chua unit 9..10
+    dataidx 182:  113664 cluster · vat qua >1 unit:  31360 ( 27.6%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..4
+    dataidx 183:  126976 cluster · vat qua >1 unit:  24812 ( 19.5%)  (doi chung)  (U=6)
+        vi du: layer 0 head 0 cluster 1 chua unit 3..4
+    dataidx 184:  145408 cluster · vat qua >1 unit:  28713 ( 19.7%)  (doi chung)  (U=9)
+        vi du: layer 0 head 0 cluster 1 chua unit 5..6
+    dataidx 185:   81920 cluster · vat qua >1 unit:  50150 ( 61.2%)  (doi chung)  (U=24)
+        vi du: layer 0 head 0 cluster 0 chua unit 0..4
+    dataidx 186:  338944 cluster · vat qua >1 unit:  47089 ( 13.9%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 12 chua unit 0..9
+    dataidx 187:  153600 cluster · vat qua >1 unit:   8874 (  5.8%)  (doi chung)  (U=3)
+        vi du: layer 0 head 0 cluster 11 chua unit 0..1
+    dataidx 188:  376832 cluster · vat qua >1 unit: 136286 ( 36.2%)  (doi chung)  (U=55)
+        vi du: layer 0 head 0 cluster 0 chua unit 8..21
+    dataidx 189:  235520 cluster · vat qua >1 unit: 122379 ( 52.0%)  (doi chung)  (U=47)
+        vi du: layer 0 head 0 cluster 0 chua unit 8..11
+    dataidx 190:   99328 cluster · vat qua >1 unit:   1310 (  1.3%)  (doi chung)  (U=2)
+        vi du: layer 0 head 0 cluster 18 chua unit 0..1
+    dataidx 191:  111616 cluster · vat qua >1 unit:  35191 ( 31.5%)  (doi chung)  (U=13)
+        vi du: layer 0 head 0 cluster 2 chua unit 6..11
+    dataidx 192:  413696 cluster · vat qua >1 unit: 215753 ( 52.2%)  (doi chung)  (U=91)
+        vi du: layer 0 head 0 cluster 0 chua unit 9..16
+    dataidx 193:  104448 cluster · vat qua >1 unit:  77142 ( 73.9%)  (doi chung)  (U=44)
+        vi du: layer 0 head 0 cluster 0 chua unit 8..13
+    dataidx 194:  114688 cluster · vat qua >1 unit:  21086 ( 18.4%)  (doi chung)  (U=10)
+        vi du: layer 0 head 0 cluster 2 chua unit 6..7
+    dataidx 195:  100352 cluster · vat qua >1 unit:  52419 ( 52.2%)  (doi chung)  (U=27)
+        vi du: layer 0 head 0 cluster 1 chua unit 8..9
+    dataidx 196:  121856 cluster · vat qua >1 unit:  39444 ( 32.4%)  (doi chung)  (U=11)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..9
+    dataidx 197:  119808 cluster · vat qua >1 unit:  40067 ( 33.4%)  (doi chung)  (U=18)
+        vi du: layer 0 head 0 cluster 0 chua unit 1..2
+    dataidx 198:  210944 cluster · vat qua >1 unit:   6383 (  3.0%)  (doi chung)  (U=4)
+        vi du: layer 0 head 0 cluster 20 chua unit 0..1
+    dataidx 199:  182272 cluster · vat qua >1 unit:  86075 ( 47.2%)  (doi chung)  (U=29)
+        vi du: layer 0 head 0 cluster 1 chua unit 15..21
+
+[C] Shape + do dai — hard_boundary
+    dataidx   0: centroids (1, 32, 897, 128) ✅ · labels (1, 32, 17956) (mong 17956) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 194, 128) ✅ · labels (1, 32, 3893) (mong 3893) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 136, 128) ✅ · labels (1, 32, 2721) (mong 2721) ✅ · o rong 0.0%
+    dataidx   3: centroids (1, 32, 118, 128) ✅ · labels (1, 32, 2370) (mong 2370) ✅ · o rong 0.0%
+    dataidx   4: centroids (1, 32, 153, 128) ✅ · labels (1, 32, 3069) (mong 3069) ✅ · o rong 0.0%
+    dataidx   5: centroids (1, 32, 260, 128) ✅ · labels (1, 32, 5202) (mong 5202) ✅ · o rong 0.0%
+    dataidx   6: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3175) (mong 3175) ✅ · o rong 0.0%
+    dataidx   7: centroids (1, 32, 221, 128) ✅ · labels (1, 32, 4428) (mong 4428) ✅ · o rong 0.0%
+    dataidx   8: centroids (1, 32, 144, 128) ✅ · labels (1, 32, 2880) (mong 2880) ✅ · o rong 0.0%
+    dataidx   9: centroids (1, 32, 129, 128) ✅ · labels (1, 32, 2596) (mong 2596) ✅ · o rong 0.0%
+    dataidx  10: centroids (1, 32, 272, 128) ✅ · labels (1, 32, 5440) (mong 5440) ✅ · o rong 0.0%
+    dataidx  11: centroids (1, 32, 162, 128) ✅ · labels (1, 32, 3242) (mong 3242) ✅ · o rong 0.0%
+    dataidx  12: centroids (1, 32, 223, 128) ✅ · labels (1, 32, 4460) (mong 4460) ✅ · o rong 0.0%
+    dataidx  13: centroids (1, 32, 129, 128) ✅ · labels (1, 32, 2591) (mong 2591) ✅ · o rong 0.0%
+    dataidx  14: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2653) (mong 2653) ✅ · o rong 0.0%
+    dataidx  15: centroids (1, 32, 125, 128) ✅ · labels (1, 32, 2514) (mong 2514) ✅ · o rong 0.0%
+    dataidx  16: centroids (1, 32, 227, 128) ✅ · labels (1, 32, 4554) (mong 4554) ✅ · o rong 0.0%
+    dataidx  17: centroids (1, 32, 166, 128) ✅ · labels (1, 32, 3330) (mong 3330) ✅ · o rong 0.0%
+    dataidx  18: centroids (1, 32, 196, 128) ✅ · labels (1, 32, 3931) (mong 3931) ✅ · o rong 0.0%
+    dataidx  19: centroids (1, 32, 101, 128) ✅ · labels (1, 32, 2031) (mong 2031) ✅ · o rong 0.0%
+    dataidx  20: centroids (1, 32, 197, 128) ✅ · labels (1, 32, 3940) (mong 3940) ✅ · o rong 0.0%
+    dataidx  21: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1840) (mong 1840) ✅ · o rong 0.0%
+    dataidx  22: centroids (1, 32, 560, 128) ✅ · labels (1, 32, 11207) (mong 11207) ✅ · o rong 0.0%
+    dataidx  23: centroids (1, 32, 276, 128) ✅ · labels (1, 32, 5539) (mong 5539) ✅ · o rong 0.0%
+    dataidx  24: centroids (1, 32, 858, 128) ✅ · labels (1, 32, 17171) (mong 17171) ✅ · o rong 0.0%
+    dataidx  25: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2237) (mong 2237) ✅ · o rong 0.0%
+    dataidx  26: centroids (1, 32, 174, 128) ✅ · labels (1, 32, 3499) (mong 3499) ✅ · o rong 0.0%
+    dataidx  27: centroids (1, 32, 361, 128) ✅ · labels (1, 32, 7229) (mong 7229) ✅ · o rong 0.0%
+    dataidx  28: centroids (1, 32, 116, 128) ✅ · labels (1, 32, 2331) (mong 2331) ✅ · o rong 0.0%
+    dataidx  29: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3780) (mong 3780) ✅ · o rong 0.0%
+    dataidx  30: centroids (1, 32, 145, 128) ✅ · labels (1, 32, 2915) (mong 2915) ✅ · o rong 0.0%
+    dataidx  31: centroids (1, 32, 546, 128) ✅ · labels (1, 32, 10927) (mong 10927) ✅ · o rong 0.0%
+    dataidx  32: centroids (1, 32, 181, 128) ✅ · labels (1, 32, 3639) (mong 3639) ✅ · o rong 0.0%
+    dataidx  33: centroids (1, 32, 184, 128) ✅ · labels (1, 32, 3684) (mong 3684) ✅ · o rong 0.0%
+    dataidx  34: centroids (1, 32, 107, 128) ✅ · labels (1, 32, 2158) (mong 2158) ✅ · o rong 0.0%
+    dataidx  35: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2931) (mong 2931) ✅ · o rong 0.0%
+    dataidx  36: centroids (1, 32, 94, 128) ✅ · labels (1, 32, 1896) (mong 1896) ✅ · o rong 0.0%
+    dataidx  37: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2190) (mong 2190) ✅ · o rong 0.0%
+    dataidx  38: centroids (1, 32, 86, 128) ✅ · labels (1, 32, 1733) (mong 1733) ✅ · o rong 0.0%
+    dataidx  39: centroids (1, 32, 112, 128) ✅ · labels (1, 32, 2242) (mong 2242) ✅ · o rong 0.0%
+    dataidx  40: centroids (1, 32, 81, 128) ✅ · labels (1, 32, 1637) (mong 1637) ✅ · o rong 0.0%
+    dataidx  41: centroids (1, 32, 126, 128) ✅ · labels (1, 32, 2534) (mong 2534) ✅ · o rong 0.0%
+    dataidx  42: centroids (1, 32, 179, 128) ✅ · labels (1, 32, 3596) (mong 3596) ✅ · o rong 0.0%
+    dataidx  43: centroids (1, 32, 290, 128) ✅ · labels (1, 32, 5819) (mong 5819) ✅ · o rong 0.0%
+    dataidx  44: centroids (1, 32, 91, 128) ✅ · labels (1, 32, 1832) (mong 1832) ✅ · o rong 0.0%
+    dataidx  45: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2072) (mong 2072) ✅ · o rong 0.0%
+    dataidx  46: centroids (1, 32, 302, 128) ✅ · labels (1, 32, 6049) (mong 6049) ✅ · o rong 0.0%
+    dataidx  47: centroids (1, 32, 235, 128) ✅ · labels (1, 32, 4703) (mong 4703) ✅ · o rong 0.0%
+    dataidx  48: centroids (1, 32, 265, 128) ✅ · labels (1, 32, 5311) (mong 5311) ✅ · o rong 0.0%
+    dataidx  49: centroids (1, 32, 149, 128) ✅ · labels (1, 32, 2989) (mong 2989) ✅ · o rong 0.0%
+    dataidx  50: centroids (1, 32, 385, 128) ✅ · labels (1, 32, 7707) (mong 7707) ✅ · o rong 0.0%
+    dataidx  51: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2237) (mong 2237) ✅ · o rong 0.0%
+    dataidx  52: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1961) (mong 1961) ✅ · o rong 0.0%
+    dataidx  53: centroids (1, 32, 137, 128) ✅ · labels (1, 32, 2744) (mong 2744) ✅ · o rong 0.0%
+    dataidx  54: centroids (1, 32, 876, 128) ✅ · labels (1, 32, 17534) (mong 17534) ✅ · o rong 0.0%
+    dataidx  55: centroids (1, 32, 168, 128) ✅ · labels (1, 32, 3376) (mong 3376) ✅ · o rong 0.0%
+    dataidx  56: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2938) (mong 2938) ✅ · o rong 0.0%
+    dataidx  57: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3562) (mong 3562) ✅ · o rong 0.0%
+    dataidx  58: centroids (1, 32, 122, 128) ✅ · labels (1, 32, 2452) (mong 2452) ✅ · o rong 0.0%
+    dataidx  59: centroids (1, 32, 154, 128) ✅ · labels (1, 32, 3092) (mong 3092) ✅ · o rong 0.0%
+    dataidx  60: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3169) (mong 3169) ✅ · o rong 0.0%
+    dataidx  61: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2648) (mong 2648) ✅ · o rong 0.0%
+    dataidx  62: centroids (1, 32, 113, 128) ✅ · labels (1, 32, 2279) (mong 2279) ✅ · o rong 0.0%
+    dataidx  63: centroids (1, 32, 167, 128) ✅ · labels (1, 32, 3358) (mong 3358) ✅ · o rong 0.0%
+    dataidx  64: centroids (1, 32, 166, 128) ✅ · labels (1, 32, 3332) (mong 3332) ✅ · o rong 0.0%
+    dataidx  65: centroids (1, 32, 205, 128) ✅ · labels (1, 32, 4116) (mong 4116) ✅ · o rong 0.0%
+    dataidx  66: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2107) (mong 2107) ✅ · o rong 0.0%
+    dataidx  67: centroids (1, 32, 250, 128) ✅ · labels (1, 32, 5000) (mong 5000) ✅ · o rong 0.0%
+    dataidx  68: centroids (1, 32, 163, 128) ✅ · labels (1, 32, 3277) (mong 3277) ✅ · o rong 0.0%
+    dataidx  69: centroids (1, 32, 96, 128) ✅ · labels (1, 32, 1922) (mong 1922) ✅ · o rong 0.0%
+    dataidx  70: centroids (1, 32, 176, 128) ✅ · labels (1, 32, 3538) (mong 3538) ✅ · o rong 0.0%
+    dataidx  71: centroids (1, 32, 81, 128) ✅ · labels (1, 32, 1635) (mong 1635) ✅ · o rong 0.0%
+    dataidx  72: centroids (1, 32, 237, 128) ✅ · labels (1, 32, 4746) (mong 4746) ✅ · o rong 0.0%
+    dataidx  73: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1607) (mong 1607) ✅ · o rong 0.0%
+    dataidx  74: centroids (1, 32, 341, 128) ✅ · labels (1, 32, 6825) (mong 6825) ✅ · o rong 0.0%
+    dataidx  75: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2137) (mong 2137) ✅ · o rong 0.0%
+    dataidx  76: centroids (1, 32, 239, 128) ✅ · labels (1, 32, 4788) (mong 4788) ✅ · o rong 0.0%
+    dataidx  77: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1960) (mong 1960) ✅ · o rong 0.0%
+    dataidx  78: centroids (1, 32, 208, 128) ✅ · labels (1, 32, 4171) (mong 4171) ✅ · o rong 0.0%
+    dataidx  79: centroids (1, 32, 181, 128) ✅ · labels (1, 32, 3638) (mong 3638) ✅ · o rong 0.0%
+    dataidx  80: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6990) (mong 6990) ✅ · o rong 0.0%
+    dataidx  81: centroids (1, 32, 180, 128) ✅ · labels (1, 32, 3607) (mong 3607) ✅ · o rong 0.0%
+    dataidx  82: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2184) (mong 2184) ✅ · o rong 0.0%
+    dataidx  83: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2924) (mong 2924) ✅ · o rong 0.0%
+    dataidx  84: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1848) (mong 1848) ✅ · o rong 0.0%
+    dataidx  85: centroids (1, 32, 319, 128) ✅ · labels (1, 32, 6382) (mong 6382) ✅ · o rong 0.0%
+    dataidx  86: centroids (1, 32, 565, 128) ✅ · labels (1, 32, 11310) (mong 11310) ✅ · o rong 0.0%
+    dataidx  87: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2648) (mong 2648) ✅ · o rong 0.0%
+    dataidx  88: centroids (1, 32, 100, 128) ✅ · labels (1, 32, 2009) (mong 2009) ✅ · o rong 0.0%
+    dataidx  89: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2104) (mong 2104) ✅ · o rong 0.0%
+    dataidx  90: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2673) (mong 2673) ✅ · o rong 0.0%
+    dataidx  91: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2131) (mong 2131) ✅ · o rong 0.0%
+    dataidx  92: centroids (1, 32, 289, 128) ✅ · labels (1, 32, 5786) (mong 5786) ✅ · o rong 0.0%
+    dataidx  93: centroids (1, 32, 177, 128) ✅ · labels (1, 32, 3544) (mong 3544) ✅ · o rong 0.0%
+    dataidx  94: centroids (1, 32, 126, 128) ✅ · labels (1, 32, 2537) (mong 2537) ✅ · o rong 0.0%
+    dataidx  95: centroids (1, 32, 729, 128) ✅ · labels (1, 32, 14596) (mong 14596) ✅ · o rong 0.0%
+    dataidx  96: centroids (1, 32, 86, 128) ✅ · labels (1, 32, 1732) (mong 1732) ✅ · o rong 0.0%
+    dataidx  97: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1846) (mong 1846) ✅ · o rong 0.0%
+    dataidx  98: centroids (1, 32, 170, 128) ✅ · labels (1, 32, 3405) (mong 3405) ✅ · o rong 0.0%
+    dataidx  99: centroids (1, 32, 59, 128) ✅ · labels (1, 32, 1180) (mong 1180) ✅ · o rong 0.0%
+    dataidx 100: centroids (1, 32, 138, 128) ✅ · labels (1, 32, 2777) (mong 2777) ✅ · o rong 0.0%
+    dataidx 101: centroids (1, 32, 331, 128) ✅ · labels (1, 32, 6633) (mong 6633) ✅ · o rong 0.0%
+    dataidx 102: centroids (1, 32, 314, 128) ✅ · labels (1, 32, 6292) (mong 6292) ✅ · o rong 0.0%
+    dataidx 103: centroids (1, 32, 153, 128) ✅ · labels (1, 32, 3072) (mong 3072) ✅ · o rong 0.0%
+    dataidx 104: centroids (1, 32, 633, 128) ✅ · labels (1, 32, 12674) (mong 12674) ✅ · o rong 0.0%
+    dataidx 105: centroids (1, 32, 164, 128) ✅ · labels (1, 32, 3281) (mong 3281) ✅ · o rong 0.0%
+    dataidx 106: centroids (1, 32, 139, 128) ✅ · labels (1, 32, 2780) (mong 2780) ✅ · o rong 0.0%
+    dataidx 107: centroids (1, 32, 246, 128) ✅ · labels (1, 32, 4935) (mong 4935) ✅ · o rong 0.0%
+    dataidx 108: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2043) (mong 2043) ✅ · o rong 0.0%
+    dataidx 109: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3168) (mong 3168) ✅ · o rong 0.0%
+    dataidx 110: centroids (1, 32, 172, 128) ✅ · labels (1, 32, 3447) (mong 3447) ✅ · o rong 0.0%
+    dataidx 111: centroids (1, 32, 182, 128) ✅ · labels (1, 32, 3652) (mong 3652) ✅ · o rong 0.0%
+    dataidx 112: centroids (1, 32, 234, 128) ✅ · labels (1, 32, 4683) (mong 4683) ✅ · o rong 0.0%
+    dataidx 113: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3560) (mong 3560) ✅ · o rong 0.0%
+    dataidx 114: centroids (1, 32, 165, 128) ✅ · labels (1, 32, 3300) (mong 3300) ✅ · o rong 0.0%
+    dataidx 115: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1600) (mong 1600) ✅ · o rong 0.0%
+    dataidx 116: centroids (1, 32, 123, 128) ✅ · labels (1, 32, 2473) (mong 2473) ✅ · o rong 0.0%
+    dataidx 117: centroids (1, 32, 204, 128) ✅ · labels (1, 32, 4087) (mong 4087) ✅ · o rong 0.0%
+    dataidx 118: centroids (1, 32, 77, 128) ✅ · labels (1, 32, 1556) (mong 1556) ✅ · o rong 0.0%
+    dataidx 119: centroids (1, 32, 613, 128) ✅ · labels (1, 32, 12275) (mong 12275) ✅ · o rong 0.0%
+    dataidx 120: centroids (1, 32, 95, 128) ✅ · labels (1, 32, 1902) (mong 1902) ✅ · o rong 0.0%
+    dataidx 121: centroids (1, 32, 173, 128) ✅ · labels (1, 32, 3466) (mong 3466) ✅ · o rong 0.0%
+    dataidx 122: centroids (1, 32, 169, 128) ✅ · labels (1, 32, 3383) (mong 3383) ✅ · o rong 0.0%
+    dataidx 123: centroids (1, 32, 233, 128) ✅ · labels (1, 32, 4670) (mong 4670) ✅ · o rong 0.0%
+    dataidx 124: centroids (1, 32, 144, 128) ✅ · labels (1, 32, 2882) (mong 2882) ✅ · o rong 0.0%
+    dataidx 125: centroids (1, 32, 401, 128) ✅ · labels (1, 32, 8035) (mong 8035) ✅ · o rong 0.0%
+    dataidx 126: centroids (1, 32, 119, 128) ✅ · labels (1, 32, 2387) (mong 2387) ✅ · o rong 0.0%
+    dataidx 127: centroids (1, 32, 251, 128) ✅ · labels (1, 32, 5023) (mong 5023) ✅ · o rong 0.0%
+    dataidx 128: centroids (1, 32, 118, 128) ✅ · labels (1, 32, 2360) (mong 2360) ✅ · o rong 0.0%
+    dataidx 129: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2192) (mong 2192) ✅ · o rong 0.0%
+    dataidx 130: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2666) (mong 2666) ✅ · o rong 0.0%
+    dataidx 131: centroids (1, 32, 110, 128) ✅ · labels (1, 32, 2202) (mong 2202) ✅ · o rong 0.0%
+    dataidx 132: centroids (1, 32, 302, 128) ✅ · labels (1, 32, 6048) (mong 6048) ✅ · o rong 0.0%
+    dataidx 133: centroids (1, 32, 82, 128) ✅ · labels (1, 32, 1641) (mong 1641) ✅ · o rong 0.0%
+    dataidx 134: centroids (1, 32, 97, 128) ✅ · labels (1, 32, 1955) (mong 1955) ✅ · o rong 0.0%
+    dataidx 135: centroids (1, 32, 235, 128) ✅ · labels (1, 32, 4704) (mong 4704) ✅ · o rong 0.0%
+    dataidx 136: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2067) (mong 2067) ✅ · o rong 0.0%
+    dataidx 137: centroids (1, 32, 93, 128) ✅ · labels (1, 32, 1862) (mong 1862) ✅ · o rong 0.0%
+    dataidx 138: centroids (1, 32, 279, 128) ✅ · labels (1, 32, 5585) (mong 5585) ✅ · o rong 0.0%
+    dataidx 139: centroids (1, 32, 228, 128) ✅ · labels (1, 32, 4571) (mong 4571) ✅ · o rong 0.0%
+    dataidx 140: centroids (1, 32, 83, 128) ✅ · labels (1, 32, 1679) (mong 1679) ✅ · o rong 0.0%
+    dataidx 141: centroids (1, 32, 125, 128) ✅ · labels (1, 32, 2517) (mong 2517) ✅ · o rong 0.0%
+    dataidx 142: centroids (1, 32, 123, 128) ✅ · labels (1, 32, 2464) (mong 2464) ✅ · o rong 0.0%
+    dataidx 143: centroids (1, 32, 399, 128) ✅ · labels (1, 32, 7981) (mong 7981) ✅ · o rong 0.0%
+    dataidx 144: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6994) (mong 6994) ✅ · o rong 0.0%
+    dataidx 145: centroids (1, 32, 113, 128) ✅ · labels (1, 32, 2273) (mong 2273) ✅ · o rong 0.0%
+    dataidx 146: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2071) (mong 2071) ✅ · o rong 0.0%
+    dataidx 147: centroids (1, 32, 143, 128) ✅ · labels (1, 32, 2867) (mong 2867) ✅ · o rong 0.0%
+    dataidx 148: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2230) (mong 2230) ✅ · o rong 0.0%
+    dataidx 149: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2358) (mong 2358) ✅ · o rong 0.0%
+    dataidx 150: centroids (1, 32, 353, 128) ✅ · labels (1, 32, 7061) (mong 7061) ✅ · o rong 0.0%
+    dataidx 151: centroids (1, 32, 211, 128) ✅ · labels (1, 32, 4233) (mong 4233) ✅ · o rong 0.0%
+    dataidx 152: centroids (1, 32, 131, 128) ✅ · labels (1, 32, 2624) (mong 2624) ✅ · o rong 0.0%
+    dataidx 153: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2050) (mong 2050) ✅ · o rong 0.0%
+    dataidx 154: centroids (1, 32, 154, 128) ✅ · labels (1, 32, 3083) (mong 3083) ✅ · o rong 0.0%
+    dataidx 155: centroids (1, 32, 101, 128) ✅ · labels (1, 32, 2024) (mong 2024) ✅ · o rong 0.0%
+    dataidx 156: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2111) (mong 2111) ✅ · o rong 0.0%
+    dataidx 157: centroids (1, 32, 333, 128) ✅ · labels (1, 32, 6673) (mong 6673) ✅ · o rong 0.0%
+    dataidx 158: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2344) (mong 2344) ✅ · o rong 0.0%
+    dataidx 159: centroids (1, 32, 275, 128) ✅ · labels (1, 32, 5514) (mong 5514) ✅ · o rong 0.0%
+    dataidx 160: centroids (1, 32, 190, 128) ✅ · labels (1, 32, 3807) (mong 3807) ✅ · o rong 0.0%
+    dataidx 161: centroids (1, 32, 151, 128) ✅ · labels (1, 32, 3038) (mong 3038) ✅ · o rong 0.0%
+    dataidx 162: centroids (1, 32, 362, 128) ✅ · labels (1, 32, 7247) (mong 7247) ✅ · o rong 0.0%
+    dataidx 163: centroids (1, 32, 421, 128) ✅ · labels (1, 32, 8429) (mong 8429) ✅ · o rong 0.0%
+    dataidx 164: centroids (1, 32, 315, 128) ✅ · labels (1, 32, 6313) (mong 6313) ✅ · o rong 0.0%
+    dataidx 165: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2056) (mong 2056) ✅ · o rong 0.0%
+    dataidx 166: centroids (1, 32, 179, 128) ✅ · labels (1, 32, 3597) (mong 3597) ✅ · o rong 0.0%
+    dataidx 167: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2673) (mong 2673) ✅ · o rong 0.0%
+    dataidx 168: centroids (1, 32, 147, 128) ✅ · labels (1, 32, 2955) (mong 2955) ✅ · o rong 0.0%
+    dataidx 169: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3799) (mong 3799) ✅ · o rong 0.0%
+    dataidx 170: centroids (1, 32, 170, 128) ✅ · labels (1, 32, 3410) (mong 3410) ✅ · o rong 0.0%
+    dataidx 171: centroids (1, 32, 169, 128) ✅ · labels (1, 32, 3384) (mong 3384) ✅ · o rong 0.0%
+    dataidx 172: centroids (1, 32, 255, 128) ✅ · labels (1, 32, 5104) (mong 5104) ✅ · o rong 0.0%
+    dataidx 173: centroids (1, 32, 323, 128) ✅ · labels (1, 32, 6462) (mong 6462) ✅ · o rong 0.0%
+    dataidx 174: centroids (1, 32, 124, 128) ✅ · labels (1, 32, 2494) (mong 2494) ✅ · o rong 0.0%
+    dataidx 175: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2235) (mong 2235) ✅ · o rong 0.0%
+    dataidx 176: centroids (1, 32, 167, 128) ✅ · labels (1, 32, 3346) (mong 3346) ✅ · o rong 0.0%
+    dataidx 177: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2132) (mong 2132) ✅ · o rong 0.0%
+    dataidx 178: centroids (1, 32, 651, 128) ✅ · labels (1, 32, 13021) (mong 13021) ✅ · o rong 0.0%
+    dataidx 179: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3792) (mong 3792) ✅ · o rong 0.0%
+    dataidx 180: centroids (1, 32, 168, 128) ✅ · labels (1, 32, 3371) (mong 3371) ✅ · o rong 0.0%
+    dataidx 181: centroids (1, 32, 127, 128) ✅ · labels (1, 32, 2545) (mong 2545) ✅ · o rong 0.0%
+    dataidx 182: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2238) (mong 2238) ✅ · o rong 0.0%
+    dataidx 183: centroids (1, 32, 124, 128) ✅ · labels (1, 32, 2490) (mong 2490) ✅ · o rong 0.0%
+    dataidx 184: centroids (1, 32, 142, 128) ✅ · labels (1, 32, 2858) (mong 2858) ✅ · o rong 0.0%
+    dataidx 185: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1615) (mong 1615) ✅ · o rong 0.0%
+    dataidx 186: centroids (1, 32, 331, 128) ✅ · labels (1, 32, 6639) (mong 6639) ✅ · o rong 0.0%
+    dataidx 187: centroids (1, 32, 150, 128) ✅ · labels (1, 32, 3013) (mong 3013) ✅ · o rong 0.0%
+    dataidx 188: centroids (1, 32, 368, 128) ✅ · labels (1, 32, 7371) (mong 7371) ✅ · o rong 0.0%
+    dataidx 189: centroids (1, 32, 230, 128) ✅ · labels (1, 32, 4615) (mong 4615) ✅ · o rong 0.0%
+    dataidx 190: centroids (1, 32, 97, 128) ✅ · labels (1, 32, 1958) (mong 1958) ✅ · o rong 0.0%
+    dataidx 191: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2184) (mong 2184) ✅ · o rong 0.0%
+    dataidx 192: centroids (1, 32, 404, 128) ✅ · labels (1, 32, 8095) (mong 8095) ✅ · o rong 0.0%
+    dataidx 193: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2044) (mong 2044) ✅ · o rong 0.0%
+    dataidx 194: centroids (1, 32, 112, 128) ✅ · labels (1, 32, 2258) (mong 2258) ✅ · o rong 0.0%
+    dataidx 195: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1970) (mong 1970) ✅ · o rong 0.0%
+    dataidx 196: centroids (1, 32, 119, 128) ✅ · labels (1, 32, 2385) (mong 2385) ✅ · o rong 0.0%
+    dataidx 197: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2355) (mong 2355) ✅ · o rong 0.0%
+    dataidx 198: centroids (1, 32, 206, 128) ✅ · labels (1, 32, 4124) (mong 4124) ✅ · o rong 0.0%
+    dataidx 199: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3564) (mong 3564) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — hard_boundary
+    dataidx   0:  918527 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=51)
+    dataidx   1:  198655 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx   2:  139263 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx   3:  120832 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=27)
+    dataidx   4:  156672 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx   5:  266240 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=39)
+    dataidx   6:  161791 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx   7:  226304 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=42)
+    dataidx   8:  147456 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx   9:  132096 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  10:  278528 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  11:  165888 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=31)
+    dataidx  12:  228352 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx  13:  132096 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  14:  135168 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  15:  127999 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  16:  232448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=50)
+    dataidx  17:  169984 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  18:  200704 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx  19:  103424 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=29)
+    dataidx  20:  201728 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx  21:   94208 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  22:  573440 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=47)
+    dataidx  23:  282624 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  24:  878592 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=91)
+    dataidx  25:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  26:  178176 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  27:  369663 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx  28:  118784 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  29:  193535 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  30:  148480 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=37)
+    dataidx  31:  559103 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=55)
+    dataidx  32:  185344 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  33:  188415 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx  34:  109568 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx  35:  149504 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  36:   96256 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx  37:  111615 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx  38:   88064 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  39:  114688 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  40:   82944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx  41:  129024 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  42:  183296 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx  43:  296959 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx  44:   93184 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  45:  105472 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx  46:  309248 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  47:  240640 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx  48:  271360 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  49:  152576 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  50:  394240 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=16)
+    dataidx  51:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  52:  100352 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  53:  140288 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx  54:  897021 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=248)
+    dataidx  55:  172031 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  56:  149504 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  57:  182272 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=39)
+    dataidx  58:  124928 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  59:  157696 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  60:  161792 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx  61:  135168 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  62:  115712 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  63:  171008 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  64:  169984 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx  65:  209920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=40)
+    dataidx  66:  107520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  67:  255999 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  68:  166912 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx  69:   98304 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  70:  180223 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=16)
+    dataidx  71:   82944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  72:  242688 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx  73:   81920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  74:  349184 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx  75:  108544 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  76:  244736 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx  77:  100351 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  78:  212992 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=33)
+    dataidx  79:  185344 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  80:  357375 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  81:  184317 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  82:  111616 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  83:  149504 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=4)
+    dataidx  84:   94208 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  85:  326655 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx  86:  578559 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=102)
+    dataidx  87:  135168 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=90)
+    dataidx  88:  102400 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  89:  107520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  90:  136192 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  91:  108544 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  92:  295936 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  93:  181248 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=5)
+    dataidx  94:  129024 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  95:  746496 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=160)
+    dataidx  96:   88064 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  97:   94205 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  98:  174079 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx  99:   60416 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=38)
+    dataidx 100:  141312 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=32)
+    dataidx 101:  338944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=71)
+    dataidx 102:  321536 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 103:  156672 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx 104:  648191 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=99)
+    dataidx 105:  167935 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx 106:  142336 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx 107:  251904 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=33)
+    dataidx 108:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx 109:  161792 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx 110:  176128 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=5)
+    dataidx 111:  186368 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx 112:  239615 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx 113:  182272 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx 114:  168960 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 115:   81920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 116:  125952 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 117:  208896 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx 118:   78848 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 119:  627710 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=32)
+    dataidx 120:   97280 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 121:  177152 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 122:  173056 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=2)
+    dataidx 123:  238592 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 124:  147456 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx 125:  410620 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=52)
+    dataidx 126:  121856 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 127:  257024 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 128:  120832 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx 129:  111616 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 130:  136192 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 131:  112640 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx 132:  309246 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx 133:   83968 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 134:   99328 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 135:  240637 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 136:  105472 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=16)
+    dataidx 137:   95232 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 138:  285696 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=110)
+    dataidx 139:  233471 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 140:   84992 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 141:  128000 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=17)
+    dataidx 142:  125952 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 143:  408576 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=36)
+    dataidx 144:  357376 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx 145:  115711 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx 146:  105471 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=10)
+    dataidx 147:  146432 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=17)
+    dataidx 148:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx 149:  119808 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=5)
+    dataidx 150:  361470 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=24)
+    dataidx 151:  216063 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=27)
+    dataidx 152:  134144 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx 153:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx 154:  157695 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx 155:  103424 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx 156:  107520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 157:  340992 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=29)
+    dataidx 158:  119808 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=10)
+    dataidx 159:  281599 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx 160:  194560 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=32)
+    dataidx 161:  154624 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=39)
+    dataidx 162:  370688 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx 163:  431104 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=62)
+    dataidx 164:  322560 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=2)
+    dataidx 165:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx 166:  183296 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx 167:  136192 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx 168:  150528 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx 169:  193536 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx 170:  174080 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx 171:  173055 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx 172:  261120 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=4)
+    dataidx 173:  330751 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=75)
+    dataidx 174:  126976 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 175:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 176:  171006 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx 177:  108544 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 178:  666620 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=46)
+    dataidx 179:  193536 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=17)
+    dataidx 180:  172032 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=24)
+    dataidx 181:  130048 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 182:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 183:  126976 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 184:  145408 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx 185:   81920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=24)
+    dataidx 186:  338944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 187:  153597 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx 188:  376832 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=55)
+    dataidx 189:  235520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=47)
+    dataidx 190:   99328 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=2)
+    dataidx 191:  111616 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 192:  413696 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=91)
+    dataidx 193:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=44)
+    dataidx 194:  114686 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=10)
+    dataidx 195:  100352 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=27)
+    dataidx 196:  121856 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 197:  119808 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 198:  210944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=4)
+    dataidx 199:  182272 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=29)
+
+[C] Shape + do dai — struct_hierarchy
+    dataidx   0: centroids (1, 32, 897, 128) ✅ · labels (1, 32, 17956) (mong 17956) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 194, 128) ✅ · labels (1, 32, 3893) (mong 3893) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 136, 128) ✅ · labels (1, 32, 2721) (mong 2721) ✅ · o rong 0.0%
+    dataidx   3: centroids (1, 32, 118, 128) ✅ · labels (1, 32, 2370) (mong 2370) ✅ · o rong 0.0%
+    dataidx   4: centroids (1, 32, 153, 128) ✅ · labels (1, 32, 3069) (mong 3069) ✅ · o rong 0.0%
+    dataidx   5: centroids (1, 32, 260, 128) ✅ · labels (1, 32, 5202) (mong 5202) ✅ · o rong 0.0%
+    dataidx   6: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3175) (mong 3175) ✅ · o rong 0.0%
+    dataidx   7: centroids (1, 32, 221, 128) ✅ · labels (1, 32, 4428) (mong 4428) ✅ · o rong 0.0%
+    dataidx   8: centroids (1, 32, 144, 128) ✅ · labels (1, 32, 2880) (mong 2880) ✅ · o rong 0.0%
+    dataidx   9: centroids (1, 32, 129, 128) ✅ · labels (1, 32, 2596) (mong 2596) ✅ · o rong 0.0%
+    dataidx  10: centroids (1, 32, 272, 128) ✅ · labels (1, 32, 5440) (mong 5440) ✅ · o rong 0.0%
+    dataidx  11: centroids (1, 32, 162, 128) ✅ · labels (1, 32, 3242) (mong 3242) ✅ · o rong 0.0%
+    dataidx  12: centroids (1, 32, 223, 128) ✅ · labels (1, 32, 4460) (mong 4460) ✅ · o rong 0.0%
+    dataidx  13: centroids (1, 32, 129, 128) ✅ · labels (1, 32, 2591) (mong 2591) ✅ · o rong 0.0%
+    dataidx  14: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2653) (mong 2653) ✅ · o rong 0.0%
+    dataidx  15: centroids (1, 32, 125, 128) ✅ · labels (1, 32, 2514) (mong 2514) ✅ · o rong 0.0%
+    dataidx  16: centroids (1, 32, 227, 128) ✅ · labels (1, 32, 4554) (mong 4554) ✅ · o rong 0.0%
+    dataidx  17: centroids (1, 32, 166, 128) ✅ · labels (1, 32, 3330) (mong 3330) ✅ · o rong 0.0%
+    dataidx  18: centroids (1, 32, 196, 128) ✅ · labels (1, 32, 3931) (mong 3931) ✅ · o rong 0.0%
+    dataidx  19: centroids (1, 32, 101, 128) ✅ · labels (1, 32, 2031) (mong 2031) ✅ · o rong 0.0%
+    dataidx  20: centroids (1, 32, 197, 128) ✅ · labels (1, 32, 3940) (mong 3940) ✅ · o rong 0.0%
+    dataidx  21: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1840) (mong 1840) ✅ · o rong 0.0%
+    dataidx  22: centroids (1, 32, 560, 128) ✅ · labels (1, 32, 11207) (mong 11207) ✅ · o rong 0.0%
+    dataidx  23: centroids (1, 32, 276, 128) ✅ · labels (1, 32, 5539) (mong 5539) ✅ · o rong 0.0%
+    dataidx  24: centroids (1, 32, 858, 128) ✅ · labels (1, 32, 17171) (mong 17171) ✅ · o rong 0.0%
+    dataidx  25: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2237) (mong 2237) ✅ · o rong 0.0%
+    dataidx  26: centroids (1, 32, 174, 128) ✅ · labels (1, 32, 3499) (mong 3499) ✅ · o rong 0.0%
+    dataidx  27: centroids (1, 32, 361, 128) ✅ · labels (1, 32, 7229) (mong 7229) ✅ · o rong 0.0%
+    dataidx  28: centroids (1, 32, 116, 128) ✅ · labels (1, 32, 2331) (mong 2331) ✅ · o rong 0.0%
+    dataidx  29: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3780) (mong 3780) ✅ · o rong 0.0%
+    dataidx  30: centroids (1, 32, 145, 128) ✅ · labels (1, 32, 2915) (mong 2915) ✅ · o rong 0.0%
+    dataidx  31: centroids (1, 32, 546, 128) ✅ · labels (1, 32, 10927) (mong 10927) ✅ · o rong 0.0%
+    dataidx  32: centroids (1, 32, 181, 128) ✅ · labels (1, 32, 3639) (mong 3639) ✅ · o rong 0.0%
+    dataidx  33: centroids (1, 32, 184, 128) ✅ · labels (1, 32, 3684) (mong 3684) ✅ · o rong 0.0%
+    dataidx  34: centroids (1, 32, 107, 128) ✅ · labels (1, 32, 2158) (mong 2158) ✅ · o rong 0.0%
+    dataidx  35: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2931) (mong 2931) ✅ · o rong 0.0%
+    dataidx  36: centroids (1, 32, 94, 128) ✅ · labels (1, 32, 1896) (mong 1896) ✅ · o rong 0.0%
+    dataidx  37: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2190) (mong 2190) ✅ · o rong 0.0%
+    dataidx  38: centroids (1, 32, 86, 128) ✅ · labels (1, 32, 1733) (mong 1733) ✅ · o rong 0.0%
+    dataidx  39: centroids (1, 32, 112, 128) ✅ · labels (1, 32, 2242) (mong 2242) ✅ · o rong 0.0%
+    dataidx  40: centroids (1, 32, 81, 128) ✅ · labels (1, 32, 1637) (mong 1637) ✅ · o rong 0.0%
+    dataidx  41: centroids (1, 32, 126, 128) ✅ · labels (1, 32, 2534) (mong 2534) ✅ · o rong 0.0%
+    dataidx  42: centroids (1, 32, 179, 128) ✅ · labels (1, 32, 3596) (mong 3596) ✅ · o rong 0.0%
+    dataidx  43: centroids (1, 32, 290, 128) ✅ · labels (1, 32, 5819) (mong 5819) ✅ · o rong 0.0%
+    dataidx  44: centroids (1, 32, 91, 128) ✅ · labels (1, 32, 1832) (mong 1832) ✅ · o rong 0.0%
+    dataidx  45: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2072) (mong 2072) ✅ · o rong 0.0%
+    dataidx  46: centroids (1, 32, 302, 128) ✅ · labels (1, 32, 6049) (mong 6049) ✅ · o rong 0.0%
+    dataidx  47: centroids (1, 32, 235, 128) ✅ · labels (1, 32, 4703) (mong 4703) ✅ · o rong 0.0%
+    dataidx  48: centroids (1, 32, 265, 128) ✅ · labels (1, 32, 5311) (mong 5311) ✅ · o rong 0.0%
+    dataidx  49: centroids (1, 32, 149, 128) ✅ · labels (1, 32, 2989) (mong 2989) ✅ · o rong 0.0%
+    dataidx  50: centroids (1, 32, 385, 128) ✅ · labels (1, 32, 7707) (mong 7707) ✅ · o rong 0.0%
+    dataidx  51: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2237) (mong 2237) ✅ · o rong 0.0%
+    dataidx  52: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1961) (mong 1961) ✅ · o rong 0.0%
+    dataidx  53: centroids (1, 32, 137, 128) ✅ · labels (1, 32, 2744) (mong 2744) ✅ · o rong 0.0%
+    dataidx  54: centroids (1, 32, 876, 128) ✅ · labels (1, 32, 17534) (mong 17534) ✅ · o rong 0.0%
+    dataidx  55: centroids (1, 32, 168, 128) ✅ · labels (1, 32, 3376) (mong 3376) ✅ · o rong 0.0%
+    dataidx  56: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2938) (mong 2938) ✅ · o rong 0.0%
+    dataidx  57: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3562) (mong 3562) ✅ · o rong 0.0%
+    dataidx  58: centroids (1, 32, 122, 128) ✅ · labels (1, 32, 2452) (mong 2452) ✅ · o rong 0.0%
+    dataidx  59: centroids (1, 32, 154, 128) ✅ · labels (1, 32, 3092) (mong 3092) ✅ · o rong 0.0%
+    dataidx  60: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3169) (mong 3169) ✅ · o rong 0.0%
+    dataidx  61: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2648) (mong 2648) ✅ · o rong 0.0%
+    dataidx  62: centroids (1, 32, 113, 128) ✅ · labels (1, 32, 2279) (mong 2279) ✅ · o rong 0.0%
+    dataidx  63: centroids (1, 32, 167, 128) ✅ · labels (1, 32, 3358) (mong 3358) ✅ · o rong 0.0%
+    dataidx  64: centroids (1, 32, 166, 128) ✅ · labels (1, 32, 3332) (mong 3332) ✅ · o rong 0.0%
+    dataidx  65: centroids (1, 32, 205, 128) ✅ · labels (1, 32, 4116) (mong 4116) ✅ · o rong 0.0%
+    dataidx  66: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2107) (mong 2107) ✅ · o rong 0.0%
+    dataidx  67: centroids (1, 32, 250, 128) ✅ · labels (1, 32, 5000) (mong 5000) ✅ · o rong 0.0%
+    dataidx  68: centroids (1, 32, 163, 128) ✅ · labels (1, 32, 3277) (mong 3277) ✅ · o rong 0.0%
+    dataidx  69: centroids (1, 32, 96, 128) ✅ · labels (1, 32, 1922) (mong 1922) ✅ · o rong 0.0%
+    dataidx  70: centroids (1, 32, 176, 128) ✅ · labels (1, 32, 3538) (mong 3538) ✅ · o rong 0.0%
+    dataidx  71: centroids (1, 32, 81, 128) ✅ · labels (1, 32, 1635) (mong 1635) ✅ · o rong 0.0%
+    dataidx  72: centroids (1, 32, 237, 128) ✅ · labels (1, 32, 4746) (mong 4746) ✅ · o rong 0.0%
+    dataidx  73: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1607) (mong 1607) ✅ · o rong 0.0%
+    dataidx  74: centroids (1, 32, 341, 128) ✅ · labels (1, 32, 6825) (mong 6825) ✅ · o rong 0.0%
+    dataidx  75: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2137) (mong 2137) ✅ · o rong 0.0%
+    dataidx  76: centroids (1, 32, 239, 128) ✅ · labels (1, 32, 4788) (mong 4788) ✅ · o rong 0.0%
+    dataidx  77: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1960) (mong 1960) ✅ · o rong 0.0%
+    dataidx  78: centroids (1, 32, 208, 128) ✅ · labels (1, 32, 4171) (mong 4171) ✅ · o rong 0.0%
+    dataidx  79: centroids (1, 32, 181, 128) ✅ · labels (1, 32, 3638) (mong 3638) ✅ · o rong 0.0%
+    dataidx  80: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6990) (mong 6990) ✅ · o rong 0.0%
+    dataidx  81: centroids (1, 32, 180, 128) ✅ · labels (1, 32, 3607) (mong 3607) ✅ · o rong 0.0%
+    dataidx  82: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2184) (mong 2184) ✅ · o rong 0.0%
+    dataidx  83: centroids (1, 32, 146, 128) ✅ · labels (1, 32, 2924) (mong 2924) ✅ · o rong 0.0%
+    dataidx  84: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1848) (mong 1848) ✅ · o rong 0.0%
+    dataidx  85: centroids (1, 32, 319, 128) ✅ · labels (1, 32, 6382) (mong 6382) ✅ · o rong 0.0%
+    dataidx  86: centroids (1, 32, 565, 128) ✅ · labels (1, 32, 11310) (mong 11310) ✅ · o rong 0.0%
+    dataidx  87: centroids (1, 32, 132, 128) ✅ · labels (1, 32, 2648) (mong 2648) ✅ · o rong 0.0%
+    dataidx  88: centroids (1, 32, 100, 128) ✅ · labels (1, 32, 2009) (mong 2009) ✅ · o rong 0.0%
+    dataidx  89: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2104) (mong 2104) ✅ · o rong 0.0%
+    dataidx  90: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2673) (mong 2673) ✅ · o rong 0.0%
+    dataidx  91: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2131) (mong 2131) ✅ · o rong 0.0%
+    dataidx  92: centroids (1, 32, 289, 128) ✅ · labels (1, 32, 5786) (mong 5786) ✅ · o rong 0.0%
+    dataidx  93: centroids (1, 32, 177, 128) ✅ · labels (1, 32, 3544) (mong 3544) ✅ · o rong 0.0%
+    dataidx  94: centroids (1, 32, 126, 128) ✅ · labels (1, 32, 2537) (mong 2537) ✅ · o rong 0.0%
+    dataidx  95: centroids (1, 32, 729, 128) ✅ · labels (1, 32, 14596) (mong 14596) ✅ · o rong 0.0%
+    dataidx  96: centroids (1, 32, 86, 128) ✅ · labels (1, 32, 1732) (mong 1732) ✅ · o rong 0.0%
+    dataidx  97: centroids (1, 32, 92, 128) ✅ · labels (1, 32, 1846) (mong 1846) ✅ · o rong 0.0%
+    dataidx  98: centroids (1, 32, 170, 128) ✅ · labels (1, 32, 3405) (mong 3405) ✅ · o rong 0.0%
+    dataidx  99: centroids (1, 32, 59, 128) ✅ · labels (1, 32, 1180) (mong 1180) ✅ · o rong 0.0%
+    dataidx 100: centroids (1, 32, 138, 128) ✅ · labels (1, 32, 2777) (mong 2777) ✅ · o rong 0.0%
+    dataidx 101: centroids (1, 32, 331, 128) ✅ · labels (1, 32, 6633) (mong 6633) ✅ · o rong 0.0%
+    dataidx 102: centroids (1, 32, 314, 128) ✅ · labels (1, 32, 6292) (mong 6292) ✅ · o rong 0.0%
+    dataidx 103: centroids (1, 32, 153, 128) ✅ · labels (1, 32, 3072) (mong 3072) ✅ · o rong 0.0%
+    dataidx 104: centroids (1, 32, 633, 128) ✅ · labels (1, 32, 12674) (mong 12674) ✅ · o rong 0.0%
+    dataidx 105: centroids (1, 32, 164, 128) ✅ · labels (1, 32, 3281) (mong 3281) ✅ · o rong 0.0%
+    dataidx 106: centroids (1, 32, 139, 128) ✅ · labels (1, 32, 2780) (mong 2780) ✅ · o rong 0.0%
+    dataidx 107: centroids (1, 32, 246, 128) ✅ · labels (1, 32, 4935) (mong 4935) ✅ · o rong 0.0%
+    dataidx 108: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2043) (mong 2043) ✅ · o rong 0.0%
+    dataidx 109: centroids (1, 32, 158, 128) ✅ · labels (1, 32, 3168) (mong 3168) ✅ · o rong 0.0%
+    dataidx 110: centroids (1, 32, 172, 128) ✅ · labels (1, 32, 3447) (mong 3447) ✅ · o rong 0.0%
+    dataidx 111: centroids (1, 32, 182, 128) ✅ · labels (1, 32, 3652) (mong 3652) ✅ · o rong 0.0%
+    dataidx 112: centroids (1, 32, 234, 128) ✅ · labels (1, 32, 4683) (mong 4683) ✅ · o rong 0.0%
+    dataidx 113: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3560) (mong 3560) ✅ · o rong 0.0%
+    dataidx 114: centroids (1, 32, 165, 128) ✅ · labels (1, 32, 3300) (mong 3300) ✅ · o rong 0.0%
+    dataidx 115: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1600) (mong 1600) ✅ · o rong 0.0%
+    dataidx 116: centroids (1, 32, 123, 128) ✅ · labels (1, 32, 2473) (mong 2473) ✅ · o rong 0.0%
+    dataidx 117: centroids (1, 32, 204, 128) ✅ · labels (1, 32, 4087) (mong 4087) ✅ · o rong 0.0%
+    dataidx 118: centroids (1, 32, 77, 128) ✅ · labels (1, 32, 1556) (mong 1556) ✅ · o rong 0.0%
+    dataidx 119: centroids (1, 32, 613, 128) ✅ · labels (1, 32, 12275) (mong 12275) ✅ · o rong 0.0%
+    dataidx 120: centroids (1, 32, 95, 128) ✅ · labels (1, 32, 1902) (mong 1902) ✅ · o rong 0.0%
+    dataidx 121: centroids (1, 32, 173, 128) ✅ · labels (1, 32, 3466) (mong 3466) ✅ · o rong 0.0%
+    dataidx 122: centroids (1, 32, 169, 128) ✅ · labels (1, 32, 3383) (mong 3383) ✅ · o rong 0.0%
+    dataidx 123: centroids (1, 32, 233, 128) ✅ · labels (1, 32, 4670) (mong 4670) ✅ · o rong 0.0%
+    dataidx 124: centroids (1, 32, 144, 128) ✅ · labels (1, 32, 2882) (mong 2882) ✅ · o rong 0.0%
+    dataidx 125: centroids (1, 32, 401, 128) ✅ · labels (1, 32, 8035) (mong 8035) ✅ · o rong 0.0%
+    dataidx 126: centroids (1, 32, 119, 128) ✅ · labels (1, 32, 2387) (mong 2387) ✅ · o rong 0.0%
+    dataidx 127: centroids (1, 32, 251, 128) ✅ · labels (1, 32, 5023) (mong 5023) ✅ · o rong 0.0%
+    dataidx 128: centroids (1, 32, 118, 128) ✅ · labels (1, 32, 2360) (mong 2360) ✅ · o rong 0.0%
+    dataidx 129: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2192) (mong 2192) ✅ · o rong 0.0%
+    dataidx 130: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2666) (mong 2666) ✅ · o rong 0.0%
+    dataidx 131: centroids (1, 32, 110, 128) ✅ · labels (1, 32, 2202) (mong 2202) ✅ · o rong 0.0%
+    dataidx 132: centroids (1, 32, 302, 128) ✅ · labels (1, 32, 6048) (mong 6048) ✅ · o rong 0.0%
+    dataidx 133: centroids (1, 32, 82, 128) ✅ · labels (1, 32, 1641) (mong 1641) ✅ · o rong 0.0%
+    dataidx 134: centroids (1, 32, 97, 128) ✅ · labels (1, 32, 1955) (mong 1955) ✅ · o rong 0.0%
+    dataidx 135: centroids (1, 32, 235, 128) ✅ · labels (1, 32, 4704) (mong 4704) ✅ · o rong 0.0%
+    dataidx 136: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2067) (mong 2067) ✅ · o rong 0.0%
+    dataidx 137: centroids (1, 32, 93, 128) ✅ · labels (1, 32, 1862) (mong 1862) ✅ · o rong 0.0%
+    dataidx 138: centroids (1, 32, 279, 128) ✅ · labels (1, 32, 5585) (mong 5585) ✅ · o rong 0.0%
+    dataidx 139: centroids (1, 32, 228, 128) ✅ · labels (1, 32, 4571) (mong 4571) ✅ · o rong 0.0%
+    dataidx 140: centroids (1, 32, 83, 128) ✅ · labels (1, 32, 1679) (mong 1679) ✅ · o rong 0.0%
+    dataidx 141: centroids (1, 32, 125, 128) ✅ · labels (1, 32, 2517) (mong 2517) ✅ · o rong 0.0%
+    dataidx 142: centroids (1, 32, 123, 128) ✅ · labels (1, 32, 2464) (mong 2464) ✅ · o rong 0.0%
+    dataidx 143: centroids (1, 32, 399, 128) ✅ · labels (1, 32, 7981) (mong 7981) ✅ · o rong 0.0%
+    dataidx 144: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6994) (mong 6994) ✅ · o rong 0.0%
+    dataidx 145: centroids (1, 32, 113, 128) ✅ · labels (1, 32, 2273) (mong 2273) ✅ · o rong 0.0%
+    dataidx 146: centroids (1, 32, 103, 128) ✅ · labels (1, 32, 2071) (mong 2071) ✅ · o rong 0.0%
+    dataidx 147: centroids (1, 32, 143, 128) ✅ · labels (1, 32, 2867) (mong 2867) ✅ · o rong 0.0%
+    dataidx 148: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2230) (mong 2230) ✅ · o rong 0.0%
+    dataidx 149: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2358) (mong 2358) ✅ · o rong 0.0%
+    dataidx 150: centroids (1, 32, 353, 128) ✅ · labels (1, 32, 7061) (mong 7061) ✅ · o rong 0.0%
+    dataidx 151: centroids (1, 32, 211, 128) ✅ · labels (1, 32, 4233) (mong 4233) ✅ · o rong 0.0%
+    dataidx 152: centroids (1, 32, 131, 128) ✅ · labels (1, 32, 2624) (mong 2624) ✅ · o rong 0.0%
+    dataidx 153: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2050) (mong 2050) ✅ · o rong 0.0%
+    dataidx 154: centroids (1, 32, 154, 128) ✅ · labels (1, 32, 3083) (mong 3083) ✅ · o rong 0.0%
+    dataidx 155: centroids (1, 32, 101, 128) ✅ · labels (1, 32, 2024) (mong 2024) ✅ · o rong 0.0%
+    dataidx 156: centroids (1, 32, 105, 128) ✅ · labels (1, 32, 2111) (mong 2111) ✅ · o rong 0.0%
+    dataidx 157: centroids (1, 32, 333, 128) ✅ · labels (1, 32, 6673) (mong 6673) ✅ · o rong 0.0%
+    dataidx 158: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2344) (mong 2344) ✅ · o rong 0.0%
+    dataidx 159: centroids (1, 32, 275, 128) ✅ · labels (1, 32, 5514) (mong 5514) ✅ · o rong 0.0%
+    dataidx 160: centroids (1, 32, 190, 128) ✅ · labels (1, 32, 3807) (mong 3807) ✅ · o rong 0.0%
+    dataidx 161: centroids (1, 32, 151, 128) ✅ · labels (1, 32, 3038) (mong 3038) ✅ · o rong 0.0%
+    dataidx 162: centroids (1, 32, 362, 128) ✅ · labels (1, 32, 7247) (mong 7247) ✅ · o rong 0.0%
+    dataidx 163: centroids (1, 32, 421, 128) ✅ · labels (1, 32, 8429) (mong 8429) ✅ · o rong 0.0%
+    dataidx 164: centroids (1, 32, 315, 128) ✅ · labels (1, 32, 6313) (mong 6313) ✅ · o rong 0.0%
+    dataidx 165: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2056) (mong 2056) ✅ · o rong 0.0%
+    dataidx 166: centroids (1, 32, 179, 128) ✅ · labels (1, 32, 3597) (mong 3597) ✅ · o rong 0.0%
+    dataidx 167: centroids (1, 32, 133, 128) ✅ · labels (1, 32, 2673) (mong 2673) ✅ · o rong 0.0%
+    dataidx 168: centroids (1, 32, 147, 128) ✅ · labels (1, 32, 2955) (mong 2955) ✅ · o rong 0.0%
+    dataidx 169: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3799) (mong 3799) ✅ · o rong 0.0%
+    dataidx 170: centroids (1, 32, 170, 128) ✅ · labels (1, 32, 3410) (mong 3410) ✅ · o rong 0.0%
+    dataidx 171: centroids (1, 32, 169, 128) ✅ · labels (1, 32, 3384) (mong 3384) ✅ · o rong 0.0%
+    dataidx 172: centroids (1, 32, 255, 128) ✅ · labels (1, 32, 5104) (mong 5104) ✅ · o rong 0.0%
+    dataidx 173: centroids (1, 32, 323, 128) ✅ · labels (1, 32, 6462) (mong 6462) ✅ · o rong 0.0%
+    dataidx 174: centroids (1, 32, 124, 128) ✅ · labels (1, 32, 2494) (mong 2494) ✅ · o rong 0.0%
+    dataidx 175: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2235) (mong 2235) ✅ · o rong 0.0%
+    dataidx 176: centroids (1, 32, 167, 128) ✅ · labels (1, 32, 3346) (mong 3346) ✅ · o rong 0.0%
+    dataidx 177: centroids (1, 32, 106, 128) ✅ · labels (1, 32, 2132) (mong 2132) ✅ · o rong 0.0%
+    dataidx 178: centroids (1, 32, 651, 128) ✅ · labels (1, 32, 13021) (mong 13021) ✅ · o rong 0.0%
+    dataidx 179: centroids (1, 32, 189, 128) ✅ · labels (1, 32, 3792) (mong 3792) ✅ · o rong 0.0%
+    dataidx 180: centroids (1, 32, 168, 128) ✅ · labels (1, 32, 3371) (mong 3371) ✅ · o rong 0.0%
+    dataidx 181: centroids (1, 32, 127, 128) ✅ · labels (1, 32, 2545) (mong 2545) ✅ · o rong 0.0%
+    dataidx 182: centroids (1, 32, 111, 128) ✅ · labels (1, 32, 2238) (mong 2238) ✅ · o rong 0.0%
+    dataidx 183: centroids (1, 32, 124, 128) ✅ · labels (1, 32, 2490) (mong 2490) ✅ · o rong 0.0%
+    dataidx 184: centroids (1, 32, 142, 128) ✅ · labels (1, 32, 2858) (mong 2858) ✅ · o rong 0.0%
+    dataidx 185: centroids (1, 32, 80, 128) ✅ · labels (1, 32, 1615) (mong 1615) ✅ · o rong 0.0%
+    dataidx 186: centroids (1, 32, 331, 128) ✅ · labels (1, 32, 6639) (mong 6639) ✅ · o rong 0.0%
+    dataidx 187: centroids (1, 32, 150, 128) ✅ · labels (1, 32, 3013) (mong 3013) ✅ · o rong 0.0%
+    dataidx 188: centroids (1, 32, 368, 128) ✅ · labels (1, 32, 7371) (mong 7371) ✅ · o rong 0.0%
+    dataidx 189: centroids (1, 32, 230, 128) ✅ · labels (1, 32, 4615) (mong 4615) ✅ · o rong 0.0%
+    dataidx 190: centroids (1, 32, 97, 128) ✅ · labels (1, 32, 1958) (mong 1958) ✅ · o rong 0.0%
+    dataidx 191: centroids (1, 32, 109, 128) ✅ · labels (1, 32, 2184) (mong 2184) ✅ · o rong 0.0%
+    dataidx 192: centroids (1, 32, 404, 128) ✅ · labels (1, 32, 8095) (mong 8095) ✅ · o rong 0.0%
+    dataidx 193: centroids (1, 32, 102, 128) ✅ · labels (1, 32, 2044) (mong 2044) ✅ · o rong 0.0%
+    dataidx 194: centroids (1, 32, 112, 128) ✅ · labels (1, 32, 2258) (mong 2258) ✅ · o rong 0.0%
+    dataidx 195: centroids (1, 32, 98, 128) ✅ · labels (1, 32, 1970) (mong 1970) ✅ · o rong 0.0%
+    dataidx 196: centroids (1, 32, 119, 128) ✅ · labels (1, 32, 2385) (mong 2385) ✅ · o rong 0.0%
+    dataidx 197: centroids (1, 32, 117, 128) ✅ · labels (1, 32, 2355) (mong 2355) ✅ · o rong 0.0%
+    dataidx 198: centroids (1, 32, 206, 128) ✅ · labels (1, 32, 4124) (mong 4124) ✅ · o rong 0.0%
+    dataidx 199: centroids (1, 32, 178, 128) ✅ · labels (1, 32, 3564) (mong 3564) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — struct_hierarchy
+    dataidx   0:  918527 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=51)
+    dataidx   1:  198655 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx   2:  139263 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx   3:  120832 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=27)
+    dataidx   4:  156672 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx   5:  266240 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=39)
+    dataidx   6:  161791 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx   7:  226304 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=42)
+    dataidx   8:  147456 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx   9:  132096 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  10:  278528 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  11:  165888 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=31)
+    dataidx  12:  228352 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx  13:  132096 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  14:  135168 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  15:  127999 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  16:  232448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=50)
+    dataidx  17:  169984 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  18:  200704 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx  19:  103424 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=29)
+    dataidx  20:  201728 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx  21:   94208 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  22:  573440 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=47)
+    dataidx  23:  282624 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  24:  878592 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=91)
+    dataidx  25:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  26:  178176 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  27:  369663 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx  28:  118784 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  29:  193535 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  30:  148480 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=37)
+    dataidx  31:  559103 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=55)
+    dataidx  32:  185344 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  33:  188415 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx  34:  109568 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx  35:  149504 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  36:   96256 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx  37:  111615 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx  38:   88064 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  39:  114688 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  40:   82944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx  41:  129024 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  42:  183296 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx  43:  296959 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx  44:   93184 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  45:  105472 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx  46:  309248 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  47:  240640 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx  48:  271360 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  49:  152576 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  50:  394240 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=16)
+    dataidx  51:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  52:  100352 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  53:  140288 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx  54:  897021 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=248)
+    dataidx  55:  172031 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  56:  149504 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  57:  182272 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=39)
+    dataidx  58:  124928 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  59:  157696 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  60:  161792 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx  61:  135168 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  62:  115712 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx  63:  171008 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx  64:  169984 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx  65:  209920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=40)
+    dataidx  66:  107520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  67:  255999 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  68:  166912 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx  69:   98304 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  70:  180223 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=16)
+    dataidx  71:   82944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  72:  242688 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx  73:   81920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx  74:  349184 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx  75:  108544 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx  76:  244736 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx  77:  100351 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  78:  212992 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=33)
+    dataidx  79:  185344 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  80:  357375 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  81:  184317 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  82:  111616 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  83:  149504 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=4)
+    dataidx  84:   94208 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx  85:  326655 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx  86:  578559 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=102)
+    dataidx  87:  135168 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=90)
+    dataidx  88:  102400 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  89:  107520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  90:  136192 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  91:  108544 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx  92:  295936 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx  93:  181248 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=5)
+    dataidx  94:  129024 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  95:  746496 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=160)
+    dataidx  96:   88064 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx  97:   94205 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx  98:  174079 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx  99:   60416 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=38)
+    dataidx 100:  141312 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=32)
+    dataidx 101:  338944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=71)
+    dataidx 102:  321536 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 103:  156672 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx 104:  648191 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=99)
+    dataidx 105:  167935 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx 106:  142336 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx 107:  251904 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=33)
+    dataidx 108:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx 109:  161792 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx 110:  176128 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=5)
+    dataidx 111:  186368 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx 112:  239615 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx 113:  182272 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx 114:  168960 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 115:   81920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 116:  125952 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 117:  208896 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx 118:   78848 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 119:  627710 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=32)
+    dataidx 120:   97280 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 121:  177152 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 122:  173056 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=2)
+    dataidx 123:  238592 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 124:  147456 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=23)
+    dataidx 125:  410620 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=52)
+    dataidx 126:  121856 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 127:  257024 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 128:  120832 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx 129:  111616 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 130:  136192 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 131:  112640 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx 132:  309246 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx 133:   83968 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 134:   99328 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 135:  240637 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 136:  105472 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=16)
+    dataidx 137:   95232 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 138:  285696 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=110)
+    dataidx 139:  233471 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 140:   84992 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 141:  128000 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=17)
+    dataidx 142:  125952 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 143:  408576 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=36)
+    dataidx 144:  357376 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=14)
+    dataidx 145:  115711 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=12)
+    dataidx 146:  105471 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=10)
+    dataidx 147:  146432 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=17)
+    dataidx 148:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=28)
+    dataidx 149:  119808 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=5)
+    dataidx 150:  361470 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=24)
+    dataidx 151:  216063 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=27)
+    dataidx 152:  134144 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx 153:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx 154:  157695 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=30)
+    dataidx 155:  103424 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=19)
+    dataidx 156:  107520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 157:  340992 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=29)
+    dataidx 158:  119808 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=10)
+    dataidx 159:  281599 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=15)
+    dataidx 160:  194560 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=32)
+    dataidx 161:  154624 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=39)
+    dataidx 162:  370688 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx 163:  431104 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=62)
+    dataidx 164:  322560 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=2)
+    dataidx 165:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=21)
+    dataidx 166:  183296 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=7)
+    dataidx 167:  136192 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=25)
+    dataidx 168:  150528 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=22)
+    dataidx 169:  193536 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx 170:  174080 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx 171:  173055 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=26)
+    dataidx 172:  261120 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=4)
+    dataidx 173:  330751 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=75)
+    dataidx 174:  126976 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=20)
+    dataidx 175:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 176:  171006 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=8)
+    dataidx 177:  108544 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 178:  666620 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=46)
+    dataidx 179:  193536 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=17)
+    dataidx 180:  172032 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=24)
+    dataidx 181:  130048 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 182:  113664 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 183:  126976 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=6)
+    dataidx 184:  145408 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=9)
+    dataidx 185:   81920 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=24)
+    dataidx 186:  338944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 187:  153597 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=3)
+    dataidx 188:  376832 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=55)
+    dataidx 189:  235520 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=47)
+    dataidx 190:   99328 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=2)
+    dataidx 191:  111616 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=13)
+    dataidx 192:  413696 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=91)
+    dataidx 193:  104448 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=44)
+    dataidx 194:  114686 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=10)
+    dataidx 195:  100352 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=27)
+    dataidx 196:  121856 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=11)
+    dataidx 197:  119808 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=18)
+    dataidx 198:  210944 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=4)
+    dataidx 199:  182272 cluster · vat qua >1 unit:      0 (  0.0%)  ✅  (U=29)
+
+========================================================================
+  ✅ MOI BAT BIEN QUA
+========================================================================

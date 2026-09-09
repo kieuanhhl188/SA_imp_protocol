@@ -1,5 +1,15 @@
 # Phase 5 (C2) — Recall@budget · **KẾT QUẢ ÂM**
 
+> **Cập nhật 9/9/2026 — kết quả âm lặp lại trên LongChat.** Chạy thêm 2 cấu hình, kiểm định
+> ghép cặp `hard_boundary − sa`:
+> - LongChat / LCC / `function` (n=100): −1,00 / −1,49 / −2,33 ở sp 70/80/90 — KTC loại 0
+> - LongChat / LCC / **`block`** (n=98): −3,24 / −4,15 / −5,44 — KTC loại 0, âm nặng hơn ~3×
+>
+> **9/9 khoảng tin cậy (3 cấu hình × 3 budget) đều loại trừ 0 và âm.** Bằng chứng:
+> `phase2_evidence/full200_longchat_31-8/` · `phase2_evidence/block_longchat_9-9/`.
+> `struct_hierarchy` vẫn trùng `hard_boundary` từng chữ số — lý do đã xác định, xem
+> EXPERIMENT_LOG mục 6 entry 9/9 (L2 trùng bit theo thiết kế + tầng L1 chưa có consumer).
+
 Chốt 24/8/2026 · Qwen2.5-Coder-7B-**Instruct** · `force_chat` · `fixed_context=full` · maxlen 31.500
 LongBench LCC · **300 mẫu × 10 lớp** (0,3,6,…,27) · `level=function` · ngân sách centroid 5%
 

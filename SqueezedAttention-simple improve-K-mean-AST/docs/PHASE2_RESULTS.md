@@ -1,5 +1,19 @@
 # Phase 2 — Bảng kết quả
 
+> ## 📌 CẬP NHẬT 9/9/2026 — đã có số LongChat full (function + block); bảng dưới vẫn là lượt Qwen
+>
+> Đã chạy full 200 mẫu LongChat/LCC: `function` (31/8, `phase2_evidence/full200_longchat_31-8/`)
+> và `block` (9/9, `phase2_evidence/block_longchat_9-9/`). Bất biến [A]/[B]/[C] **TẤT CẢ QUA**
+> cả hai level. Số chính:
+> - [A] vắt biên `sa`: **32,3%** (function) · **57,5%** (block) — median · `hard_boundary` +
+>   `struct_hierarchy` **0,0%** ở 198–200/200 mẫu
+> - K1 thực tế tầng L1: median **16,5** (function ≡ số function) · **26** (block, merge chạy 28/198)
+> - **Bất biến D chưa chạy lại; chưa có bất biến kiểm tầng L1.** `struct_hierarchy` (đề xuất 2)
+>   trùng `hard_boundary` (đề xuất 1) ở mọi phép đo — lý do: EXPERIMENT_LOG mục 6 entry 9/9.
+> - Phase 5 (C2) trên các bộ này: **FAIL** — xem [PHASE5_RESULTS.md](PHASE5_RESULTS.md).
+>
+> Các bảng dưới đây (Bảng 1–6) là **hồ sơ lượt Qwen 22/8**, giữ làm tham chiếu cấu trúc.
+
 > ## ⚠️ ĐỔI PHẠM VI 28/8/2026 — Phase 2 chuyển sang LongChat-7B, LCC
 >
 > Model chính đổi từ `qwen2.5-coder-7b-instruct` **sang `longchat-v1.5-7b-32k`**, LCC-only,

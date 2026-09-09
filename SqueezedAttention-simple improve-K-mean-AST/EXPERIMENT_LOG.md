@@ -19,10 +19,10 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 |---|---|---|---|
 | 0 | Môi trường + tái lập baseline SA | — | ✅ **baseline vững** — All-KV 54,83 ± 0,00 · Sq-70% 56,36 ± 0,28 (**n=3**, LCC 500 mẫu, đều seed K-means 0). Còn tuỳ chọn: đo phương sai theo seed K-means |
 | 1 | Chuẩn bị dữ liệu code | — | ✅ **LongChat + LCC-only** — dữ liệu 1.4 sinh lại + gate dữ liệu **PASS 29/8** (500 mẫu LCC, CPU); accuracy = Phase 0 |
-| 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟡 6/6 có code · lượt Qwen 22/8 xong · **LongChat: smoke 3 mẫu ✅ 29/8 (bất biến xanh) → chờ chạy full `LIMIT_P2=200` (~8h, ~88 GB)** |
+| 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟢 **đề xuất 1 XONG** (LongChat/LCC full 200: function 31/8 + block 9/9, bất biến TẤT CẢ QUA). **đề xuất 2 ~90%** — thiếu bất biến tầng L1 + output chưa tiêu thụ được (xem 9/9) |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
-| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | ❌ 0/5 |
+| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🔴 **5.1–5.4 có code + kết quả · 5.5 xong · C2 FAIL** 3 cấu hình (Qwen fn, LongChat fn, LongChat block), tất cả KTC loại 0 & âm. Đề xuất 2 chưa đo được — cần nhánh truy hồi phân tầng |
 | 6 | C1 accuracy@budget end-task | — | ❌ 0/5 |
 | 7 | C3 + phân tích | — | ❌ 0/4 |
 
@@ -663,8 +663,8 @@ lệch >5% — **nguyên nhân chưa biết**, xem đính chính 24/8 bên dư�
 |---|---|---|---|
 | 2.1 | Parse AST bằng tree-sitter, có byte offset | ✅ | `parse_units` — 5 level (`file`/`class`/`function`/`block`/`statement`), 5 ngôn ngữ. Dùng API tree_sitter mới, **không cần** `tree_sitter_languages` (gói đó không cài được). Level thô gộp vào level mịn nên mọi token đều có unit bao |
 | 2.2 | Gán `unit_id` cho từng key token ở từng level | ✅ | `assign_token_units` — sắp span theo kích thước giảm dần rồi ghi đè bằng `searchsorted`, O(U log S) thay cho O(S×U) của bản cũ. Offset lấy từ Phase 1.4 nên không đụng lỗi `use_fast=False` |
-| 2.3 | **Hard boundary** — K-means độc lập trong từng unit, unit nhỏ → 1 centroid, tổng K vẫn ~5% | 🟡 | **Code xong + smoke LongChat 29/8** (`--method hard_boundary`, 3 mẫu): 0,0% cluster vắt biên cả 3 mẫu. Chờ chạy full |
-| 2.4 | **StructHierarchy** — L2 = trong-function, L1 = trung bình theo function/file | 🟡 | **Code xong + smoke LongChat 29/8** (`--method struct_hierarchy`, 3 mẫu): 0,0% vắt biên. `build_l1_groups` ép K1 về 1% context **khi làm được**, ghi K1 thực tế ra `k1_stats_*.pt`. ⚠️ Trên LCC thường KHÔNG làm được — xem ghi chú dưới bảng |
+| 2.3 | **Hard boundary** — K-means độc lập trong từng unit, unit nhỏ → 1 centroid, tổng K vẫn ~5% | ✅ | **LongChat/LCC full 200: function 31/8 + block 9/9.** [A] vắt biên 0,0% ở 198–200/200 mẫu cả hai level. `sa` đối chứng 32,3% (fn) / 57,5% (block) |
+| 2.4 | **StructHierarchy** — L2 = trong-function, L1 = trung bình theo function/file | 🟡 | **Code chạy + ghi `k1_stats`** (fn K1 median 16,5 ≡ số function; block K1 median 26, nhánh merge chạy 28/198). ⚠️ **Chưa có bất biến kiểm tầng L1**, và output L1 chưa ở dạng tiêu thụ được → mọi phép đo hiện thấy nó TRÙNG 2.3. Xem entry 9/9 mục 6 |
 | 2.5 | Ablation tách bạch: SA / +HardBoundary / +StructHierarchy | ✅ | `offline_clustering_struct.py --method {sa,hard_boundary,struct_hierarchy}`. Nhánh `sa` gọi thẳng `run_clustering` gốc để mọi nhánh đi qua cùng một đường code |
 | 2.6 | Giữ nguyên Si, threshold, kernel | ✅ | `struct_clustering.py` **chỉ** sinh centroid + label, cùng layout `[1,H,K,D]`/`[1,H,S]` với `run_clustering`. Token-type weighting (Hướng 2(b) sẵn có trong repo) giữ lại làm cờ `token_weights`, **mặc định tắt**; test xác nhận tắt cờ ra kết quả trùng bit-for-bit |
 
@@ -781,17 +781,24 @@ Phụ thuộc: 2.3 (hard boundary định nghĩa ra unit).
 
 ---
 
-### Phase 5 — C2 retrieval quality · ❌ · **chạy TRƯỚC Phase 6**
+### Phase 5 — C2 retrieval quality · 🔴 **C2 FAIL** · chạy TRƯỚC Phase 6
 
 Bằng chứng trực tiếp và rẻ nhất cho H0. Dựa trên baseline "Ideal" của bài (Appendix H). **Nếu C2 fail thì H0 sai → dừng, không chạy C1/C3.**
 
+Công cụ: `phase5_recall.py`. Kết quả: `docs/PHASE5_RESULTS.md` (Qwen) ·
+`phase2_evidence/full200_longchat_31-8/phase5_lcc.json` (LongChat fn) ·
+`phase2_evidence/block_longchat_9-9/phase5_lcc_block.json` (LongChat block).
+
 | # | Việc | Trạng thái | Chi tiết |
 |---|---|---|---|
-| 5.1 | Tính full attention query→toàn bộ fixed key, lấy top-p theo threshold làm tập ideal `K*` | ❌ | |
-| 5.2 | Với mỗi method lấy tập `K_m` ở cùng budget | ❌ | SA, +HardBoundary, +StructHierarchy, +SymbolSignal |
-| 5.3 | Metric chính: `Recall@budget` = số key trong `K_m ∩ K*` chia cho số key trong `K*` | ❌ | Phụ: precision, attention-mass recovered (tổng attention weight của `K_m` trên `K*`) |
-| 5.4 | Quét budget ∈ {70, 80, 90%}, vẽ Recall vs budget | ❌ | |
-| 5.5 | Paired test qua các mẫu | ❌ | Pass nếu structure-aware recall cao hơn SA có ý nghĩa thống kê ở **≥2 mức budget** |
+| 5.1 | Full attention query→toàn bộ fixed key, top-N làm `K*` | ✅ | `recall_one_sample`: `attn.topk(N)` |
+| 5.2 | Mỗi method lấy `K_m` ở cùng budget N | ✅ **sa, hard_boundary, struct_hierarchy** | +SymbolSignal ❌ (Phase 3 = 0/4). struct_hierarchy đo ra TRÙNG hard_boundary — phép đo chỉ dùng L2, xem 9/9 |
+| 5.3 | `Recall@budget` + attention-mass | ✅ recall + mass | **precision ❌ chưa tính** |
+| 5.4 | Quét {70, 80, 90}, vẽ Recall vs budget | ✅ số · **hình ❌** | |
+| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 | **FAIL** — 3 cấu hình, 9/9 KTC loại 0 & âm (xem mục 6, entry 9/9). `hard_boundary − sa`: Qwen fn −0,89/−1,13/−1,37 · LongChat fn −1,00/−1,49/−2,33 · LongChat block −3,24/−4,15/−5,44 |
+
+**Còn lại:** (a) nhánh truy hồi phân tầng để đo được đề xuất 2 · (b) RepoBench-P (cấu trúc
+dày ~7×) · (c) precision + hình. Theo protocol: **không chạy Phase 6** trên cấu hình này.
 
 ---
 
@@ -965,6 +972,75 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-09-09 — Phase 2 LongChat full (function + block) · Phase 5 C2 FAIL 3 cấu hình · đề xuất 2 chưa đo được, đã tìm ra lý do
+
+**Ba lượt Phase 5 (C2) đã có kiểm định ghép cặp — tất cả FAIL, cùng chiều.**
+
+| Cấu hình | n | sp70 | sp80 | sp90 |
+|---|---|---|---|---|
+| Qwen function (24/8, `docs/PHASE5_RESULTS.md`) | 300×10 lớp | −0,89 [−1,01;−0,77] | −1,13 | −1,37 |
+| LongChat function (31/8) | 100×3 lớp | −1,00 [−1,29;−0,74] | −1,49 | −2,33 |
+| LongChat **block** (9/9) | 98×3 lớp | −3,24 [−3,61;−2,88] | −4,15 | −5,44 |
+
+Hiệu số = `hard_boundary − sa`. **9/9 KTC bootstrap (20.000) loại trừ 0, tất cả âm.** Tiêu
+chí 5.5 (*"pass nếu structure-aware recall CAO HƠN SA ở ≥2 budget"*) không đạt ở bất kỳ đâu.
+Ranh giới càng mịn (function → block) khoảng cách càng rộng (~3×). Bằng chứng:
+`phase2_evidence/full200_longchat_31-8/` · `phase2_evidence/block_longchat_9-9/`.
+
+**Phase 2 block-level (LongChat/LCC, 200 mẫu) — bất biến TẤT CẢ QUA:**
+- `hard_boundary` + `struct_hierarchy`: 198/200 khả thi (bỏ `dataidx` 87, 99 = **1,0%**,
+  khớp dự kiến ~2,6% của bảng level sweep)
+- [A] vắt biên: `sa` trung vị **57,5%** (function-level là 32,3%) · `hard_boundary` **0,0%**
+  0/198 · `struct_hierarchy` **0,0%** 0/198
+- [B] cùng K ba nhánh ✅ · [C] shape + 0% ô rỗng ✅
+- K1 thực tế tầng L1: median 26 · tb 34,8 (function-level là 16,5 ≡ số function). Ở block,
+  nhánh *merge* của `build_l1_groups` lần đầu chạy đáng kể (28/198 mẫu).
+
+**Lý do `struct_hierarchy` (đề xuất 2) ≡ `hard_boundary` (đề xuất 1) từng chữ số — KHÔNG
+phải "chưa biết":**
+
+1. **L2 trùng bit theo thiết kế.** `offline_clustering_struct.py` cho mọi `method != "sa"`
+   gọi cùng `hard_boundary_kmeans(k, unit_ids, num_centroids, ...)`, khởi tạo linspace tất
+   định (không RNG). `struct_hierarchy` chỉ *thêm* khối L1, không đụng `cent`/`lab` L2.
+   Xác nhận: Phase 5 recall trùng đến chữ số cuối ở CẢ function (73,35/67,96/60,05) lẫn
+   block (71,15/65,34/57,01).
+2. **Tầng L1 không có consumer chạy được.** `phase5_recall.py` grep 0 lần nhắc
+   `hierarchical`/`_L1_`/`k1_stats` — chỉ đo recall phẳng trên L2 (= đúng thủ tục đề xuất
+   1). `check_phase2_invariants.py` chỉ đọc label L2. Kernel online
+   `modeling_llama.py:1462` CÓ đọc file L1 khi `--hierarchical_lookup`, nhưng
+   `offline_clustering_struct.py` ghi hậu tố tên file = `k1_actual` (đo được, ~26) trong khi
+   kernel chờ hậu tố = số danh nghĩa (`int(percent_clusters/100·n_ctx)`); thêm nữa nghĩa
+   `percent_clusters` ↔ `percent_clusters_l2` bị đảo giữa hai script.
+
+Bản chất: đề xuất 2 theo protocol = đề xuất 1 + **một tầng chỉ mục thô** (L1 = trung bình
+centroid L2 theo function, KHÔNG cluster lại). Đóng góp duy nhất là "dựng tầng thô bằng cấu
+trúc code thay cho K-means-của-K-means". Tầng thô chỉ có tác dụng khi truy hồi **2 tầng**
+(lọc L1 trước → L2 sau) — không phép đo nào hiện có làm bước đó.
+
+**Trạng thái Phase 2:** SA + đề xuất 1 XONG (machinery + bất biến, function + block). Đề
+xuất 2 ~90% — code chạy + ghi k1, nhưng chưa có bất biến kiểm tầng L1 và output chưa ở dạng
+tiêu thụ được.
+
+**Việc còn (mai chạy tiếp):**
+- *Nhỏ, ~2h CPU:* thêm bất biến [D-L1] vào `check_phase2_invariants.py` (K1 ≤ K2; mỗi
+  cluster L2 thuộc đúng 1 nhóm L1; centroid L1 ≈ trung bình-trọng-số thành viên; chi phí
+  metadata K1+K2). File L1 function-level còn đủ ở `/workspace/p2-longchat/struct_hierarchy/lcc/`
+  (200 file) → không cần GPU.
+- *~1 ngày:* nhánh truy hồi phân tầng trong `phase5_recall.py` (sao đúng cơ chế 2 ngưỡng
+  `percentile_lower`/`percentile` của kernel; regression test: không cắt L1 ⇒ = phẳng). Đây
+  là cách duy nhất đo được đề xuất 2 cho C2.
+- *Chưa nên làm:* sửa tên file L1 + sinh lại block + Phase 6 hierarchical — đắt, và C2 đang
+  fail nên khả năng cao đề xuất 2 cũng fail (tầng lọc thô chỉ mất recall so với phẳng).
+
+**Hạ tầng — hai sự cố lặp lại, phải tính khi chạy tiếp:**
+- Job GPU nền bị SIGKILL âm thầm sau **~3 phút 40** (không traceback). Job CPU không dính.
+  `offline_clustering_struct.py` tự bỏ qua mẫu đã có đủ file → chạy lại nhiều lần là xong.
+- `/workspace/p2-longchat-block/` (~60 GB centroid) **biến mất khỏi MooseFS** giữa lúc
+  Phase 5 đọc xong và ~15 phút sau — cùng kiểu "cắt cụt im lặng" đã ghi ở mục 5. Số liệu
+  đã copy vào `phase2_evidence/block_longchat_9-9/` trước khi mất. Sinh lại block cần GPU.
+
+Script mới: `scripts/run_phase2_block_lcc.sh` (nhánh `sa` tái dùng, độc lập level).
 
 ### 2026-08-24 — Đính chính bất biến D: **seed đã ghim sẵn**, cách sửa đã đề xuất là no-op
 
