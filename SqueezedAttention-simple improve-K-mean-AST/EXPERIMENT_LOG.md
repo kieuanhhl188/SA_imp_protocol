@@ -786,19 +786,21 @@ Phụ thuộc: 2.3 (hard boundary định nghĩa ra unit).
 Bằng chứng trực tiếp và rẻ nhất cho H0. Dựa trên baseline "Ideal" của bài (Appendix H). **Nếu C2 fail thì H0 sai → dừng, không chạy C1/C3.**
 
 Công cụ: `phase5_recall.py`. Kết quả: `docs/PHASE5_RESULTS.md` (Qwen) ·
-`phase2_evidence/full200_longchat_31-8/phase5_lcc.json` (LongChat fn) ·
-`phase2_evidence/block_longchat_9-9/phase5_lcc_block.json` (LongChat block).
+`phase2_evidence/full200_longchat_31-8/phase5_lcc.json` (LongChat fn phẳng) ·
+`phase2_evidence/block_longchat_9-9/phase5_lcc_block.json` (LongChat block phẳng) ·
+`phase2_evidence/func_hier_10-9/` (LongChat fn, lookup phân tầng 2 bước — đề xuất 2).
 
 | # | Việc | Trạng thái | Chi tiết |
 |---|---|---|---|
 | 5.1 | Full attention query→toàn bộ fixed key, top-N làm `K*` | ✅ | `recall_one_sample`: `attn.topk(N)` |
-| 5.2 | Mỗi method lấy `K_m` ở cùng budget N | ✅ **sa, hard_boundary, struct_hierarchy** | +SymbolSignal ❌ (Phase 3 = 0/4). struct_hierarchy đo ra TRÙNG hard_boundary — phép đo chỉ dùng L2, xem 9/9 |
+| 5.2 | Mỗi method lấy `K_m` ở cùng budget N | ✅ **sa, hard_boundary, struct_hierarchy** | +SymbolSignal ❌ (Phase 3 = 0/4). struct_hierarchy phẳng ≡ hard_boundary; lookup 2 bước (`--hierarchical`) đã đo 10/9 |
 | 5.3 | `Recall@budget` + attention-mass | ✅ recall + mass | **precision ❌ chưa tính** |
 | 5.4 | Quét {70, 80, 90}, vẽ Recall vs budget | ✅ số · **hình ❌** | |
-| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 | **FAIL** — 3 cấu hình, 9/9 KTC loại 0 & âm (xem mục 6, entry 9/9). `hard_boundary − sa`: Qwen fn −0,89/−1,13/−1,37 · LongChat fn −1,00/−1,49/−2,33 · LongChat block −3,24/−4,15/−5,44 |
+| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 (`scripts/phase5_bootstrap.py`) | **FAIL** — 4 cấu hình, mọi KTC loại 0 & âm (mục 6, entry 9/9 + 10/9). `hard_boundary − sa`: Qwen fn −0,89/−1,13/−1,37 · LongChat fn −0,93/−1,43/−2,28 (n=200) · LongChat block −3,24/−4,15/−5,44. Đề xuất 2 (lookup 2 bước, r<1.0) đơn điệu tệ hơn phẳng |
 
-**Còn lại:** (a) nhánh truy hồi phân tầng để đo được đề xuất 2 · (b) RepoBench-P (cấu trúc
-dày ~7×) · (c) precision + hình. Theo protocol: **không chạy Phase 6** trên cấu hình này.
+**Còn lại:** (a) ~~nhánh truy hồi phân tầng~~ ✅ 10/9 — đề xuất 2 FAIL, đơn điệu tệ hơn phẳng ·
+(b) RepoBench-P (cấu trúc dày ~7×) · (c) precision + hình. Theo protocol: **không chạy
+Phase 6** trên cấu hình này.
 
 ---
 
@@ -972,6 +974,35 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-09-10 — Phase 5 lookup PHÂN TẦNG 2 bước đã đo được — đề xuất 2 cũng FAIL C2, đơn điệu tệ hơn phẳng
+
+Lần đầu `phase5_recall.py --hierarchical` (cơ chế do `23473cc` thêm) thực sự đọc tầng L1 và
+định tuyến 2 bước — trước đó cả 3 lượt C2 chỉ đo recall **phẳng** nên đề xuất 2 luôn ≡ đề
+xuất 1 và câu hỏi "có tách nhau không" bỏ ngỏ. Nay đã trả lời.
+
+Cây function-level `/workspace/p2-longchat/` còn nguyên (200 mẫu), chạy `--limit 200
+--sparsity 50 60 70 80 90 --l1_ratios 1.0 0.9 0.7 0.5`, n = 200×3 lớp = 600.
+Bằng chứng: `phase2_evidence/func_hier_10-9/` · script mới `scripts/phase5_bootstrap.py`.
+
+Hiệu số ×100 = nhánh − `sa`, KTC 95% ghép cặp (bootstrap 20.000, gộp lớp theo mẫu):
+
+| config | sp70 | sp80 | sp90 |
+|---|---|---|---|
+| `struct_hierarchy` r=1.0 (≡ `hard_boundary`) | −0,93 [−1,12;−0,76] | −1,43 [−1,65;−1,22] | −2,28 [−2,55;−2,02] |
+| `struct_hierarchy` r=0,9 | −2,35 [−2,70;−2,04] | −2,54 [−2,87;−2,23] | −3,09 [−3,42;−2,77] |
+| `struct_hierarchy` r=0,7 | −7,86 [−8,82;−6,99] | −7,12 [−8,08;−6,27] | −6,64 [−7,53;−5,85] |
+| `struct_hierarchy` r=0,5 | −15,83 [−16,97;−14,72] | −13,63 [−14,76;−12,55] | −11,22 [−12,24;−10,25] |
+
+**Toàn bộ KTC loại trừ 0, tất cả âm.** Bật lọc thô L1 (`r < 1.0`) chỉ làm mất recall, đơn
+điệu theo `r`. Khớp bất đẳng thức `recall(hierarchical, r) ≤ recall(flat)` (dấu = khi
+`r→1.0`): tầng chỉ mục thô lossy không thể vượt trần "không lọc", mà trần đó = đề xuất 1,
+vốn đã thua `sa`. **C2 FAIL cho đề xuất 2 y như đề xuất 1** — không `l1_ratio` nào lật được.
+`--sparsity 50 60` chạy kèm là NGOÀI protocol (chốt {70,80,90}), chỉ để xác nhận đơn điệu;
+kết luận không đổi.
+
+Không sinh lại block-level để chạy hierarchical: cây block đã mất (mục dưới), và function +
+bất đẳng thức đã đủ — block chỉ nới gap rộng hơn (~3× theo 9/9), không lật kết luận.
 
 ### 2026-09-09 — Phase 2 LongChat full (function + block) · Phase 5 C2 FAIL 3 cấu hình · đề xuất 2 chưa đo được, đã tìm ra lý do
 
