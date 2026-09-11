@@ -248,8 +248,13 @@ def main():
 
     # --- ngân sách, giống offline_clustering.py ---
     ap.add_argument("--percent_clusters", type=int, default=5)
-    ap.add_argument("--percent_clusters_l2", type=int, default=1,
-                    help="phần trăm cho L1 khi hierarchical (bài: L1=1%%, L2=5%%)")
+    ap.add_argument("--percent_clusters_l2", type=float, default=1,
+                    help="phần trăm cho L1 khi hierarchical (bài: L1=1%%, L2=5%%). "
+                         "float, không phải int: RepoBench-P có trung vị chỉ ~17 class/mẫu, "
+                         "nên bất kỳ giá trị nguyên >=1 nhân với n_ctx (hàng nghìn token) đều "
+                         "vượt xa số class thật -> build_l1_groups luôn rơi vào nhánh split, "
+                         "không bao giờ chạm nhánh merge (đo được 11/9: 199/199 mẫu split, "
+                         "0 merge). Cần giá trị phân số (vd 0.2-0.3) mới ép được nhánh merge.")
     ap.add_argument("--observation_window", type=int, default=100)
     ap.add_argument("--n_iter", type=int, default=10)
     ap.add_argument("--max_k_per_unit", type=int, default=0,

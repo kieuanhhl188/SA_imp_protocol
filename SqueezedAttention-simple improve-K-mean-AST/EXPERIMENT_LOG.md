@@ -980,6 +980,35 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 
 ## 6. Thay đổi code
 
+### 2026-09-12 — `--percent_clusters_l2` đổi int -> float, để ép nhánh *merge* chạy được trên RepoBench-P
+
+**Quyết định (chốt cùng người phụ trách 12/9):** sau khi bất biến [E] PASS 199/199 trên
+RepoBench-P (entry 11/9 (b) ở trên), câu hỏi còn treo là C2 FAIL 4/4 cấu hình có phải kết
+luận cuối hay chưa. Chọn thử thêm 1 biến thể trước khi kết luận: **`struct_hierarchy` với
+ngân sách L1 chặt hơn trên RepoBench-P**, để lần đầu tiên ép nhánh *merge* của
+`build_l1_groups` chạy — trước giờ `--level_l1 class` chưa từng có tác dụng thật (199/199
+mẫu 11/9 đều đi nhánh *split*, "L1 = trung bình theo function" bất kể `--level_l1` đặt gì).
+
+**Rào cản kỹ thuật:** [offline_clustering_struct.py:251](../offline_clustering_struct.py#L251)
+khai báo `--percent_clusters_l2` kiểu `int`, mặc định 1. RepoBench-P có trung vị chỉ **~17
+class/mẫu** (2–87), trong khi `target_k1 = percent_clusters_l2/100 * n_ctx` với n_ctx hàng
+nghìn token — bất kỳ giá trị nguyên `>=1` đều cho `target_k1` lớn hơn hẳn số class thật, nên
+`build_l1_groups` luôn rơi vào nhánh *split* (target > số unit cha có sẵn). Giá trị nguyên
+duy nhất còn lại là `0`, ép `target_k1=1` cho MỌI mẫu — vô nghĩa (mất hẳn ý nghĩa hierarchy,
+không phải "ngân sách chặt hơn" mà là "chỉ 1 nhóm").
+
+**Fix:** đổi `type=int` → `type=float`. Không đụng `offline_clustering.py`/`pred.py`/
+`modeling_llama.py`/`modeling_qwen2.py` gốc — các file đó dùng cùng tên cờ nhưng là tham số
+runtime khác (SA gốc), không liên quan tới `build_l1_groups` của Phase 2. Chỉ 2 chỗ dùng
+`args.percent_clusters_l2` trong file này: tính `target_k1` (chia số thực, không cần int) và
+một dòng in log (f-string, không cần định dạng `%d`) — an toàn.
+
+**Việc tiếp theo (chưa chạy):** thử `--percent_clusters_l2 0.2` hoặc `0.3` trên RepoBench-P,
+đo lại phân bố merge/split (mục tiêu: một phần đáng kể mẫu — không phải 0% như trước — rơi
+vào merge), rồi chạy Phase 5 `--hierarchical` để xem đề xuất 2 có tách khỏi đề xuất 1
+(`hard_boundary`) khi hierarchy là thật (class→function→token) thay vì giả (trung bình theo
+function) hay không.
+
 ### 2026-09-11 (b) — Fix bug bất biến E5: `cl2_to_l1` chỉ dùng head 0
 
 Root-cause cho E5 hở 4/199 mẫu RepoBench-P ghi ở entry dưới (11/9, không nhãn).
