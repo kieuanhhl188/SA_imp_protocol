@@ -1,0 +1,178 @@
+>>> RESUME 2026-09-10 13:41:07
+########## nhanh: struct_hierarchy ##########
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cudart module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.runtime module instead.
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cuda module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.driver module instead.
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:29<00:29, 29.86s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:40<00:00, 18.31s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:40<00:00, 20.04s/it]
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+>>> method=struct_hierarchy level=function level_l1=class token_weights=False
+>>> heads Q=32 KV=32 layers=32
+>>> fixed_context=full  (template: repobench-p_prompt_full)
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+>>> Phase 1.4: /workspace/phase1_data/longchat-v1.5-7b-32k/repobench-p_meta.jsonl (500 mẫu, model=longchat-v1.5-7b-32k)
+>>> Xong. Output: /workspace/p2-longchat-repobench/struct_hierarchy/repobench-p/
+    unit/sample: min=503 tb=503.0 max=503
+    sample bị truncate: 0/200
+    tổng node ERROR khi parse: 0
+    KHẢ THI (function, ngân sách 5%):
+      chạy được       : 199/200
+      vượt ngân sách  : 1/200 = 0.5%   (chính sách: skip)
+      sổ khả thi      : /workspace/p2-longchat-repobench/struct_hierarchy/repobench-p//feasibility_repobench-p_struct_hierarchy_function_pc5.json
+      bỏ qua (đã có)  : 199/200 — dùng --overwrite để tính lại
+########## nhanh: hard_boundary ##########
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cudart module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.runtime module instead.
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cuda module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.driver module instead.
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:16<00:16, 16.57s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:22<00:00, 10.19s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:22<00:00, 11.15s/it]
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+>>> method=hard_boundary level=function level_l1=class token_weights=False
+>>> heads Q=32 KV=32 layers=32
+>>> fixed_context=full  (template: repobench-p_prompt_full)
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+>>> Phase 1.4: /workspace/phase1_data/longchat-v1.5-7b-32k/repobench-p_meta.jsonl (500 mẫu, model=longchat-v1.5-7b-32k)
+>>> Xong. Output: /workspace/p2-longchat-repobench/hard_boundary/repobench-p/
+    unit/sample: min=503 tb=503.0 max=503
+    sample bị truncate: 0/200
+    tổng node ERROR khi parse: 0
+    KHẢ THI (function, ngân sách 5%):
+      chạy được       : 199/200
+      vượt ngân sách  : 1/200 = 0.5%   (chính sách: skip)
+      sổ khả thi      : /workspace/p2-longchat-repobench/hard_boundary/repobench-p//feasibility_repobench-p_hard_boundary_function_pc5.json
+      bỏ qua (đã có)  : 199/200 — dùng --overwrite để tính lại
+########## nhanh: sa ##########
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cudart module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.runtime module instead.
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cuda module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.driver module instead.
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:16<00:16, 16.13s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:21<00:00,  9.91s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:21<00:00, 10.84s/it]
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+>>> method=sa level=function level_l1=class token_weights=False
+>>> heads Q=32 KV=32 layers=32
+>>> fixed_context=full  (template: repobench-p_prompt_full)
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+>>> Phase 1.4: /workspace/phase1_data/longchat-v1.5-7b-32k/repobench-p_meta.jsonl (500 mẫu, model=longchat-v1.5-7b-32k)
+  data_cp = fromDlpack(dlpack_tensor)
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/squeezedattention/clustering.py:85: VisibleDeprecationWarning: This function is deprecated and will be removed in a future release. Use the cupy.from_dlpack() array constructor instead.
+  dlpack_labels = cluster_labels.toDlpack()
+>>> Xong. Output: /workspace/p2-longchat-repobench/sa/repobench-p/
+########## Kiem toan ven file ##########
+-- sa
+>>> 600 file .pt, 98.1 GB, quet bang 8 tien trinh
+>>> Toan ven: 600/600 file CRC dung
+-- hard_boundary
+>>> 597 file .pt, 97.8 GB, quet bang 8 tien trinh
+>>> Toan ven: 597/597 file CRC dung
+-- struct_hierarchy
+>>> 1393 file .pt, 132.8 GB, quet bang 8 tien trinh
+>>> Toan ven: 1393/1393 file CRC dung
+########## Kiem bat bien Phase 2 ##########
+    dataidx 196: K1=  73 K2= 395 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 197: K1= 144 K2= 847 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.5e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 198: K1= 105 K2= 851 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx 199: K1= 104 K2= 522 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.0e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+========================================================================
+  ❌ CO BAT BIEN BI VI PHAM
+========================================================================
+########## PHASE 5 — C2 recall@budget ##########
+>>> nhanh: sa -> /workspace/p2-longchat-repobench/sa/repobench-p, hard_boundary -> /workspace/p2-longchat-repobench/hard_boundary/repobench-p, struct_hierarchy -> /workspace/p2-longchat-repobench/struct_hierarchy/repobench-p
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cudart module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.runtime module instead.
+<frozen importlib._bootstrap_external>:1184: FutureWarning: The cuda.cuda module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.driver module instead.
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Downloading shards:   0%|          | 0/2 [00:00<?, ?it/s]Downloading shards:  50%|█████     | 1/2 [00:39<00:39, 39.89s/it]Downloading shards: 100%|██████████| 2/2 [00:58<00:00, 27.53s/it]Downloading shards: 100%|██████████| 2/2 [00:58<00:00, 29.38s/it]
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:22<00:22, 22.28s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:31<00:00, 14.62s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:31<00:00, 15.77s/it]
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`. This was detected when initializing the generation config instance, which means the corresponding file may hold incorrect parameterization and should be fixed.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:492: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`.
+  warnings.warn(
+/workspace/SA_imp_protocol/SqueezedAttention-simple improve-K-mean-AST/transformers/src/transformers/generation/configuration_utils.py:497: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.6` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+>>> hierarchical: ty le nhom L1 giu lai = [1.0, 0.9, 0.7, 0.5]
+>>> bo qua dataidx: [21, 102]
+>>> Do tren 197 mau · lop first,mid,last · sparsity [70, 80, 90]
+>>> lookup PHAN TANG — r = ty le nhom L1 giu lai (r=1.0 == phang)
+>>> KIEM CHUNG: struct_hierarchy @ r=1.0 phai TRUNG hard_boundary @ r=1.0
+--- r = 1  (giu 100% nhom L1) ---
+nhanh                              sp70               sp80               sp90
+sa                     78.24% /  98.02%   74.46% /  97.29%   69.00% /  95.96%
+hard_boundary          76.90% /  95.36%   72.69% /  92.97%   66.55% /  87.86%
+struct_hierarchy       76.90% /  95.36%   72.69% /  92.97%   66.55% /  87.86%
+--- r = 0.9  (giu 90% nhom L1) ---
+nhanh                              sp70               sp80               sp90
+sa                                    —                  —                  —
+hard_boundary                         —                  —                  —
+struct_hierarchy       76.52% /  95.09%   72.42% /  92.77%   66.40% /  87.74%
+--- r = 0.7  (giu 70% nhom L1) ---
+nhanh                              sp70               sp80               sp90
+sa                                    —                  —                  —
+hard_boundary                         —                  —                  —
+struct_hierarchy       74.90% /  94.00%   71.33% /  92.00%   65.75% /  87.29%
+--- r = 0.5  (giu 50% nhom L1) ---
+nhanh                              sp70               sp80               sp90
+sa                                    —                  —                  —
+hard_boundary                         —                  —                  —
+struct_hierarchy       70.69% /  91.66%   68.59% /  90.31%   64.16% /  86.29%
+   (recall / attention-mass, cang cao cang tot)
+>>> Da ghi /workspace/phase5_repobench.json
+########## Bootstrap ghep cap ##########
+file       : /workspace/phase5_repobench.json
+baseline   : sa   n_samples=197   layers_pooled=3   B=20000
+hierarchical: True   ratios=[1.0, 0.9, 0.7, 0.5]
+Hieu so (x100) = branch - sa,  KTC 95% ghep cap (percentile)
+config                         sp70                     sp80                     sp90                    
+hard_boundary r=1.0            -1.33 [-1.48;-1.19]      -1.77 [-1.94;-1.61]      -2.45 [-2.65;-2.26]       <all CI<0
+struct_hierarchy r=1.0         -1.33 [-1.48;-1.20]      -1.77 [-1.94;-1.61]      -2.45 [-2.65;-2.26]       <all CI<0
+struct_hierarchy r=0.9         -1.72 [-1.89;-1.57]      -2.04 [-2.20;-1.88]      -2.61 [-2.79;-2.43]       <all CI<0
+struct_hierarchy r=0.7         -3.34 [-3.70;-3.04]      -3.12 [-3.43;-2.86]      -3.26 [-3.53;-3.02]       <all CI<0
+struct_hierarchy r=0.5         -7.55 [-8.22;-6.95]      -5.87 [-6.45;-5.36]      -4.85 [-5.35;-4.43]       <all CI<0
+>>> XONG — 2026-09-11 00:42:12

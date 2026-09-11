@@ -14,7 +14,7 @@ sai lech*:
   - language hardcode -> 59.5% mau LCC con <=2 unit, ablation vo hieu
   - byte vs ky tu -> 107/500 mau lech span cong don
 
-BON BAT BIEN
+NAM BAT BIEN
 ------------
   A. RANH GIOI CUNG   moi cluster chi chua token cua DUNG MOT unit.
                       Day la dinh nghia cua hard_boundary. Vo bat bien nay thi
@@ -25,6 +25,10 @@ BON BAT BIEN
                       n_ctx == shared_prefix_length - observation_window.
   D. NHANH `sa` TRUNG  `--method sa` phai cho ra ket qua y het offline_clustering.py.
                       Lech nghia la script moi tu lam sai gi do, moi so sanh sau vo nghia.
+  E. TANG L1          chi struct_hierarchy. K1<=K2 · hierarchy long nhau (moi cluster
+                      L2 thuoc dung 1 nhom L1) · labels_l1 khong per-head · centroid L1
+                      == trung binh CO TRONG SO cac centroid L2 (khong phai k-means-cua-
+                      k-means) · K1 khop k1_stats. Xem EXPERIMENT_LOG entry 10/9.
 
 USAGE
 -----
@@ -65,6 +69,7 @@ REPO_ROOT = os.path.dirname(HERE)
 sys.path.insert(0, REPO_ROOT)
 
 _NAME = re.compile(r"^centroids_labels_dict_(\d+)_(\d+)\.pt$")
+_L1NAME = re.compile(r"^hierarchical_centroids_labels_dict_L1_(\d+)_(\d+)\.pt$")
 
 
 def discover(cluster_dir):
@@ -72,6 +77,17 @@ def discover(cluster_dir):
     out = {}
     for p in glob.glob(os.path.join(cluster_dir, "centroids_labels_dict_*.pt")):
         m = _NAME.match(os.path.basename(p))
+        if m:
+            out[int(m.group(1))] = int(m.group(2))
+    return out
+
+
+def discover_l1(cluster_dir):
+    """Tra ve {dataidx: K1} tu ten file tang L1 (chi struct_hierarchy moi co)."""
+    out = {}
+    for p in glob.glob(os.path.join(cluster_dir,
+                                    "hierarchical_centroids_labels_dict_L1_*.pt")):
+        m = _L1NAME.match(os.path.basename(p))
         if m:
             out[int(m.group(1))] = int(m.group(2))
     return out
@@ -205,6 +221,98 @@ def check_hard_boundary(labels_dict, uid, K):
     return n_bad, n_tot, worst
 
 
+def check_l1_layer(path, idx, K2, n_ctx, cent_l2, lab_l2, rtol):
+    """E. TANG L1 cua struct_hierarchy — doc file hierarchical_*_L1_*.pt DA SINH.
+
+    De xuat 2 = de xuat 1 + mot tang chi muc tho. Tang do chi dung khi truy hoi 2
+    tang, va den 9/9 chua bat bien nao cham vao no — moi phep do deu thay no TRUNG
+    de xuat 1. Bat bien nay xac nhan file L1 dung la "L1 = trung binh theo
+    function/file" chu khong phai k-means-cua-k-means, va hierarchy long nhau.
+
+      E1. K1 <= K2                          L1 phai tho hon L2
+      E2. moi cluster L2 thuoc DUNG 1 nhom L1    hierarchy long nhau (khong vat)
+      E3. labels_l1 giong nhau moi head     nhom L1 la cau truc, khong per-head
+      E4. do dai labels_l1 == n_ctx
+      E5. centroid L1 ~ trung binh CO TRONG SO (theo so key) cac centroid L2 thanh
+          vien — sai so tuong doi <= rtol. Day la dinh nghia cua struct_hierarchy_l1;
+          lech nghia la file L1 sinh sai cong thuc.
+      E6. K1 khop hau to ten file + k1_stats.k1_actual
+
+    Tra ve (ok, K1, det). ok=None khi thieu file.
+    """
+    import torch
+
+    fl = glob.glob(os.path.join(path, f"hierarchical_centroids_labels_dict_L1_{idx}_*.pt"))
+    fc = glob.glob(os.path.join(path, f"hierarchical_centroids_tensor_dict_L1_{idx}_*.pt"))
+    if not fl or not fc:
+        return None, None, {"err": "thieu file tang L1"}
+
+    K1_name = int(_L1NAME.match(os.path.basename(fl[0])).group(2))
+    lab_l1 = torch.load(fl[0], map_location="cpu")
+    cen_l1 = torch.load(fc[0], map_location="cpu")
+
+    det = {"K1": K1_name, "K2": K2}
+    fails = []
+
+    if K1_name > K2:
+        fails.append(f"E1: K1={K1_name} > K2={K2}")
+
+    fs = os.path.join(path, f"k1_stats_{idx}.pt")
+    if os.path.exists(fs):
+        st = torch.load(fs, map_location="cpu")
+        det["mode"] = st.get("k1_mode", st.get("mode"))
+        if int(st.get("k1_actual", -1)) != K1_name:
+            fails.append(f"E6: k1_stats.k1_actual={st.get('k1_actual')} != ten file {K1_name}")
+
+    worst_e5 = 0.0
+    for lyr in lab_l1:
+        l1 = lab_l1[lyr][0].to(torch.int64)          # [H, S]
+        l2 = lab_l2[lyr][0].to(torch.int64)          # [H, S]
+        c2 = cent_l2[lyr][0].float()                 # [H, K2, D]
+        c1 = cen_l1[lyr][0].float()                  # [H, K1, D]
+        H, S = l1.shape
+        D = c2.shape[-1]
+
+        if S != n_ctx:
+            fails.append(f"E4: layer {lyr} labels_l1 dai {S} != n_ctx {n_ctx}")
+        if not bool((l1 == l1[0]).all()):
+            fails.append(f"E3: layer {lyr} labels_l1 khac nhau giua cac head")
+        K1 = int(l1.max()) + 1
+        if K1 != K1_name:
+            fails.append(f"layer {lyr}: max(labels_l1)+1={K1} != {K1_name}")
+
+        for h in range(H):
+            # E2 — cung ky thuat scatter_reduce nhu check_hard_boundary
+            gmin = torch.full((K2,), 2**30, dtype=torch.int64)
+            gmax = torch.full((K2,), -1, dtype=torch.int64)
+            gmin.scatter_reduce_(0, l2[h], l1[h], reduce="amin", include_self=False)
+            gmax.scatter_reduce_(0, l2[h], l1[h], reduce="amax", include_self=False)
+            used = gmax >= 0
+            if bool((used & (gmax != gmin)).any()):
+                k = int(torch.nonzero(used & (gmax != gmin))[0])
+                fails.append(f"E2: layer {lyr} head {h} cluster L2 {k} vat qua nhom L1 "
+                             f"{int(gmin[k])}..{int(gmax[k])}")
+                break
+
+            # E5 — dung lai cong thuc struct_hierarchy_l1 (weighted=True)
+            cnt = torch.zeros(K2).scatter_add_(0, l2[h], torch.ones(S))
+            cl2_to_l1 = torch.zeros(K2, dtype=torch.int64).scatter_(0, l2[h], l1[h])
+            num = torch.zeros(K1, D).scatter_add_(
+                0, cl2_to_l1.unsqueeze(-1).expand(K2, D), c2[h] * cnt.unsqueeze(-1))
+            den = torch.zeros(K1).scatter_add_(0, cl2_to_l1, cnt)
+            recomp = num / den.clamp_min(1e-12).unsqueeze(-1)
+            m = den > 0
+            rel = ((recomp[m] - c1[h][m]).norm(dim=-1)
+                   / c1[h][m].norm(dim=-1).clamp_min(1e-12)).max()
+            worst_e5 = max(worst_e5, float(rel))
+
+    if worst_e5 > rtol:
+        fails.append(f"E5: centroid L1 lech trung binh trong so, rel={worst_e5:.2e} > {rtol}")
+    det["worst_rel_E5"] = worst_e5
+    det["fails"] = fails
+    return (len(fails) == 0), K1_name, det
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cluster_dir", action="append", required=True,
@@ -221,12 +329,19 @@ def main():
     ap.add_argument("--reference_dir", default=None,
                     help="thu muc centroid do offline_clustering.py sinh — de kiem bat bien D")
     ap.add_argument("--rtol_set", type=float, default=0.05,
-                    help="nguong khoang cach tap hop (chuan hoa) cho bat bien D. "
+                    help="nguong khoang cach tap hop (chuan hoa) cho bat bien D va E5. "
                          "K-means co the khong tat dinh nen dung nguong long, khong doi bang 0")
+    ap.add_argument("--checks", default="ABCDE",
+                    help="cac bat bien can chay, vd 'BCE' de bo qua [A] (dung lai 200 prompt, "
+                         "cham) va [D]. Mac dinh chay het.")
     args = ap.parse_args()
+    checks = set(args.checks.upper())
 
     import numpy as np
     import torch
+    # Script nay IO-nang, compute-nhe. De torch mo het core tren may nhieu core gay
+    # oversubscription -> scatter/reduce cham gap chuc lan. Ghim vua phai.
+    torch.set_num_threads(min(4, os.cpu_count() or 4))
 
     dirs = {}
     for spec in args.cluster_dir:
@@ -272,21 +387,24 @@ def main():
     prompts = {}
 
     # ---------- B. CUNG BUDGET ----------
-    print("\n[B] Cung budget — tong K bang nhau giua cac nhanh")
-    common = set.intersection(*(set(d) for d in found.values()))
-    if not common:
-        print("    [!] khong co dataidx chung giua cac nhanh")
-        rc = 1
-    for idx in sorted(common):
-        ks = {n: found[n][idx] for n in found}
-        ok = len(set(ks.values())) == 1
-        rc |= 0 if ok else 1
-        print(f"    dataidx {idx:3d}: " + " · ".join(f"{n}={k}" for n, k in ks.items())
-              + ("   ✅" if ok else "   ❌ LECH"))
+    if "B" in checks:
+        print("\n[B] Cung budget — tong K bang nhau giua cac nhanh")
+        common = set.intersection(*(set(d) for d in found.values()))
+        if not common:
+            print("    [!] khong co dataidx chung giua cac nhanh")
+            rc = 1
+        for idx in sorted(common):
+            ks = {n: found[n][idx] for n in found}
+            ok = len(set(ks.values())) == 1
+            rc |= 0 if ok else 1
+            print(f"    dataidx {idx:3d}: " + " · ".join(f"{n}={k}" for n, k in ks.items())
+                  + ("   ✅" if ok else "   ❌ LECH"))
 
     # ---------- C + A ----------
     HARD = {"hard_boundary", "struct_hierarchy"}
     for name, path in dirs.items():
+        if not ({"C", "A"} & checks):
+            break
         print(f"\n[C] Shape + do dai — {name}")
         for idx in sorted(found[name]):
             K = found[name][idx]
@@ -316,6 +434,8 @@ def main():
                   f" · labels {tuple(l0.shape)} (mong {n_ctx}) {'✅' if okl else '❌'}"
                   f" · o rong {zpct:.1f}%")
 
+        if "A" not in checks:
+            continue
         # Kiem A cho MOI nhanh, ke ca `sa`. Nhanh `sa` la NHOM DOI CHUNG: K-means tu do
         # phai vat qua bien o gan nhu moi cluster. Khong co con so do thi "0 vi pham" cua
         # hard_boundary chua chung minh duoc gi — biet dau du lieu nay von it unit den muc
@@ -360,8 +480,41 @@ def main():
                 lyr, h, k, lo, hi = worst
                 print(f"        vi du: layer {lyr} head {h} cluster {k} chua unit {lo}..{hi}")
 
+    # ---------- E. TANG L1 (chi struct_hierarchy) ----------
+    for name, path in (dirs.items() if "E" in checks else []):
+        l1_found = discover_l1(path)
+        if not l1_found:
+            if name == "struct_hierarchy":
+                print(f"\n[E] Tang L1 — {name}: [!] khong thay file hierarchical_*_L1_*.pt")
+                rc = 1
+            continue
+        print(f"\n[E] Tang L1 — {name}   ({len(l1_found)} mau co file L1)")
+        for idx in sorted(found[name]):
+            K2 = found[name][idx]
+            rec = meta.get(idx)
+            if rec is None:
+                continue
+            n_ctx = rec["shared_prefix_length"] - args.observation_window
+            cen_l2 = torch.load(os.path.join(path, f"centroids_tensor_dict_{idx}_{K2}.pt"),
+                                map_location="cpu")
+            lab_l2 = torch.load(os.path.join(path, f"centroids_labels_dict_{idx}_{K2}.pt"),
+                                map_location="cpu")
+            ok, K1, det = check_l1_layer(path, idx, K2, n_ctx, cen_l2, lab_l2, args.rtol_set)
+            if ok is None:
+                print(f"    dataidx {idx:3d}: [!] {det['err']}"); rc = 1; continue
+            rc |= 0 if ok else 1
+            meta_pct = 100.0 * (K1 + K2) / n_ctx
+            l2_pct = 100.0 * K2 / n_ctx
+            print(f"    dataidx {idx:3d}: K1={K1:4d} K2={K2:4d} (K1<=K2 {'✅' if K1 <= K2 else '❌'})"
+                  f" · mode={det.get('mode','?'):5s}"
+                  f" · centroid L1 vs tb-trong-so rel={det['worst_rel_E5']:.1e}"
+                  f" · metadata (K1+K2)/n_ctx={meta_pct:.1f}% (L2 rieng {l2_pct:.1f}%)"
+                  f"   {'✅' if ok else '❌'}")
+            for f in det["fails"]:
+                print(f"        {f}")
+
     # ---------- D. NHANH sa TRUNG BAN GOC ----------
-    if args.reference_dir and "sa" in dirs:
+    if "D" in checks and args.reference_dir and "sa" in dirs:
         print("\n[D] Nhanh `sa` so voi offline_clustering.py")
         for idx in sorted(found["sa"]):
             K = found["sa"][idx]

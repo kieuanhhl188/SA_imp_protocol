@@ -201,6 +201,10 @@ def main():
                     help="'first,mid,last' hoac danh sach so '0,13,27'. Tinh tren MOI lop "
                          "rat cham ma khong doi ket luan")
     ap.add_argument("--limit", type=int, default=100)
+    ap.add_argument("--skip_idx", type=int, nargs="+", default=[],
+                    help="dataidx bo qua (vd mau lech tokenizer fast!=slow tu "
+                         "check_phase1_data.py). Mau bi bo KHONG vao per_sample -> "
+                         "bootstrap ghep cap sach.")
     ap.add_argument("--device", type=int, default=0)
     ap.add_argument("--out", default="phase5_recall.json")
     ap.add_argument("--hierarchical", action="store_true",
@@ -287,7 +291,12 @@ def main():
                for sp in args.sparsity for r in ratios} for b in branches}
     n_used = 0
 
+    skip_idx = set(args.skip_idx)
+    if skip_idx:
+        print(f">>> bo qua dataidx: {sorted(skip_idx)}")
     for i in tqdm(range(n)):
+        if i in skip_idx:
+            continue
         rec = meta.get(i)
         if rec is None:
             continue
@@ -430,6 +439,7 @@ def main():
     print("   (recall / attention-mass, cang cao cang tot)")
 
     json.dump({"model": args.model, "dataset": args.dataset, "n_samples": n_used,
+               "skipped_idx": sorted(skip_idx),
                "layers": args.layers, "sparsity": args.sparsity,
                "hierarchical": args.hierarchical,
                "l1_ratios": ratios if args.hierarchical else None,

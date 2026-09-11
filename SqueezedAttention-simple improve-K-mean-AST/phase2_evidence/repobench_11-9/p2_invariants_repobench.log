@@ -1,0 +1,1632 @@
+========================================================================
+  KIEM BAT BIEN PHASE 2 — dataset=repobench-p level=function
+    sa                 200 mau  <- /workspace/p2-longchat-repobench/sa/repobench-p
+    hard_boundary      199 mau  <- /workspace/p2-longchat-repobench/hard_boundary/repobench-p
+    struct_hierarchy   199 mau  <- /workspace/p2-longchat-repobench/struct_hierarchy/repobench-p
+========================================================================
+
+[B] Cung budget — tong K bang nhau giua cac nhanh
+    dataidx   0: sa=819 · hard_boundary=819 · struct_hierarchy=819   ✅
+    dataidx   1: sa=1200 · hard_boundary=1200 · struct_hierarchy=1200   ✅
+    dataidx   2: sa=951 · hard_boundary=951 · struct_hierarchy=951   ✅
+    dataidx   3: sa=1195 · hard_boundary=1195 · struct_hierarchy=1195   ✅
+    dataidx   4: sa=1041 · hard_boundary=1041 · struct_hierarchy=1041   ✅
+    dataidx   5: sa=1030 · hard_boundary=1030 · struct_hierarchy=1030   ✅
+    dataidx   6: sa=250 · hard_boundary=250 · struct_hierarchy=250   ✅
+    dataidx   7: sa=1012 · hard_boundary=1012 · struct_hierarchy=1012   ✅
+    dataidx   8: sa=1149 · hard_boundary=1149 · struct_hierarchy=1149   ✅
+    dataidx   9: sa=1291 · hard_boundary=1291 · struct_hierarchy=1291   ✅
+    dataidx  10: sa=223 · hard_boundary=223 · struct_hierarchy=223   ✅
+    dataidx  11: sa=329 · hard_boundary=329 · struct_hierarchy=329   ✅
+    dataidx  12: sa=619 · hard_boundary=619 · struct_hierarchy=619   ✅
+    dataidx  13: sa=330 · hard_boundary=330 · struct_hierarchy=330   ✅
+    dataidx  14: sa=1387 · hard_boundary=1387 · struct_hierarchy=1387   ✅
+    dataidx  15: sa=305 · hard_boundary=305 · struct_hierarchy=305   ✅
+    dataidx  16: sa=996 · hard_boundary=996 · struct_hierarchy=996   ✅
+    dataidx  17: sa=835 · hard_boundary=835 · struct_hierarchy=835   ✅
+    dataidx  18: sa=394 · hard_boundary=394 · struct_hierarchy=394   ✅
+    dataidx  19: sa=224 · hard_boundary=224 · struct_hierarchy=224   ✅
+    dataidx  20: sa=458 · hard_boundary=458 · struct_hierarchy=458   ✅
+    dataidx  21: sa=1102 · hard_boundary=1102 · struct_hierarchy=1102   ✅
+    dataidx  22: sa=1157 · hard_boundary=1157 · struct_hierarchy=1157   ✅
+    dataidx  23: sa=1462 · hard_boundary=1462 · struct_hierarchy=1462   ✅
+    dataidx  24: sa=474 · hard_boundary=474 · struct_hierarchy=474   ✅
+    dataidx  25: sa=398 · hard_boundary=398 · struct_hierarchy=398   ✅
+    dataidx  26: sa=912 · hard_boundary=912 · struct_hierarchy=912   ✅
+    dataidx  27: sa=510 · hard_boundary=510 · struct_hierarchy=510   ✅
+    dataidx  28: sa=753 · hard_boundary=753 · struct_hierarchy=753   ✅
+    dataidx  29: sa=398 · hard_boundary=398 · struct_hierarchy=398   ✅
+    dataidx  30: sa=683 · hard_boundary=683 · struct_hierarchy=683   ✅
+    dataidx  31: sa=260 · hard_boundary=260 · struct_hierarchy=260   ✅
+    dataidx  32: sa=834 · hard_boundary=834 · struct_hierarchy=834   ✅
+    dataidx  33: sa=1120 · hard_boundary=1120 · struct_hierarchy=1120   ✅
+    dataidx  34: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx  35: sa=436 · hard_boundary=436 · struct_hierarchy=436   ✅
+    dataidx  36: sa=263 · hard_boundary=263 · struct_hierarchy=263   ✅
+    dataidx  37: sa=967 · hard_boundary=967 · struct_hierarchy=967   ✅
+    dataidx  38: sa=1047 · hard_boundary=1047 · struct_hierarchy=1047   ✅
+    dataidx  39: sa=358 · hard_boundary=358 · struct_hierarchy=358   ✅
+    dataidx  40: sa=393 · hard_boundary=393 · struct_hierarchy=393   ✅
+    dataidx  41: sa=878 · hard_boundary=878 · struct_hierarchy=878   ✅
+    dataidx  42: sa=516 · hard_boundary=516 · struct_hierarchy=516   ✅
+    dataidx  43: sa=937 · hard_boundary=937 · struct_hierarchy=937   ✅
+    dataidx  44: sa=620 · hard_boundary=620 · struct_hierarchy=620   ✅
+    dataidx  45: sa=942 · hard_boundary=942 · struct_hierarchy=942   ✅
+    dataidx  46: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx  47: sa=914 · hard_boundary=914 · struct_hierarchy=914   ✅
+    dataidx  48: sa=846 · hard_boundary=846 · struct_hierarchy=846   ✅
+    dataidx  49: sa=292 · hard_boundary=292 · struct_hierarchy=292   ✅
+    dataidx  50: sa=533 · hard_boundary=533 · struct_hierarchy=533   ✅
+    dataidx  51: sa=244 · hard_boundary=244 · struct_hierarchy=244   ✅
+    dataidx  52: sa=335 · hard_boundary=335 · struct_hierarchy=335   ✅
+    dataidx  53: sa=854 · hard_boundary=854 · struct_hierarchy=854   ✅
+    dataidx  54: sa=1179 · hard_boundary=1179 · struct_hierarchy=1179   ✅
+    dataidx  55: sa=1092 · hard_boundary=1092 · struct_hierarchy=1092   ✅
+    dataidx  56: sa=814 · hard_boundary=814 · struct_hierarchy=814   ✅
+    dataidx  57: sa=329 · hard_boundary=329 · struct_hierarchy=329   ✅
+    dataidx  58: sa=1148 · hard_boundary=1148 · struct_hierarchy=1148   ✅
+    dataidx  59: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx  60: sa=660 · hard_boundary=660 · struct_hierarchy=660   ✅
+    dataidx  61: sa=780 · hard_boundary=780 · struct_hierarchy=780   ✅
+    dataidx  62: sa=1461 · hard_boundary=1461 · struct_hierarchy=1461   ✅
+    dataidx  63: sa=184 · hard_boundary=184 · struct_hierarchy=184   ✅
+    dataidx  64: sa=204 · hard_boundary=204 · struct_hierarchy=204   ✅
+    dataidx  65: sa=1030 · hard_boundary=1030 · struct_hierarchy=1030   ✅
+    dataidx  66: sa=458 · hard_boundary=458 · struct_hierarchy=458   ✅
+    dataidx  67: sa=548 · hard_boundary=548 · struct_hierarchy=548   ✅
+    dataidx  68: sa=690 · hard_boundary=690 · struct_hierarchy=690   ✅
+    dataidx  69: sa=228 · hard_boundary=228 · struct_hierarchy=228   ✅
+    dataidx  70: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx  71: sa=286 · hard_boundary=286 · struct_hierarchy=286   ✅
+    dataidx  72: sa=355 · hard_boundary=355 · struct_hierarchy=355   ✅
+    dataidx  73: sa=1054 · hard_boundary=1054 · struct_hierarchy=1054   ✅
+    dataidx  74: sa=417 · hard_boundary=417 · struct_hierarchy=417   ✅
+    dataidx  75: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx  76: sa=591 · hard_boundary=591 · struct_hierarchy=591   ✅
+    dataidx  77: sa=1050 · hard_boundary=1050 · struct_hierarchy=1050   ✅
+    dataidx  78: sa=432 · hard_boundary=432 · struct_hierarchy=432   ✅
+    dataidx  79: sa=255 · hard_boundary=255 · struct_hierarchy=255   ✅
+    dataidx  80: sa=1093 · hard_boundary=1093 · struct_hierarchy=1093   ✅
+    dataidx  81: sa=853 · hard_boundary=853 · struct_hierarchy=853   ✅
+    dataidx  82: sa=242 · hard_boundary=242 · struct_hierarchy=242   ✅
+    dataidx  83: sa=257 · hard_boundary=257 · struct_hierarchy=257   ✅
+    dataidx  84: sa=797 · hard_boundary=797 · struct_hierarchy=797   ✅
+    dataidx  85: sa=496 · hard_boundary=496 · struct_hierarchy=496   ✅
+    dataidx  86: sa=380 · hard_boundary=380 · struct_hierarchy=380   ✅
+    dataidx  87: sa=1246 · hard_boundary=1246 · struct_hierarchy=1246   ✅
+    dataidx  88: sa=477 · hard_boundary=477 · struct_hierarchy=477   ✅
+    dataidx  89: sa=230 · hard_boundary=230 · struct_hierarchy=230   ✅
+    dataidx  90: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx  91: sa=796 · hard_boundary=796 · struct_hierarchy=796   ✅
+    dataidx  92: sa=1512 · hard_boundary=1512 · struct_hierarchy=1512   ✅
+    dataidx  93: sa=313 · hard_boundary=313 · struct_hierarchy=313   ✅
+    dataidx  94: sa=988 · hard_boundary=988 · struct_hierarchy=988   ✅
+    dataidx  95: sa=547 · hard_boundary=547 · struct_hierarchy=547   ✅
+    dataidx  96: sa=253 · hard_boundary=253 · struct_hierarchy=253   ✅
+    dataidx  97: sa=1281 · hard_boundary=1281 · struct_hierarchy=1281   ✅
+    dataidx  98: sa=270 · hard_boundary=270 · struct_hierarchy=270   ✅
+    dataidx  99: sa=649 · hard_boundary=649 · struct_hierarchy=649   ✅
+    dataidx 100: sa=232 · hard_boundary=232 · struct_hierarchy=232   ✅
+    dataidx 102: sa=558 · hard_boundary=558 · struct_hierarchy=558   ✅
+    dataidx 103: sa=1184 · hard_boundary=1184 · struct_hierarchy=1184   ✅
+    dataidx 104: sa=217 · hard_boundary=217 · struct_hierarchy=217   ✅
+    dataidx 105: sa=586 · hard_boundary=586 · struct_hierarchy=586   ✅
+    dataidx 106: sa=583 · hard_boundary=583 · struct_hierarchy=583   ✅
+    dataidx 107: sa=421 · hard_boundary=421 · struct_hierarchy=421   ✅
+    dataidx 108: sa=363 · hard_boundary=363 · struct_hierarchy=363   ✅
+    dataidx 109: sa=601 · hard_boundary=601 · struct_hierarchy=601   ✅
+    dataidx 110: sa=581 · hard_boundary=581 · struct_hierarchy=581   ✅
+    dataidx 111: sa=213 · hard_boundary=213 · struct_hierarchy=213   ✅
+    dataidx 112: sa=1144 · hard_boundary=1144 · struct_hierarchy=1144   ✅
+    dataidx 113: sa=516 · hard_boundary=516 · struct_hierarchy=516   ✅
+    dataidx 114: sa=1204 · hard_boundary=1204 · struct_hierarchy=1204   ✅
+    dataidx 115: sa=969 · hard_boundary=969 · struct_hierarchy=969   ✅
+    dataidx 116: sa=415 · hard_boundary=415 · struct_hierarchy=415   ✅
+    dataidx 117: sa=236 · hard_boundary=236 · struct_hierarchy=236   ✅
+    dataidx 118: sa=432 · hard_boundary=432 · struct_hierarchy=432   ✅
+    dataidx 119: sa=195 · hard_boundary=195 · struct_hierarchy=195   ✅
+    dataidx 120: sa=861 · hard_boundary=861 · struct_hierarchy=861   ✅
+    dataidx 121: sa=522 · hard_boundary=522 · struct_hierarchy=522   ✅
+    dataidx 122: sa=398 · hard_boundary=398 · struct_hierarchy=398   ✅
+    dataidx 123: sa=1183 · hard_boundary=1183 · struct_hierarchy=1183   ✅
+    dataidx 124: sa=1378 · hard_boundary=1378 · struct_hierarchy=1378   ✅
+    dataidx 125: sa=979 · hard_boundary=979 · struct_hierarchy=979   ✅
+    dataidx 126: sa=338 · hard_boundary=338 · struct_hierarchy=338   ✅
+    dataidx 127: sa=1498 · hard_boundary=1498 · struct_hierarchy=1498   ✅
+    dataidx 128: sa=515 · hard_boundary=515 · struct_hierarchy=515   ✅
+    dataidx 129: sa=379 · hard_boundary=379 · struct_hierarchy=379   ✅
+    dataidx 130: sa=556 · hard_boundary=556 · struct_hierarchy=556   ✅
+    dataidx 131: sa=713 · hard_boundary=713 · struct_hierarchy=713   ✅
+    dataidx 132: sa=960 · hard_boundary=960 · struct_hierarchy=960   ✅
+    dataidx 133: sa=566 · hard_boundary=566 · struct_hierarchy=566   ✅
+    dataidx 134: sa=755 · hard_boundary=755 · struct_hierarchy=755   ✅
+    dataidx 135: sa=1160 · hard_boundary=1160 · struct_hierarchy=1160   ✅
+    dataidx 136: sa=393 · hard_boundary=393 · struct_hierarchy=393   ✅
+    dataidx 137: sa=232 · hard_boundary=232 · struct_hierarchy=232   ✅
+    dataidx 138: sa=1273 · hard_boundary=1273 · struct_hierarchy=1273   ✅
+    dataidx 139: sa=773 · hard_boundary=773 · struct_hierarchy=773   ✅
+    dataidx 140: sa=1301 · hard_boundary=1301 · struct_hierarchy=1301   ✅
+    dataidx 141: sa=356 · hard_boundary=356 · struct_hierarchy=356   ✅
+    dataidx 142: sa=776 · hard_boundary=776 · struct_hierarchy=776   ✅
+    dataidx 143: sa=971 · hard_boundary=971 · struct_hierarchy=971   ✅
+    dataidx 144: sa=225 · hard_boundary=225 · struct_hierarchy=225   ✅
+    dataidx 145: sa=566 · hard_boundary=566 · struct_hierarchy=566   ✅
+    dataidx 146: sa=521 · hard_boundary=521 · struct_hierarchy=521   ✅
+    dataidx 147: sa=655 · hard_boundary=655 · struct_hierarchy=655   ✅
+    dataidx 148: sa=239 · hard_boundary=239 · struct_hierarchy=239   ✅
+    dataidx 149: sa=592 · hard_boundary=592 · struct_hierarchy=592   ✅
+    dataidx 150: sa=379 · hard_boundary=379 · struct_hierarchy=379   ✅
+    dataidx 151: sa=710 · hard_boundary=710 · struct_hierarchy=710   ✅
+    dataidx 152: sa=349 · hard_boundary=349 · struct_hierarchy=349   ✅
+    dataidx 153: sa=268 · hard_boundary=268 · struct_hierarchy=268   ✅
+    dataidx 154: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx 155: sa=262 · hard_boundary=262 · struct_hierarchy=262   ✅
+    dataidx 156: sa=800 · hard_boundary=800 · struct_hierarchy=800   ✅
+    dataidx 157: sa=913 · hard_boundary=913 · struct_hierarchy=913   ✅
+    dataidx 158: sa=867 · hard_boundary=867 · struct_hierarchy=867   ✅
+    dataidx 159: sa=340 · hard_boundary=340 · struct_hierarchy=340   ✅
+    dataidx 160: sa=297 · hard_boundary=297 · struct_hierarchy=297   ✅
+    dataidx 161: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx 162: sa=360 · hard_boundary=360 · struct_hierarchy=360   ✅
+    dataidx 163: sa=748 · hard_boundary=748 · struct_hierarchy=748   ✅
+    dataidx 164: sa=1152 · hard_boundary=1152 · struct_hierarchy=1152   ✅
+    dataidx 165: sa=739 · hard_boundary=739 · struct_hierarchy=739   ✅
+    dataidx 166: sa=296 · hard_boundary=296 · struct_hierarchy=296   ✅
+    dataidx 167: sa=565 · hard_boundary=565 · struct_hierarchy=565   ✅
+    dataidx 168: sa=966 · hard_boundary=966 · struct_hierarchy=966   ✅
+    dataidx 169: sa=716 · hard_boundary=716 · struct_hierarchy=716   ✅
+    dataidx 170: sa=1569 · hard_boundary=1569 · struct_hierarchy=1569   ✅
+    dataidx 171: sa=253 · hard_boundary=253 · struct_hierarchy=253   ✅
+    dataidx 172: sa=1421 · hard_boundary=1421 · struct_hierarchy=1421   ✅
+    dataidx 173: sa=833 · hard_boundary=833 · struct_hierarchy=833   ✅
+    dataidx 174: sa=279 · hard_boundary=279 · struct_hierarchy=279   ✅
+    dataidx 175: sa=759 · hard_boundary=759 · struct_hierarchy=759   ✅
+    dataidx 176: sa=628 · hard_boundary=628 · struct_hierarchy=628   ✅
+    dataidx 177: sa=559 · hard_boundary=559 · struct_hierarchy=559   ✅
+    dataidx 178: sa=247 · hard_boundary=247 · struct_hierarchy=247   ✅
+    dataidx 179: sa=385 · hard_boundary=385 · struct_hierarchy=385   ✅
+    dataidx 180: sa=1521 · hard_boundary=1521 · struct_hierarchy=1521   ✅
+    dataidx 181: sa=222 · hard_boundary=222 · struct_hierarchy=222   ✅
+    dataidx 182: sa=754 · hard_boundary=754 · struct_hierarchy=754   ✅
+    dataidx 183: sa=696 · hard_boundary=696 · struct_hierarchy=696   ✅
+    dataidx 184: sa=322 · hard_boundary=322 · struct_hierarchy=322   ✅
+    dataidx 185: sa=1332 · hard_boundary=1332 · struct_hierarchy=1332   ✅
+    dataidx 186: sa=999 · hard_boundary=999 · struct_hierarchy=999   ✅
+    dataidx 187: sa=440 · hard_boundary=440 · struct_hierarchy=440   ✅
+    dataidx 188: sa=286 · hard_boundary=286 · struct_hierarchy=286   ✅
+    dataidx 189: sa=1266 · hard_boundary=1266 · struct_hierarchy=1266   ✅
+    dataidx 190: sa=444 · hard_boundary=444 · struct_hierarchy=444   ✅
+    dataidx 191: sa=909 · hard_boundary=909 · struct_hierarchy=909   ✅
+    dataidx 192: sa=1035 · hard_boundary=1035 · struct_hierarchy=1035   ✅
+    dataidx 193: sa=319 · hard_boundary=319 · struct_hierarchy=319   ✅
+    dataidx 194: sa=276 · hard_boundary=276 · struct_hierarchy=276   ✅
+    dataidx 195: sa=753 · hard_boundary=753 · struct_hierarchy=753   ✅
+    dataidx 196: sa=395 · hard_boundary=395 · struct_hierarchy=395   ✅
+    dataidx 197: sa=847 · hard_boundary=847 · struct_hierarchy=847   ✅
+    dataidx 198: sa=851 · hard_boundary=851 · struct_hierarchy=851   ✅
+    dataidx 199: sa=522 · hard_boundary=522 · struct_hierarchy=522   ✅
+
+[C] Shape + do dai — sa
+    dataidx   0: centroids (1, 32, 819, 128) ✅ · labels (1, 32, 16398) (mong 16398) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 1200, 128) ✅ · labels (1, 32, 24019) (mong 24019) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 951, 128) ✅ · labels (1, 32, 19037) (mong 19037) ✅ · o rong 0.0%
+    dataidx   3: centroids (1, 32, 1195, 128) ✅ · labels (1, 32, 23906) (mong 23906) ✅ · o rong 0.0%
+    dataidx   4: centroids (1, 32, 1041, 128) ✅ · labels (1, 32, 20830) (mong 20830) ✅ · o rong 0.0%
+    dataidx   5: centroids (1, 32, 1030, 128) ✅ · labels (1, 32, 20610) (mong 20610) ✅ · o rong 0.0%
+    dataidx   6: centroids (1, 32, 250, 128) ✅ · labels (1, 32, 5007) (mong 5007) ✅ · o rong 0.0%
+    dataidx   7: centroids (1, 32, 1012, 128) ✅ · labels (1, 32, 20258) (mong 20258) ✅ · o rong 0.0%
+    dataidx   8: centroids (1, 32, 1149, 128) ✅ · labels (1, 32, 22997) (mong 22997) ✅ · o rong 0.0%
+    dataidx   9: centroids (1, 32, 1291, 128) ✅ · labels (1, 32, 25827) (mong 25827) ✅ · o rong 0.0%
+    dataidx  10: centroids (1, 32, 223, 128) ✅ · labels (1, 32, 4462) (mong 4462) ✅ · o rong 0.0%
+    dataidx  11: centroids (1, 32, 329, 128) ✅ · labels (1, 32, 6580) (mong 6580) ✅ · o rong 0.0%
+    dataidx  12: centroids (1, 32, 619, 128) ✅ · labels (1, 32, 12390) (mong 12390) ✅ · o rong 0.0%
+    dataidx  13: centroids (1, 32, 330, 128) ✅ · labels (1, 32, 6617) (mong 6617) ✅ · o rong 0.0%
+    dataidx  14: centroids (1, 32, 1387, 128) ✅ · labels (1, 32, 27756) (mong 27756) ✅ · o rong 0.0%
+    dataidx  15: centroids (1, 32, 305, 128) ✅ · labels (1, 32, 6108) (mong 6108) ✅ · o rong 0.0%
+    dataidx  16: centroids (1, 32, 996, 128) ✅ · labels (1, 32, 19935) (mong 19935) ✅ · o rong 0.0%
+    dataidx  17: centroids (1, 32, 835, 128) ✅ · labels (1, 32, 16703) (mong 16703) ✅ · o rong 0.0%
+    dataidx  18: centroids (1, 32, 394, 128) ✅ · labels (1, 32, 7886) (mong 7886) ✅ · o rong 0.0%
+    dataidx  19: centroids (1, 32, 224, 128) ✅ · labels (1, 32, 4484) (mong 4484) ✅ · o rong 0.0%
+    dataidx  20: centroids (1, 32, 458, 128) ✅ · labels (1, 32, 9162) (mong 9162) ✅ · o rong 0.0%
+    dataidx  21: centroids (1, 32, 1102, 128) ✅ · labels (1, 32, 22054) (mong 22054) ✅ · o rong 0.0%
+    dataidx  22: centroids (1, 32, 1157, 128) ✅ · labels (1, 32, 23153) (mong 23153) ✅ · o rong 0.0%
+    dataidx  23: centroids (1, 32, 1462, 128) ✅ · labels (1, 32, 29251) (mong 29251) ✅ · o rong 0.0%
+    dataidx  24: centroids (1, 32, 474, 128) ✅ · labels (1, 32, 9483) (mong 9483) ✅ · o rong 0.0%
+    dataidx  25: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7962) (mong 7962) ✅ · o rong 0.0%
+    dataidx  26: centroids (1, 32, 912, 128) ✅ · labels (1, 32, 18253) (mong 18253) ✅ · o rong 0.0%
+    dataidx  27: centroids (1, 32, 510, 128) ✅ · labels (1, 32, 10200) (mong 10200) ✅ · o rong 0.0%
+    dataidx  28: centroids (1, 32, 753, 128) ✅ · labels (1, 32, 15065) (mong 15065) ✅ · o rong 0.0%
+    dataidx  29: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7973) (mong 7973) ✅ · o rong 0.0%
+    dataidx  30: centroids (1, 32, 683, 128) ✅ · labels (1, 32, 13661) (mong 13661) ✅ · o rong 0.0%
+    dataidx  31: centroids (1, 32, 260, 128) ✅ · labels (1, 32, 5218) (mong 5218) ✅ · o rong 0.0%
+    dataidx  32: centroids (1, 32, 834, 128) ✅ · labels (1, 32, 16692) (mong 16692) ✅ · o rong 0.0%
+    dataidx  33: centroids (1, 32, 1120, 128) ✅ · labels (1, 32, 22410) (mong 22410) ✅ · o rong 0.0%
+    dataidx  34: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  35: centroids (1, 32, 436, 128) ✅ · labels (1, 32, 8738) (mong 8738) ✅ · o rong 0.0%
+    dataidx  36: centroids (1, 32, 263, 128) ✅ · labels (1, 32, 5271) (mong 5271) ✅ · o rong 0.0%
+    dataidx  37: centroids (1, 32, 967, 128) ✅ · labels (1, 32, 19347) (mong 19347) ✅ · o rong 0.0%
+    dataidx  38: centroids (1, 32, 1047, 128) ✅ · labels (1, 32, 20956) (mong 20956) ✅ · o rong 0.0%
+    dataidx  39: centroids (1, 32, 358, 128) ✅ · labels (1, 32, 7161) (mong 7161) ✅ · o rong 0.0%
+    dataidx  40: centroids (1, 32, 393, 128) ✅ · labels (1, 32, 7870) (mong 7870) ✅ · o rong 0.0%
+    dataidx  41: centroids (1, 32, 878, 128) ✅ · labels (1, 32, 17564) (mong 17564) ✅ · o rong 0.0%
+    dataidx  42: centroids (1, 32, 516, 128) ✅ · labels (1, 32, 10320) (mong 10320) ✅ · o rong 0.0%
+    dataidx  43: centroids (1, 32, 937, 128) ✅ · labels (1, 32, 18740) (mong 18740) ✅ · o rong 0.0%
+    dataidx  44: centroids (1, 32, 620, 128) ✅ · labels (1, 32, 12400) (mong 12400) ✅ · o rong 0.0%
+    dataidx  45: centroids (1, 32, 942, 128) ✅ · labels (1, 32, 18850) (mong 18850) ✅ · o rong 0.0%
+    dataidx  46: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  47: centroids (1, 32, 914, 128) ✅ · labels (1, 32, 18297) (mong 18297) ✅ · o rong 0.0%
+    dataidx  48: centroids (1, 32, 846, 128) ✅ · labels (1, 32, 16926) (mong 16926) ✅ · o rong 0.0%
+    dataidx  49: centroids (1, 32, 292, 128) ✅ · labels (1, 32, 5842) (mong 5842) ✅ · o rong 0.0%
+    dataidx  50: centroids (1, 32, 533, 128) ✅ · labels (1, 32, 10667) (mong 10667) ✅ · o rong 0.0%
+    dataidx  51: centroids (1, 32, 244, 128) ✅ · labels (1, 32, 4892) (mong 4892) ✅ · o rong 0.0%
+    dataidx  52: centroids (1, 32, 335, 128) ✅ · labels (1, 32, 6716) (mong 6716) ✅ · o rong 0.0%
+    dataidx  53: centroids (1, 32, 854, 128) ✅ · labels (1, 32, 17095) (mong 17095) ✅ · o rong 0.0%
+    dataidx  54: centroids (1, 32, 1179, 128) ✅ · labels (1, 32, 23581) (mong 23581) ✅ · o rong 0.0%
+    dataidx  55: centroids (1, 32, 1092, 128) ✅ · labels (1, 32, 21843) (mong 21843) ✅ · o rong 0.0%
+    dataidx  56: centroids (1, 32, 814, 128) ✅ · labels (1, 32, 16288) (mong 16288) ✅ · o rong 0.0%
+    dataidx  57: centroids (1, 32, 329, 128) ✅ · labels (1, 32, 6594) (mong 6594) ✅ · o rong 0.0%
+    dataidx  58: centroids (1, 32, 1148, 128) ✅ · labels (1, 32, 22964) (mong 22964) ✅ · o rong 0.0%
+    dataidx  59: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  60: centroids (1, 32, 660, 128) ✅ · labels (1, 32, 13207) (mong 13207) ✅ · o rong 0.0%
+    dataidx  61: centroids (1, 32, 780, 128) ✅ · labels (1, 32, 15604) (mong 15604) ✅ · o rong 0.0%
+    dataidx  62: centroids (1, 32, 1461, 128) ✅ · labels (1, 32, 29226) (mong 29226) ✅ · o rong 0.0%
+    dataidx  63: centroids (1, 32, 184, 128) ✅ · labels (1, 32, 3681) (mong 3681) ✅ · o rong 0.0%
+    dataidx  64: centroids (1, 32, 204, 128) ✅ · labels (1, 32, 4088) (mong 4088) ✅ · o rong 0.0%
+    dataidx  65: centroids (1, 32, 1030, 128) ✅ · labels (1, 32, 20617) (mong 20617) ✅ · o rong 0.0%
+    dataidx  66: centroids (1, 32, 458, 128) ✅ · labels (1, 32, 9162) (mong 9162) ✅ · o rong 0.0%
+    dataidx  67: centroids (1, 32, 548, 128) ✅ · labels (1, 32, 10965) (mong 10965) ✅ · o rong 0.0%
+    dataidx  68: centroids (1, 32, 690, 128) ✅ · labels (1, 32, 13809) (mong 13809) ✅ · o rong 0.0%
+    dataidx  69: centroids (1, 32, 228, 128) ✅ · labels (1, 32, 4567) (mong 4567) ✅ · o rong 0.0%
+    dataidx  70: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  71: centroids (1, 32, 286, 128) ✅ · labels (1, 32, 5725) (mong 5725) ✅ · o rong 0.0%
+    dataidx  72: centroids (1, 32, 355, 128) ✅ · labels (1, 32, 7103) (mong 7103) ✅ · o rong 0.0%
+    dataidx  73: centroids (1, 32, 1054, 128) ✅ · labels (1, 32, 21085) (mong 21085) ✅ · o rong 0.0%
+    dataidx  74: centroids (1, 32, 417, 128) ✅ · labels (1, 32, 8347) (mong 8347) ✅ · o rong 0.0%
+    dataidx  75: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  76: centroids (1, 32, 591, 128) ✅ · labels (1, 32, 11828) (mong 11828) ✅ · o rong 0.0%
+    dataidx  77: centroids (1, 32, 1050, 128) ✅ · labels (1, 32, 21003) (mong 21003) ✅ · o rong 0.0%
+    dataidx  78: centroids (1, 32, 432, 128) ✅ · labels (1, 32, 8650) (mong 8650) ✅ · o rong 0.0%
+    dataidx  79: centroids (1, 32, 255, 128) ✅ · labels (1, 32, 5116) (mong 5116) ✅ · o rong 0.0%
+    dataidx  80: centroids (1, 32, 1093, 128) ✅ · labels (1, 32, 21870) (mong 21870) ✅ · o rong 0.0%
+    dataidx  81: centroids (1, 32, 853, 128) ✅ · labels (1, 32, 17069) (mong 17069) ✅ · o rong 0.0%
+    dataidx  82: centroids (1, 32, 242, 128) ✅ · labels (1, 32, 4849) (mong 4849) ✅ · o rong 0.0%
+    dataidx  83: centroids (1, 32, 257, 128) ✅ · labels (1, 32, 5143) (mong 5143) ✅ · o rong 0.0%
+    dataidx  84: centroids (1, 32, 797, 128) ✅ · labels (1, 32, 15945) (mong 15945) ✅ · o rong 0.0%
+    dataidx  85: centroids (1, 32, 496, 128) ✅ · labels (1, 32, 9920) (mong 9920) ✅ · o rong 0.0%
+    dataidx  86: centroids (1, 32, 380, 128) ✅ · labels (1, 32, 7616) (mong 7616) ✅ · o rong 0.0%
+    dataidx  87: centroids (1, 32, 1246, 128) ✅ · labels (1, 32, 24927) (mong 24927) ✅ · o rong 0.0%
+    dataidx  88: centroids (1, 32, 477, 128) ✅ · labels (1, 32, 9557) (mong 9557) ✅ · o rong 0.0%
+    dataidx  89: centroids (1, 32, 230, 128) ✅ · labels (1, 32, 4602) (mong 4602) ✅ · o rong 0.0%
+    dataidx  90: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  91: centroids (1, 32, 796, 128) ✅ · labels (1, 32, 15935) (mong 15935) ✅ · o rong 0.0%
+    dataidx  92: centroids (1, 32, 1512, 128) ✅ · labels (1, 32, 30246) (mong 30246) ✅ · o rong 0.0%
+    dataidx  93: centroids (1, 32, 313, 128) ✅ · labels (1, 32, 6277) (mong 6277) ✅ · o rong 0.0%
+    dataidx  94: centroids (1, 32, 988, 128) ✅ · labels (1, 32, 19770) (mong 19770) ✅ · o rong 0.0%
+    dataidx  95: centroids (1, 32, 547, 128) ✅ · labels (1, 32, 10948) (mong 10948) ✅ · o rong 0.0%
+    dataidx  96: centroids (1, 32, 253, 128) ✅ · labels (1, 32, 5061) (mong 5061) ✅ · o rong 0.0%
+    dataidx  97: centroids (1, 32, 1281, 128) ✅ · labels (1, 32, 25626) (mong 25626) ✅ · o rong 0.0%
+    dataidx  98: centroids (1, 32, 270, 128) ✅ · labels (1, 32, 5413) (mong 5413) ✅ · o rong 0.0%
+    dataidx  99: centroids (1, 32, 649, 128) ✅ · labels (1, 32, 12991) (mong 12991) ✅ · o rong 0.0%
+    dataidx 100: centroids (1, 32, 232, 128) ✅ · labels (1, 32, 4657) (mong 4657) ✅ · o rong 0.0%
+    dataidx 101: centroids (1, 32, 428, 128) ✅ · labels (1, 32, 8563) (mong 8563) ✅ · o rong 0.0%
+    dataidx 102: centroids (1, 32, 558, 128) ✅ · labels (1, 32, 11173) (mong 11173) ✅ · o rong 0.0%
+    dataidx 103: centroids (1, 32, 1184, 128) ✅ · labels (1, 32, 23693) (mong 23693) ✅ · o rong 0.0%
+    dataidx 104: centroids (1, 32, 217, 128) ✅ · labels (1, 32, 4359) (mong 4359) ✅ · o rong 0.0%
+    dataidx 105: centroids (1, 32, 586, 128) ✅ · labels (1, 32, 11735) (mong 11735) ✅ · o rong 0.0%
+    dataidx 106: centroids (1, 32, 583, 128) ✅ · labels (1, 32, 11678) (mong 11678) ✅ · o rong 0.0%
+    dataidx 107: centroids (1, 32, 421, 128) ✅ · labels (1, 32, 8438) (mong 8438) ✅ · o rong 0.0%
+    dataidx 108: centroids (1, 32, 363, 128) ✅ · labels (1, 32, 7278) (mong 7278) ✅ · o rong 0.0%
+    dataidx 109: centroids (1, 32, 601, 128) ✅ · labels (1, 32, 12036) (mong 12036) ✅ · o rong 0.0%
+    dataidx 110: centroids (1, 32, 581, 128) ✅ · labels (1, 32, 11622) (mong 11622) ✅ · o rong 0.0%
+    dataidx 111: centroids (1, 32, 213, 128) ✅ · labels (1, 32, 4262) (mong 4262) ✅ · o rong 0.0%
+    dataidx 112: centroids (1, 32, 1144, 128) ✅ · labels (1, 32, 22898) (mong 22898) ✅ · o rong 0.0%
+    dataidx 113: centroids (1, 32, 516, 128) ✅ · labels (1, 32, 10332) (mong 10332) ✅ · o rong 0.0%
+    dataidx 114: centroids (1, 32, 1204, 128) ✅ · labels (1, 32, 24088) (mong 24088) ✅ · o rong 0.0%
+    dataidx 115: centroids (1, 32, 969, 128) ✅ · labels (1, 32, 19396) (mong 19396) ✅ · o rong 0.0%
+    dataidx 116: centroids (1, 32, 415, 128) ✅ · labels (1, 32, 8306) (mong 8306) ✅ · o rong 0.0%
+    dataidx 117: centroids (1, 32, 236, 128) ✅ · labels (1, 32, 4736) (mong 4736) ✅ · o rong 0.0%
+    dataidx 118: centroids (1, 32, 432, 128) ✅ · labels (1, 32, 8656) (mong 8656) ✅ · o rong 0.0%
+    dataidx 119: centroids (1, 32, 195, 128) ✅ · labels (1, 32, 3900) (mong 3900) ✅ · o rong 0.0%
+    dataidx 120: centroids (1, 32, 861, 128) ✅ · labels (1, 32, 17222) (mong 17222) ✅ · o rong 0.0%
+    dataidx 121: centroids (1, 32, 522, 128) ✅ · labels (1, 32, 10457) (mong 10457) ✅ · o rong 0.0%
+    dataidx 122: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7975) (mong 7975) ✅ · o rong 0.0%
+    dataidx 123: centroids (1, 32, 1183, 128) ✅ · labels (1, 32, 23661) (mong 23661) ✅ · o rong 0.0%
+    dataidx 124: centroids (1, 32, 1378, 128) ✅ · labels (1, 32, 27574) (mong 27574) ✅ · o rong 0.0%
+    dataidx 125: centroids (1, 32, 979, 128) ✅ · labels (1, 32, 19594) (mong 19594) ✅ · o rong 0.0%
+    dataidx 126: centroids (1, 32, 338, 128) ✅ · labels (1, 32, 6778) (mong 6778) ✅ · o rong 0.0%
+    dataidx 127: centroids (1, 32, 1498, 128) ✅ · labels (1, 32, 29979) (mong 29979) ✅ · o rong 0.0%
+    dataidx 128: centroids (1, 32, 515, 128) ✅ · labels (1, 32, 10317) (mong 10317) ✅ · o rong 0.0%
+    dataidx 129: centroids (1, 32, 379, 128) ✅ · labels (1, 32, 7585) (mong 7585) ✅ · o rong 0.0%
+    dataidx 130: centroids (1, 32, 556, 128) ✅ · labels (1, 32, 11128) (mong 11128) ✅ · o rong 0.0%
+    dataidx 131: centroids (1, 32, 713, 128) ✅ · labels (1, 32, 14265) (mong 14265) ✅ · o rong 0.0%
+    dataidx 132: centroids (1, 32, 960, 128) ✅ · labels (1, 32, 19214) (mong 19214) ✅ · o rong 0.0%
+    dataidx 133: centroids (1, 32, 566, 128) ✅ · labels (1, 32, 11321) (mong 11321) ✅ · o rong 0.0%
+    dataidx 134: centroids (1, 32, 755, 128) ✅ · labels (1, 32, 15112) (mong 15112) ✅ · o rong 0.0%
+    dataidx 135: centroids (1, 32, 1160, 128) ✅ · labels (1, 32, 23214) (mong 23214) ✅ · o rong 0.0%
+    dataidx 136: centroids (1, 32, 393, 128) ✅ · labels (1, 32, 7877) (mong 7877) ✅ · o rong 0.0%
+    dataidx 137: centroids (1, 32, 232, 128) ✅ · labels (1, 32, 4642) (mong 4642) ✅ · o rong 0.0%
+    dataidx 138: centroids (1, 32, 1273, 128) ✅ · labels (1, 32, 25473) (mong 25473) ✅ · o rong 0.0%
+    dataidx 139: centroids (1, 32, 773, 128) ✅ · labels (1, 32, 15473) (mong 15473) ✅ · o rong 0.0%
+    dataidx 140: centroids (1, 32, 1301, 128) ✅ · labels (1, 32, 26028) (mong 26028) ✅ · o rong 0.0%
+    dataidx 141: centroids (1, 32, 356, 128) ✅ · labels (1, 32, 7124) (mong 7124) ✅ · o rong 0.0%
+    dataidx 142: centroids (1, 32, 776, 128) ✅ · labels (1, 32, 15532) (mong 15532) ✅ · o rong 0.0%
+    dataidx 143: centroids (1, 32, 971, 128) ✅ · labels (1, 32, 19438) (mong 19438) ✅ · o rong 0.0%
+    dataidx 144: centroids (1, 32, 225, 128) ✅ · labels (1, 32, 4514) (mong 4514) ✅ · o rong 0.0%
+    dataidx 145: centroids (1, 32, 566, 128) ✅ · labels (1, 32, 11323) (mong 11323) ✅ · o rong 0.0%
+    dataidx 146: centroids (1, 32, 521, 128) ✅ · labels (1, 32, 10430) (mong 10430) ✅ · o rong 0.0%
+    dataidx 147: centroids (1, 32, 655, 128) ✅ · labels (1, 32, 13102) (mong 13102) ✅ · o rong 0.0%
+    dataidx 148: centroids (1, 32, 239, 128) ✅ · labels (1, 32, 4783) (mong 4783) ✅ · o rong 0.0%
+    dataidx 149: centroids (1, 32, 592, 128) ✅ · labels (1, 32, 11846) (mong 11846) ✅ · o rong 0.0%
+    dataidx 150: centroids (1, 32, 379, 128) ✅ · labels (1, 32, 7588) (mong 7588) ✅ · o rong 0.0%
+    dataidx 151: centroids (1, 32, 710, 128) ✅ · labels (1, 32, 14207) (mong 14207) ✅ · o rong 0.0%
+    dataidx 152: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6983) (mong 6983) ✅ · o rong 0.0%
+    dataidx 153: centroids (1, 32, 268, 128) ✅ · labels (1, 32, 5374) (mong 5374) ✅ · o rong 0.0%
+    dataidx 154: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 155: centroids (1, 32, 262, 128) ✅ · labels (1, 32, 5253) (mong 5253) ✅ · o rong 0.0%
+    dataidx 156: centroids (1, 32, 800, 128) ✅ · labels (1, 32, 16014) (mong 16014) ✅ · o rong 0.0%
+    dataidx 157: centroids (1, 32, 913, 128) ✅ · labels (1, 32, 18279) (mong 18279) ✅ · o rong 0.0%
+    dataidx 158: centroids (1, 32, 867, 128) ✅ · labels (1, 32, 17352) (mong 17352) ✅ · o rong 0.0%
+    dataidx 159: centroids (1, 32, 340, 128) ✅ · labels (1, 32, 6812) (mong 6812) ✅ · o rong 0.0%
+    dataidx 160: centroids (1, 32, 297, 128) ✅ · labels (1, 32, 5956) (mong 5956) ✅ · o rong 0.0%
+    dataidx 161: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 162: centroids (1, 32, 360, 128) ✅ · labels (1, 32, 7209) (mong 7209) ✅ · o rong 0.0%
+    dataidx 163: centroids (1, 32, 748, 128) ✅ · labels (1, 32, 14970) (mong 14970) ✅ · o rong 0.0%
+    dataidx 164: centroids (1, 32, 1152, 128) ✅ · labels (1, 32, 23059) (mong 23059) ✅ · o rong 0.0%
+    dataidx 165: centroids (1, 32, 739, 128) ✅ · labels (1, 32, 14790) (mong 14790) ✅ · o rong 0.0%
+    dataidx 166: centroids (1, 32, 296, 128) ✅ · labels (1, 32, 5935) (mong 5935) ✅ · o rong 0.0%
+    dataidx 167: centroids (1, 32, 565, 128) ✅ · labels (1, 32, 11307) (mong 11307) ✅ · o rong 0.0%
+    dataidx 168: centroids (1, 32, 966, 128) ✅ · labels (1, 32, 19323) (mong 19323) ✅ · o rong 0.0%
+    dataidx 169: centroids (1, 32, 716, 128) ✅ · labels (1, 32, 14328) (mong 14328) ✅ · o rong 0.0%
+    dataidx 170: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 171: centroids (1, 32, 253, 128) ✅ · labels (1, 32, 5078) (mong 5078) ✅ · o rong 0.0%
+    dataidx 172: centroids (1, 32, 1421, 128) ✅ · labels (1, 32, 28430) (mong 28430) ✅ · o rong 0.0%
+    dataidx 173: centroids (1, 32, 833, 128) ✅ · labels (1, 32, 16665) (mong 16665) ✅ · o rong 0.0%
+    dataidx 174: centroids (1, 32, 279, 128) ✅ · labels (1, 32, 5583) (mong 5583) ✅ · o rong 0.0%
+    dataidx 175: centroids (1, 32, 759, 128) ✅ · labels (1, 32, 15182) (mong 15182) ✅ · o rong 0.0%
+    dataidx 176: centroids (1, 32, 628, 128) ✅ · labels (1, 32, 12578) (mong 12578) ✅ · o rong 0.0%
+    dataidx 177: centroids (1, 32, 559, 128) ✅ · labels (1, 32, 11197) (mong 11197) ✅ · o rong 0.0%
+    dataidx 178: centroids (1, 32, 247, 128) ✅ · labels (1, 32, 4953) (mong 4953) ✅ · o rong 0.0%
+    dataidx 179: centroids (1, 32, 385, 128) ✅ · labels (1, 32, 7715) (mong 7715) ✅ · o rong 0.0%
+    dataidx 180: centroids (1, 32, 1521, 128) ✅ · labels (1, 32, 30421) (mong 30421) ✅ · o rong 0.0%
+    dataidx 181: centroids (1, 32, 222, 128) ✅ · labels (1, 32, 4443) (mong 4443) ✅ · o rong 0.0%
+    dataidx 182: centroids (1, 32, 754, 128) ✅ · labels (1, 32, 15088) (mong 15088) ✅ · o rong 0.0%
+    dataidx 183: centroids (1, 32, 696, 128) ✅ · labels (1, 32, 13934) (mong 13934) ✅ · o rong 0.0%
+    dataidx 184: centroids (1, 32, 322, 128) ✅ · labels (1, 32, 6451) (mong 6451) ✅ · o rong 0.0%
+    dataidx 185: centroids (1, 32, 1332, 128) ✅ · labels (1, 32, 26654) (mong 26654) ✅ · o rong 0.0%
+    dataidx 186: centroids (1, 32, 999, 128) ✅ · labels (1, 32, 19982) (mong 19982) ✅ · o rong 0.0%
+    dataidx 187: centroids (1, 32, 440, 128) ✅ · labels (1, 32, 8805) (mong 8805) ✅ · o rong 0.0%
+    dataidx 188: centroids (1, 32, 286, 128) ✅ · labels (1, 32, 5730) (mong 5730) ✅ · o rong 0.0%
+    dataidx 189: centroids (1, 32, 1266, 128) ✅ · labels (1, 32, 25334) (mong 25334) ✅ · o rong 0.0%
+    dataidx 190: centroids (1, 32, 444, 128) ✅ · labels (1, 32, 8898) (mong 8898) ✅ · o rong 0.0%
+    dataidx 191: centroids (1, 32, 909, 128) ✅ · labels (1, 32, 18180) (mong 18180) ✅ · o rong 0.0%
+    dataidx 192: centroids (1, 32, 1035, 128) ✅ · labels (1, 32, 20715) (mong 20715) ✅ · o rong 0.0%
+    dataidx 193: centroids (1, 32, 319, 128) ✅ · labels (1, 32, 6392) (mong 6392) ✅ · o rong 0.0%
+    dataidx 194: centroids (1, 32, 276, 128) ✅ · labels (1, 32, 5521) (mong 5521) ✅ · o rong 0.0%
+    dataidx 195: centroids (1, 32, 753, 128) ✅ · labels (1, 32, 15075) (mong 15075) ✅ · o rong 0.0%
+    dataidx 196: centroids (1, 32, 395, 128) ✅ · labels (1, 32, 7906) (mong 7906) ✅ · o rong 0.0%
+    dataidx 197: centroids (1, 32, 847, 128) ✅ · labels (1, 32, 16956) (mong 16956) ✅ · o rong 0.0%
+    dataidx 198: centroids (1, 32, 851, 128) ✅ · labels (1, 32, 17037) (mong 17037) ✅ · o rong 0.0%
+    dataidx 199: centroids (1, 32, 522, 128) ✅ · labels (1, 32, 10455) (mong 10455) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — sa   (NHOM DOI CHUNG — mong doi vat bien NHIEU)
+    (dung lai prompt sau truncation — can dataset + tokenizer)
+/workspace/venv310/lib/python3.10/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/workspace/venv310/lib/python3.10/site-packages/datasets/load.py:1492: FutureWarning: The repository for THUDM/LongBench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/THUDM/LongBench
+You can avoid this message in future by passing the argument `trust_remote_code=True`.
+Passing `trust_remote_code=True` will be mandatory to load this dataset from the next major release of `datasets`.
+  warnings.warn(
+Token indices sequence length is longer than the specified maximum sequence length for this model (35698 > 32768). Running this sequence through the model will result in indexing errors
+    dataidx 0: [!] sp_len dung lai 15895 != meta 16498
+    dataidx 1: [!] sp_len dung lai 22923 != meta 24119
+    dataidx 2: [!] sp_len dung lai 18771 != meta 19137
+    dataidx 3: [!] sp_len dung lai 22923 != meta 24006
+    dataidx 4: [!] sp_len dung lai 18918 != meta 20930
+    dataidx 5: [!] sp_len dung lai 20315 != meta 20710
+    dataidx 6: [!] sp_len dung lai 4433 != meta 5107
+    dataidx 7: [!] sp_len dung lai 19192 != meta 20358
+    dataidx 8: [!] sp_len dung lai 20547 != meta 23097
+    dataidx 9: [!] sp_len dung lai 23762 != meta 25927
+    dataidx 10: [!] sp_len dung lai 4156 != meta 4562
+    dataidx 11: [!] sp_len dung lai 5451 != meta 6680
+    dataidx 12: [!] sp_len dung lai 11373 != meta 12490
+    dataidx 13: [!] sp_len dung lai 4789 != meta 6717
+    dataidx 14: [!] sp_len dung lai 27502 != meta 27856
+    dataidx 15: [!] sp_len dung lai 5731 != meta 6208
+    dataidx 16: [!] sp_len dung lai 18852 != meta 20035
+    dataidx 17: [!] sp_len dung lai 15753 != meta 16803
+    dataidx 18: [!] sp_len dung lai 7249 != meta 7986
+    dataidx 19: [!] sp_len dung lai 1926 != meta 4584
+    dataidx 20: [!] sp_len dung lai 8388 != meta 9262
+    dataidx 21: [!] sp_len dung lai 21205 != meta 22154
+    dataidx 22: [!] sp_len dung lai 21045 != meta 23253
+    dataidx 23: [!] sp_len dung lai 27455 != meta 29351
+    dataidx 24: [!] sp_len dung lai 8042 != meta 9583
+    dataidx 25: [!] sp_len dung lai 7567 != meta 8062
+    dataidx 26: [!] sp_len dung lai 16846 != meta 18353
+    dataidx 27: [!] sp_len dung lai 8468 != meta 10300
+    dataidx 28: [!] sp_len dung lai 13835 != meta 15165
+    dataidx 29: [!] sp_len dung lai 6097 != meta 8073
+    dataidx 30: [!] sp_len dung lai 11558 != meta 13761
+    dataidx 31: [!] sp_len dung lai 4705 != meta 5318
+    dataidx 32: [!] sp_len dung lai 15112 != meta 16792
+    dataidx 33: [!] sp_len dung lai 20679 != meta 22510
+    dataidx 34: [!] sp_len dung lai 30875 != meta 31494
+    dataidx 35: [!] sp_len dung lai 7554 != meta 8838
+    dataidx 36: [!] sp_len dung lai 4468 != meta 5371
+    dataidx 37: [!] sp_len dung lai 17652 != meta 19447
+    dataidx 38: [!] sp_len dung lai 19521 != meta 21056
+    dataidx 39: [!] sp_len dung lai 6320 != meta 7261
+    dataidx 40: [!] sp_len dung lai 5655 != meta 7970
+    dataidx 41: [!] sp_len dung lai 16411 != meta 17664
+    dataidx 42: [!] sp_len dung lai 8930 != meta 10420
+    dataidx 43: [!] sp_len dung lai 17173 != meta 18840
+    dataidx 44: [!] sp_len dung lai 10544 != meta 12500
+    dataidx 45: [!] sp_len dung lai 16750 != meta 18950
+    dataidx 46: [!] sp_len dung lai 30511 != meta 31494
+    dataidx 47: [!] sp_len dung lai 16846 != meta 18397
+    dataidx 48: [!] sp_len dung lai 15809 != meta 17026
+    dataidx 49: [!] sp_len dung lai 4893 != meta 5942
+    dataidx 50: [!] sp_len dung lai 9352 != meta 10767
+    dataidx 51: [!] sp_len dung lai 4364 != meta 4992
+    dataidx 52: [!] sp_len dung lai 5749 != meta 6816
+    dataidx 53: [!] sp_len dung lai 15818 != meta 17195
+    dataidx 54: [!] sp_len dung lai 21919 != meta 23681
+    dataidx 55: [!] sp_len dung lai 21266 != meta 21943
+    dataidx 56: [!] sp_len dung lai 15576 != meta 16388
+    dataidx 57: [!] sp_len dung lai 4317 != meta 6694
+    dataidx 58: [!] sp_len dung lai 21770 != meta 23064
+    dataidx 59: [!] sp_len dung lai 29243 != meta 31494
+    dataidx 60: [!] sp_len dung lai 13059 != meta 13307
+    dataidx 61: [!] sp_len dung lai 13816 != meta 15704
+    dataidx 62: [!] sp_len dung lai 27350 != meta 29326
+    dataidx 63: [!] sp_len dung lai 3081 != meta 3781
+    dataidx 64: [!] sp_len dung lai 1698 != meta 4188
+    dataidx 65: [!] sp_len dung lai 19945 != meta 20717
+    dataidx 66: [!] sp_len dung lai 7981 != meta 9262
+    dataidx 67: [!] sp_len dung lai 10517 != meta 11065
+    dataidx 68: [!] sp_len dung lai 12324 != meta 13909
+    dataidx 69: [!] sp_len dung lai 2794 != meta 4667
+    dataidx 70: [!] sp_len dung lai 30490 != meta 31494
+    dataidx 71: [!] sp_len dung lai 4882 != meta 5825
+    dataidx 72: [!] sp_len dung lai 6406 != meta 7203
+    dataidx 73: [!] sp_len dung lai 18900 != meta 21185
+    dataidx 74: [!] sp_len dung lai 7803 != meta 8447
+    dataidx 75: [!] sp_len dung lai 30543 != meta 31494
+    dataidx 76: [!] sp_len dung lai 7667 != meta 11928
+    dataidx 77: [!] sp_len dung lai 19456 != meta 21103
+    dataidx 78: [!] sp_len dung lai 7101 != meta 8750
+    dataidx 79: [!] sp_len dung lai 4003 != meta 5216
+    dataidx 80: [!] sp_len dung lai 19604 != meta 21970
+    dataidx 81: [!] sp_len dung lai 15753 != meta 17169
+    dataidx 82: [!] sp_len dung lai 3789 != meta 4949
+    dataidx 83: [!] sp_len dung lai 3565 != meta 5243
+    dataidx 84: [!] sp_len dung lai 14504 != meta 16045
+    dataidx 85: [!] sp_len dung lai 9684 != meta 10020
+    dataidx 86: [!] sp_len dung lai 7224 != meta 7716
+    dataidx 87: [!] sp_len dung lai 22955 != meta 25027
+    dataidx 88: [!] sp_len dung lai 8329 != meta 9657
+    dataidx 89: [!] sp_len dung lai 3387 != meta 4702
+    dataidx 90: [!] sp_len dung lai 29627 != meta 31494
+    dataidx 91: [!] sp_len dung lai 14508 != meta 16035
+    dataidx 92: [!] sp_len dung lai 28162 != meta 30346
+    dataidx 93: [!] sp_len dung lai 4943 != meta 6377
+    dataidx 94: [!] sp_len dung lai 16901 != meta 19870
+    dataidx 95: [!] sp_len dung lai 9048 != meta 11048
+    dataidx 96: [!] sp_len dung lai 3414 != meta 5161
+    dataidx 97: [!] sp_len dung lai 22956 != meta 25726
+    dataidx 98: [!] sp_len dung lai 4156 != meta 5513
+    dataidx 99: [!] sp_len dung lai 12514 != meta 13091
+    dataidx 100: [!] sp_len dung lai 4272 != meta 4757
+    dataidx 101: [!] sp_len dung lai 8480 != meta 8663
+    dataidx 102: [!] sp_len dung lai 9879 != meta 11273
+    dataidx 103: [!] sp_len dung lai 22191 != meta 23793
+    dataidx 104: [!] sp_len dung lai 2794 != meta 4459
+    dataidx 105: [!] sp_len dung lai 11234 != meta 11835
+    dataidx 106: [!] sp_len dung lai 10693 != meta 11778
+    dataidx 107: [!] sp_len dung lai 6514 != meta 8538
+    dataidx 108: [!] sp_len dung lai 6254 != meta 7378
+    dataidx 109: [!] sp_len dung lai 11119 != meta 12136
+    dataidx 110: [!] sp_len dung lai 10950 != meta 11722
+    dataidx 111: [!] sp_len dung lai 4072 != meta 4362
+    dataidx 112: [!] sp_len dung lai 21045 != meta 22998
+    dataidx 113: [!] sp_len dung lai 9027 != meta 10432
+    dataidx 114: [!] sp_len dung lai 22987 != meta 24188
+    dataidx 115: [!] sp_len dung lai 17462 != meta 19496
+    dataidx 116: [!] sp_len dung lai 7435 != meta 8406
+    dataidx 117: [!] sp_len dung lai 4024 != meta 4836
+    dataidx 118: [!] sp_len dung lai 7772 != meta 8756
+    dataidx 119: [!] sp_len dung lai 3234 != meta 4000
+    dataidx 120: [!] sp_len dung lai 16531 != meta 17322
+    dataidx 121: [!] sp_len dung lai 8053 != meta 10557
+    dataidx 122: [!] sp_len dung lai 6299 != meta 8075
+    dataidx 123: [!] sp_len dung lai 22209 != meta 23761
+    dataidx 124: [!] sp_len dung lai 25235 != meta 27674
+    dataidx 125: [!] sp_len dung lai 16901 != meta 19694
+    dataidx 126: [!] sp_len dung lai 5613 != meta 6878
+    dataidx 127: [!] sp_len dung lai 28839 != meta 30079
+    dataidx 128: [!] sp_len dung lai 8980 != meta 10417
+    dataidx 129: [!] sp_len dung lai 7185 != meta 7685
+    dataidx 130: [!] sp_len dung lai 9838 != meta 11228
+    dataidx 131: [!] sp_len dung lai 13934 != meta 14365
+    dataidx 132: [!] sp_len dung lai 18353 != meta 19314
+    dataidx 133: [!] sp_len dung lai 10777 != meta 11421
+    dataidx 134: [!] sp_len dung lai 13097 != meta 15212
+    dataidx 135: [!] sp_len dung lai 20679 != meta 23314
+    dataidx 136: [!] sp_len dung lai 6327 != meta 7977
+    dataidx 137: [!] sp_len dung lai 4281 != meta 4742
+    dataidx 138: [!] sp_len dung lai 24224 != meta 25573
+    dataidx 139: [!] sp_len dung lai 14950 != meta 15573
+    dataidx 140: [!] sp_len dung lai 25364 != meta 26128
+    dataidx 141: [!] sp_len dung lai 5914 != meta 7224
+    dataidx 142: [!] sp_len dung lai 13275 != meta 15632
+    dataidx 143: [!] sp_len dung lai 19136 != meta 19538
+    dataidx 144: [!] sp_len dung lai 1855 != meta 4614
+    dataidx 145: [!] sp_len dung lai 10339 != meta 11423
+    dataidx 146: [!] sp_len dung lai 8843 != meta 10530
+    dataidx 147: [!] sp_len dung lai 12155 != meta 13202
+    dataidx 148: [!] sp_len dung lai 4494 != meta 4883
+    dataidx 149: [!] sp_len dung lai 9573 != meta 11946
+    dataidx 150: [!] sp_len dung lai 5395 != meta 7688
+    dataidx 151: [!] sp_len dung lai 13713 != meta 14307
+    dataidx 152: [!] sp_len dung lai 6670 != meta 7083
+    dataidx 153: [!] sp_len dung lai 3928 != meta 5474
+    dataidx 154: [!] sp_len dung lai 30895 != meta 31494
+    dataidx 155: [!] sp_len dung lai 4170 != meta 5353
+    dataidx 156: [!] sp_len dung lai 15669 != meta 16114
+    dataidx 157: [!] sp_len dung lai 16037 != meta 18379
+    dataidx 158: [!] sp_len dung lai 16613 != meta 17452
+    dataidx 159: [!] sp_len dung lai 5929 != meta 6912
+    dataidx 160: [!] sp_len dung lai 4564 != meta 6056
+    dataidx 161: [!] sp_len dung lai 30527 != meta 31494
+    dataidx 162: [!] sp_len dung lai 5749 != meta 7309
+    dataidx 163: [!] sp_len dung lai 13377 != meta 15070
+    dataidx 164: [!] sp_len dung lai 21956 != meta 23159
+    dataidx 165: [!] sp_len dung lai 13097 != meta 14890
+    dataidx 166: [!] sp_len dung lai 4712 != meta 6035
+    dataidx 167: [!] sp_len dung lai 9685 != meta 11407
+    dataidx 168: [!] sp_len dung lai 18928 != meta 19423
+    dataidx 169: [!] sp_len dung lai 13275 != meta 14428
+    dataidx 170: [!] sp_len dung lai 29571 != meta 31494
+    dataidx 171: [!] sp_len dung lai 3947 != meta 5178
+    dataidx 172: [!] sp_len dung lai 28016 != meta 28530
+    dataidx 173: [!] sp_len dung lai 16147 != meta 16765
+    dataidx 174: [!] sp_len dung lai 4760 != meta 5683
+    dataidx 175: [!] sp_len dung lai 14637 != meta 15282
+    dataidx 176: [!] sp_len dung lai 11705 != meta 12678
+    dataidx 177: [!] sp_len dung lai 9888 != meta 11297
+    dataidx 178: [!] sp_len dung lai 4716 != meta 5053
+    dataidx 179: [!] sp_len dung lai 5608 != meta 7815
+    dataidx 180: [!] sp_len dung lai 29366 != meta 30521
+    dataidx 181: [!] sp_len dung lai 2740 != meta 4543
+    dataidx 182: [!] sp_len dung lai 14594 != meta 15188
+    dataidx 183: [!] sp_len dung lai 12959 != meta 14034
+    dataidx 184: [!] sp_len dung lai 5655 != meta 6551
+    dataidx 185: [!] sp_len dung lai 25020 != meta 26754
+    dataidx 186: [!] sp_len dung lai 17863 != meta 20082
+    dataidx 187: [!] sp_len dung lai 7276 != meta 8905
+    dataidx 188: [!] sp_len dung lai 3179 != meta 5830
+    dataidx 189: [!] sp_len dung lai 24002 != meta 25434
+    dataidx 190: [!] sp_len dung lai 7778 != meta 8998
+    dataidx 191: [!] sp_len dung lai 16846 != meta 18280
+    dataidx 192: [!] sp_len dung lai 19552 != meta 20815
+    dataidx 193: [!] sp_len dung lai 5215 != meta 6492
+    dataidx 194: [!] sp_len dung lai 5206 != meta 5621
+    dataidx 195: [!] sp_len dung lai 13420 != meta 15175
+    dataidx 196: [!] sp_len dung lai 6832 != meta 8006
+    dataidx 197: [!] sp_len dung lai 15809 != meta 17056
+    dataidx 198: [!] sp_len dung lai 15378 != meta 17137
+    dataidx 199: [!] sp_len dung lai 9076 != meta 10555
+
+[C] Shape + do dai — hard_boundary
+    dataidx   0: centroids (1, 32, 819, 128) ✅ · labels (1, 32, 16398) (mong 16398) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 1200, 128) ✅ · labels (1, 32, 24019) (mong 24019) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 951, 128) ✅ · labels (1, 32, 19037) (mong 19037) ✅ · o rong 0.0%
+    dataidx   3: centroids (1, 32, 1195, 128) ✅ · labels (1, 32, 23906) (mong 23906) ✅ · o rong 0.0%
+    dataidx   4: centroids (1, 32, 1041, 128) ✅ · labels (1, 32, 20830) (mong 20830) ✅ · o rong 0.0%
+    dataidx   5: centroids (1, 32, 1030, 128) ✅ · labels (1, 32, 20610) (mong 20610) ✅ · o rong 0.0%
+    dataidx   6: centroids (1, 32, 250, 128) ✅ · labels (1, 32, 5007) (mong 5007) ✅ · o rong 0.0%
+    dataidx   7: centroids (1, 32, 1012, 128) ✅ · labels (1, 32, 20258) (mong 20258) ✅ · o rong 0.0%
+    dataidx   8: centroids (1, 32, 1149, 128) ✅ · labels (1, 32, 22997) (mong 22997) ✅ · o rong 0.0%
+    dataidx   9: centroids (1, 32, 1291, 128) ✅ · labels (1, 32, 25827) (mong 25827) ✅ · o rong 0.0%
+    dataidx  10: centroids (1, 32, 223, 128) ✅ · labels (1, 32, 4462) (mong 4462) ✅ · o rong 0.0%
+    dataidx  11: centroids (1, 32, 329, 128) ✅ · labels (1, 32, 6580) (mong 6580) ✅ · o rong 0.0%
+    dataidx  12: centroids (1, 32, 619, 128) ✅ · labels (1, 32, 12390) (mong 12390) ✅ · o rong 0.0%
+    dataidx  13: centroids (1, 32, 330, 128) ✅ · labels (1, 32, 6617) (mong 6617) ✅ · o rong 0.0%
+    dataidx  14: centroids (1, 32, 1387, 128) ✅ · labels (1, 32, 27756) (mong 27756) ✅ · o rong 0.0%
+    dataidx  15: centroids (1, 32, 305, 128) ✅ · labels (1, 32, 6108) (mong 6108) ✅ · o rong 0.0%
+    dataidx  16: centroids (1, 32, 996, 128) ✅ · labels (1, 32, 19935) (mong 19935) ✅ · o rong 0.0%
+    dataidx  17: centroids (1, 32, 835, 128) ✅ · labels (1, 32, 16703) (mong 16703) ✅ · o rong 0.0%
+    dataidx  18: centroids (1, 32, 394, 128) ✅ · labels (1, 32, 7886) (mong 7886) ✅ · o rong 0.0%
+    dataidx  19: centroids (1, 32, 224, 128) ✅ · labels (1, 32, 4484) (mong 4484) ✅ · o rong 0.0%
+    dataidx  20: centroids (1, 32, 458, 128) ✅ · labels (1, 32, 9162) (mong 9162) ✅ · o rong 0.0%
+    dataidx  21: centroids (1, 32, 1102, 128) ✅ · labels (1, 32, 22054) (mong 22054) ✅ · o rong 0.0%
+    dataidx  22: centroids (1, 32, 1157, 128) ✅ · labels (1, 32, 23153) (mong 23153) ✅ · o rong 0.0%
+    dataidx  23: centroids (1, 32, 1462, 128) ✅ · labels (1, 32, 29251) (mong 29251) ✅ · o rong 0.0%
+    dataidx  24: centroids (1, 32, 474, 128) ✅ · labels (1, 32, 9483) (mong 9483) ✅ · o rong 0.0%
+    dataidx  25: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7962) (mong 7962) ✅ · o rong 0.0%
+    dataidx  26: centroids (1, 32, 912, 128) ✅ · labels (1, 32, 18253) (mong 18253) ✅ · o rong 0.0%
+    dataidx  27: centroids (1, 32, 510, 128) ✅ · labels (1, 32, 10200) (mong 10200) ✅ · o rong 0.0%
+    dataidx  28: centroids (1, 32, 753, 128) ✅ · labels (1, 32, 15065) (mong 15065) ✅ · o rong 0.0%
+    dataidx  29: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7973) (mong 7973) ✅ · o rong 0.0%
+    dataidx  30: centroids (1, 32, 683, 128) ✅ · labels (1, 32, 13661) (mong 13661) ✅ · o rong 0.0%
+    dataidx  31: centroids (1, 32, 260, 128) ✅ · labels (1, 32, 5218) (mong 5218) ✅ · o rong 0.0%
+    dataidx  32: centroids (1, 32, 834, 128) ✅ · labels (1, 32, 16692) (mong 16692) ✅ · o rong 0.0%
+    dataidx  33: centroids (1, 32, 1120, 128) ✅ · labels (1, 32, 22410) (mong 22410) ✅ · o rong 0.0%
+    dataidx  34: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  35: centroids (1, 32, 436, 128) ✅ · labels (1, 32, 8738) (mong 8738) ✅ · o rong 0.0%
+    dataidx  36: centroids (1, 32, 263, 128) ✅ · labels (1, 32, 5271) (mong 5271) ✅ · o rong 0.0%
+    dataidx  37: centroids (1, 32, 967, 128) ✅ · labels (1, 32, 19347) (mong 19347) ✅ · o rong 0.0%
+    dataidx  38: centroids (1, 32, 1047, 128) ✅ · labels (1, 32, 20956) (mong 20956) ✅ · o rong 0.0%
+    dataidx  39: centroids (1, 32, 358, 128) ✅ · labels (1, 32, 7161) (mong 7161) ✅ · o rong 0.0%
+    dataidx  40: centroids (1, 32, 393, 128) ✅ · labels (1, 32, 7870) (mong 7870) ✅ · o rong 0.0%
+    dataidx  41: centroids (1, 32, 878, 128) ✅ · labels (1, 32, 17564) (mong 17564) ✅ · o rong 0.0%
+    dataidx  42: centroids (1, 32, 516, 128) ✅ · labels (1, 32, 10320) (mong 10320) ✅ · o rong 0.0%
+    dataidx  43: centroids (1, 32, 937, 128) ✅ · labels (1, 32, 18740) (mong 18740) ✅ · o rong 0.0%
+    dataidx  44: centroids (1, 32, 620, 128) ✅ · labels (1, 32, 12400) (mong 12400) ✅ · o rong 0.0%
+    dataidx  45: centroids (1, 32, 942, 128) ✅ · labels (1, 32, 18850) (mong 18850) ✅ · o rong 0.0%
+    dataidx  46: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  47: centroids (1, 32, 914, 128) ✅ · labels (1, 32, 18297) (mong 18297) ✅ · o rong 0.0%
+    dataidx  48: centroids (1, 32, 846, 128) ✅ · labels (1, 32, 16926) (mong 16926) ✅ · o rong 0.0%
+    dataidx  49: centroids (1, 32, 292, 128) ✅ · labels (1, 32, 5842) (mong 5842) ✅ · o rong 0.0%
+    dataidx  50: centroids (1, 32, 533, 128) ✅ · labels (1, 32, 10667) (mong 10667) ✅ · o rong 0.0%
+    dataidx  51: centroids (1, 32, 244, 128) ✅ · labels (1, 32, 4892) (mong 4892) ✅ · o rong 0.0%
+    dataidx  52: centroids (1, 32, 335, 128) ✅ · labels (1, 32, 6716) (mong 6716) ✅ · o rong 0.0%
+    dataidx  53: centroids (1, 32, 854, 128) ✅ · labels (1, 32, 17095) (mong 17095) ✅ · o rong 0.0%
+    dataidx  54: centroids (1, 32, 1179, 128) ✅ · labels (1, 32, 23581) (mong 23581) ✅ · o rong 0.0%
+    dataidx  55: centroids (1, 32, 1092, 128) ✅ · labels (1, 32, 21843) (mong 21843) ✅ · o rong 0.0%
+    dataidx  56: centroids (1, 32, 814, 128) ✅ · labels (1, 32, 16288) (mong 16288) ✅ · o rong 0.0%
+    dataidx  57: centroids (1, 32, 329, 128) ✅ · labels (1, 32, 6594) (mong 6594) ✅ · o rong 0.0%
+    dataidx  58: centroids (1, 32, 1148, 128) ✅ · labels (1, 32, 22964) (mong 22964) ✅ · o rong 0.0%
+    dataidx  59: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  60: centroids (1, 32, 660, 128) ✅ · labels (1, 32, 13207) (mong 13207) ✅ · o rong 0.0%
+    dataidx  61: centroids (1, 32, 780, 128) ✅ · labels (1, 32, 15604) (mong 15604) ✅ · o rong 0.0%
+    dataidx  62: centroids (1, 32, 1461, 128) ✅ · labels (1, 32, 29226) (mong 29226) ✅ · o rong 0.0%
+    dataidx  63: centroids (1, 32, 184, 128) ✅ · labels (1, 32, 3681) (mong 3681) ✅ · o rong 0.0%
+    dataidx  64: centroids (1, 32, 204, 128) ✅ · labels (1, 32, 4088) (mong 4088) ✅ · o rong 0.0%
+    dataidx  65: centroids (1, 32, 1030, 128) ✅ · labels (1, 32, 20617) (mong 20617) ✅ · o rong 0.0%
+    dataidx  66: centroids (1, 32, 458, 128) ✅ · labels (1, 32, 9162) (mong 9162) ✅ · o rong 0.0%
+    dataidx  67: centroids (1, 32, 548, 128) ✅ · labels (1, 32, 10965) (mong 10965) ✅ · o rong 0.0%
+    dataidx  68: centroids (1, 32, 690, 128) ✅ · labels (1, 32, 13809) (mong 13809) ✅ · o rong 0.0%
+    dataidx  69: centroids (1, 32, 228, 128) ✅ · labels (1, 32, 4567) (mong 4567) ✅ · o rong 0.0%
+    dataidx  70: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  71: centroids (1, 32, 286, 128) ✅ · labels (1, 32, 5725) (mong 5725) ✅ · o rong 0.0%
+    dataidx  72: centroids (1, 32, 355, 128) ✅ · labels (1, 32, 7103) (mong 7103) ✅ · o rong 0.0%
+    dataidx  73: centroids (1, 32, 1054, 128) ✅ · labels (1, 32, 21085) (mong 21085) ✅ · o rong 0.0%
+    dataidx  74: centroids (1, 32, 417, 128) ✅ · labels (1, 32, 8347) (mong 8347) ✅ · o rong 0.0%
+    dataidx  75: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  76: centroids (1, 32, 591, 128) ✅ · labels (1, 32, 11828) (mong 11828) ✅ · o rong 0.0%
+    dataidx  77: centroids (1, 32, 1050, 128) ✅ · labels (1, 32, 21003) (mong 21003) ✅ · o rong 0.0%
+    dataidx  78: centroids (1, 32, 432, 128) ✅ · labels (1, 32, 8650) (mong 8650) ✅ · o rong 0.0%
+    dataidx  79: centroids (1, 32, 255, 128) ✅ · labels (1, 32, 5116) (mong 5116) ✅ · o rong 0.0%
+    dataidx  80: centroids (1, 32, 1093, 128) ✅ · labels (1, 32, 21870) (mong 21870) ✅ · o rong 0.0%
+    dataidx  81: centroids (1, 32, 853, 128) ✅ · labels (1, 32, 17069) (mong 17069) ✅ · o rong 0.0%
+    dataidx  82: centroids (1, 32, 242, 128) ✅ · labels (1, 32, 4849) (mong 4849) ✅ · o rong 0.0%
+    dataidx  83: centroids (1, 32, 257, 128) ✅ · labels (1, 32, 5143) (mong 5143) ✅ · o rong 0.0%
+    dataidx  84: centroids (1, 32, 797, 128) ✅ · labels (1, 32, 15945) (mong 15945) ✅ · o rong 0.0%
+    dataidx  85: centroids (1, 32, 496, 128) ✅ · labels (1, 32, 9920) (mong 9920) ✅ · o rong 0.0%
+    dataidx  86: centroids (1, 32, 380, 128) ✅ · labels (1, 32, 7616) (mong 7616) ✅ · o rong 0.0%
+    dataidx  87: centroids (1, 32, 1246, 128) ✅ · labels (1, 32, 24927) (mong 24927) ✅ · o rong 0.0%
+    dataidx  88: centroids (1, 32, 477, 128) ✅ · labels (1, 32, 9557) (mong 9557) ✅ · o rong 0.0%
+    dataidx  89: centroids (1, 32, 230, 128) ✅ · labels (1, 32, 4602) (mong 4602) ✅ · o rong 0.0%
+    dataidx  90: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  91: centroids (1, 32, 796, 128) ✅ · labels (1, 32, 15935) (mong 15935) ✅ · o rong 0.0%
+    dataidx  92: centroids (1, 32, 1512, 128) ✅ · labels (1, 32, 30246) (mong 30246) ✅ · o rong 0.0%
+    dataidx  93: centroids (1, 32, 313, 128) ✅ · labels (1, 32, 6277) (mong 6277) ✅ · o rong 0.0%
+    dataidx  94: centroids (1, 32, 988, 128) ✅ · labels (1, 32, 19770) (mong 19770) ✅ · o rong 0.0%
+    dataidx  95: centroids (1, 32, 547, 128) ✅ · labels (1, 32, 10948) (mong 10948) ✅ · o rong 0.0%
+    dataidx  96: centroids (1, 32, 253, 128) ✅ · labels (1, 32, 5061) (mong 5061) ✅ · o rong 0.0%
+    dataidx  97: centroids (1, 32, 1281, 128) ✅ · labels (1, 32, 25626) (mong 25626) ✅ · o rong 0.0%
+    dataidx  98: centroids (1, 32, 270, 128) ✅ · labels (1, 32, 5413) (mong 5413) ✅ · o rong 0.0%
+    dataidx  99: centroids (1, 32, 649, 128) ✅ · labels (1, 32, 12991) (mong 12991) ✅ · o rong 0.0%
+    dataidx 100: centroids (1, 32, 232, 128) ✅ · labels (1, 32, 4657) (mong 4657) ✅ · o rong 0.0%
+    dataidx 102: centroids (1, 32, 558, 128) ✅ · labels (1, 32, 11173) (mong 11173) ✅ · o rong 0.0%
+    dataidx 103: centroids (1, 32, 1184, 128) ✅ · labels (1, 32, 23693) (mong 23693) ✅ · o rong 0.0%
+    dataidx 104: centroids (1, 32, 217, 128) ✅ · labels (1, 32, 4359) (mong 4359) ✅ · o rong 0.0%
+    dataidx 105: centroids (1, 32, 586, 128) ✅ · labels (1, 32, 11735) (mong 11735) ✅ · o rong 0.0%
+    dataidx 106: centroids (1, 32, 583, 128) ✅ · labels (1, 32, 11678) (mong 11678) ✅ · o rong 0.0%
+    dataidx 107: centroids (1, 32, 421, 128) ✅ · labels (1, 32, 8438) (mong 8438) ✅ · o rong 0.0%
+    dataidx 108: centroids (1, 32, 363, 128) ✅ · labels (1, 32, 7278) (mong 7278) ✅ · o rong 0.0%
+    dataidx 109: centroids (1, 32, 601, 128) ✅ · labels (1, 32, 12036) (mong 12036) ✅ · o rong 0.0%
+    dataidx 110: centroids (1, 32, 581, 128) ✅ · labels (1, 32, 11622) (mong 11622) ✅ · o rong 0.0%
+    dataidx 111: centroids (1, 32, 213, 128) ✅ · labels (1, 32, 4262) (mong 4262) ✅ · o rong 0.0%
+    dataidx 112: centroids (1, 32, 1144, 128) ✅ · labels (1, 32, 22898) (mong 22898) ✅ · o rong 0.0%
+    dataidx 113: centroids (1, 32, 516, 128) ✅ · labels (1, 32, 10332) (mong 10332) ✅ · o rong 0.0%
+    dataidx 114: centroids (1, 32, 1204, 128) ✅ · labels (1, 32, 24088) (mong 24088) ✅ · o rong 0.0%
+    dataidx 115: centroids (1, 32, 969, 128) ✅ · labels (1, 32, 19396) (mong 19396) ✅ · o rong 0.0%
+    dataidx 116: centroids (1, 32, 415, 128) ✅ · labels (1, 32, 8306) (mong 8306) ✅ · o rong 0.0%
+    dataidx 117: centroids (1, 32, 236, 128) ✅ · labels (1, 32, 4736) (mong 4736) ✅ · o rong 0.0%
+    dataidx 118: centroids (1, 32, 432, 128) ✅ · labels (1, 32, 8656) (mong 8656) ✅ · o rong 0.0%
+    dataidx 119: centroids (1, 32, 195, 128) ✅ · labels (1, 32, 3900) (mong 3900) ✅ · o rong 0.0%
+    dataidx 120: centroids (1, 32, 861, 128) ✅ · labels (1, 32, 17222) (mong 17222) ✅ · o rong 0.0%
+    dataidx 121: centroids (1, 32, 522, 128) ✅ · labels (1, 32, 10457) (mong 10457) ✅ · o rong 0.0%
+    dataidx 122: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7975) (mong 7975) ✅ · o rong 0.0%
+    dataidx 123: centroids (1, 32, 1183, 128) ✅ · labels (1, 32, 23661) (mong 23661) ✅ · o rong 0.0%
+    dataidx 124: centroids (1, 32, 1378, 128) ✅ · labels (1, 32, 27574) (mong 27574) ✅ · o rong 0.0%
+    dataidx 125: centroids (1, 32, 979, 128) ✅ · labels (1, 32, 19594) (mong 19594) ✅ · o rong 0.0%
+    dataidx 126: centroids (1, 32, 338, 128) ✅ · labels (1, 32, 6778) (mong 6778) ✅ · o rong 0.0%
+    dataidx 127: centroids (1, 32, 1498, 128) ✅ · labels (1, 32, 29979) (mong 29979) ✅ · o rong 0.0%
+    dataidx 128: centroids (1, 32, 515, 128) ✅ · labels (1, 32, 10317) (mong 10317) ✅ · o rong 0.0%
+    dataidx 129: centroids (1, 32, 379, 128) ✅ · labels (1, 32, 7585) (mong 7585) ✅ · o rong 0.0%
+    dataidx 130: centroids (1, 32, 556, 128) ✅ · labels (1, 32, 11128) (mong 11128) ✅ · o rong 0.0%
+    dataidx 131: centroids (1, 32, 713, 128) ✅ · labels (1, 32, 14265) (mong 14265) ✅ · o rong 0.0%
+    dataidx 132: centroids (1, 32, 960, 128) ✅ · labels (1, 32, 19214) (mong 19214) ✅ · o rong 0.0%
+    dataidx 133: centroids (1, 32, 566, 128) ✅ · labels (1, 32, 11321) (mong 11321) ✅ · o rong 0.0%
+    dataidx 134: centroids (1, 32, 755, 128) ✅ · labels (1, 32, 15112) (mong 15112) ✅ · o rong 0.0%
+    dataidx 135: centroids (1, 32, 1160, 128) ✅ · labels (1, 32, 23214) (mong 23214) ✅ · o rong 0.0%
+    dataidx 136: centroids (1, 32, 393, 128) ✅ · labels (1, 32, 7877) (mong 7877) ✅ · o rong 0.0%
+    dataidx 137: centroids (1, 32, 232, 128) ✅ · labels (1, 32, 4642) (mong 4642) ✅ · o rong 0.0%
+    dataidx 138: centroids (1, 32, 1273, 128) ✅ · labels (1, 32, 25473) (mong 25473) ✅ · o rong 0.0%
+    dataidx 139: centroids (1, 32, 773, 128) ✅ · labels (1, 32, 15473) (mong 15473) ✅ · o rong 0.0%
+    dataidx 140: centroids (1, 32, 1301, 128) ✅ · labels (1, 32, 26028) (mong 26028) ✅ · o rong 0.0%
+    dataidx 141: centroids (1, 32, 356, 128) ✅ · labels (1, 32, 7124) (mong 7124) ✅ · o rong 0.0%
+    dataidx 142: centroids (1, 32, 776, 128) ✅ · labels (1, 32, 15532) (mong 15532) ✅ · o rong 0.0%
+    dataidx 143: centroids (1, 32, 971, 128) ✅ · labels (1, 32, 19438) (mong 19438) ✅ · o rong 0.0%
+    dataidx 144: centroids (1, 32, 225, 128) ✅ · labels (1, 32, 4514) (mong 4514) ✅ · o rong 0.0%
+    dataidx 145: centroids (1, 32, 566, 128) ✅ · labels (1, 32, 11323) (mong 11323) ✅ · o rong 0.0%
+    dataidx 146: centroids (1, 32, 521, 128) ✅ · labels (1, 32, 10430) (mong 10430) ✅ · o rong 0.0%
+    dataidx 147: centroids (1, 32, 655, 128) ✅ · labels (1, 32, 13102) (mong 13102) ✅ · o rong 0.0%
+    dataidx 148: centroids (1, 32, 239, 128) ✅ · labels (1, 32, 4783) (mong 4783) ✅ · o rong 0.0%
+    dataidx 149: centroids (1, 32, 592, 128) ✅ · labels (1, 32, 11846) (mong 11846) ✅ · o rong 0.0%
+    dataidx 150: centroids (1, 32, 379, 128) ✅ · labels (1, 32, 7588) (mong 7588) ✅ · o rong 0.0%
+    dataidx 151: centroids (1, 32, 710, 128) ✅ · labels (1, 32, 14207) (mong 14207) ✅ · o rong 0.0%
+    dataidx 152: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6983) (mong 6983) ✅ · o rong 0.0%
+    dataidx 153: centroids (1, 32, 268, 128) ✅ · labels (1, 32, 5374) (mong 5374) ✅ · o rong 0.0%
+    dataidx 154: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 155: centroids (1, 32, 262, 128) ✅ · labels (1, 32, 5253) (mong 5253) ✅ · o rong 0.0%
+    dataidx 156: centroids (1, 32, 800, 128) ✅ · labels (1, 32, 16014) (mong 16014) ✅ · o rong 0.0%
+    dataidx 157: centroids (1, 32, 913, 128) ✅ · labels (1, 32, 18279) (mong 18279) ✅ · o rong 0.0%
+    dataidx 158: centroids (1, 32, 867, 128) ✅ · labels (1, 32, 17352) (mong 17352) ✅ · o rong 0.0%
+    dataidx 159: centroids (1, 32, 340, 128) ✅ · labels (1, 32, 6812) (mong 6812) ✅ · o rong 0.0%
+    dataidx 160: centroids (1, 32, 297, 128) ✅ · labels (1, 32, 5956) (mong 5956) ✅ · o rong 0.0%
+    dataidx 161: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 162: centroids (1, 32, 360, 128) ✅ · labels (1, 32, 7209) (mong 7209) ✅ · o rong 0.0%
+    dataidx 163: centroids (1, 32, 748, 128) ✅ · labels (1, 32, 14970) (mong 14970) ✅ · o rong 0.0%
+    dataidx 164: centroids (1, 32, 1152, 128) ✅ · labels (1, 32, 23059) (mong 23059) ✅ · o rong 0.0%
+    dataidx 165: centroids (1, 32, 739, 128) ✅ · labels (1, 32, 14790) (mong 14790) ✅ · o rong 0.0%
+    dataidx 166: centroids (1, 32, 296, 128) ✅ · labels (1, 32, 5935) (mong 5935) ✅ · o rong 0.0%
+    dataidx 167: centroids (1, 32, 565, 128) ✅ · labels (1, 32, 11307) (mong 11307) ✅ · o rong 0.0%
+    dataidx 168: centroids (1, 32, 966, 128) ✅ · labels (1, 32, 19323) (mong 19323) ✅ · o rong 0.0%
+    dataidx 169: centroids (1, 32, 716, 128) ✅ · labels (1, 32, 14328) (mong 14328) ✅ · o rong 0.0%
+    dataidx 170: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 171: centroids (1, 32, 253, 128) ✅ · labels (1, 32, 5078) (mong 5078) ✅ · o rong 0.0%
+    dataidx 172: centroids (1, 32, 1421, 128) ✅ · labels (1, 32, 28430) (mong 28430) ✅ · o rong 0.0%
+    dataidx 173: centroids (1, 32, 833, 128) ✅ · labels (1, 32, 16665) (mong 16665) ✅ · o rong 0.0%
+    dataidx 174: centroids (1, 32, 279, 128) ✅ · labels (1, 32, 5583) (mong 5583) ✅ · o rong 0.0%
+    dataidx 175: centroids (1, 32, 759, 128) ✅ · labels (1, 32, 15182) (mong 15182) ✅ · o rong 0.0%
+    dataidx 176: centroids (1, 32, 628, 128) ✅ · labels (1, 32, 12578) (mong 12578) ✅ · o rong 0.0%
+    dataidx 177: centroids (1, 32, 559, 128) ✅ · labels (1, 32, 11197) (mong 11197) ✅ · o rong 0.0%
+    dataidx 178: centroids (1, 32, 247, 128) ✅ · labels (1, 32, 4953) (mong 4953) ✅ · o rong 0.0%
+    dataidx 179: centroids (1, 32, 385, 128) ✅ · labels (1, 32, 7715) (mong 7715) ✅ · o rong 0.0%
+    dataidx 180: centroids (1, 32, 1521, 128) ✅ · labels (1, 32, 30421) (mong 30421) ✅ · o rong 0.0%
+    dataidx 181: centroids (1, 32, 222, 128) ✅ · labels (1, 32, 4443) (mong 4443) ✅ · o rong 0.0%
+    dataidx 182: centroids (1, 32, 754, 128) ✅ · labels (1, 32, 15088) (mong 15088) ✅ · o rong 0.0%
+    dataidx 183: centroids (1, 32, 696, 128) ✅ · labels (1, 32, 13934) (mong 13934) ✅ · o rong 0.0%
+    dataidx 184: centroids (1, 32, 322, 128) ✅ · labels (1, 32, 6451) (mong 6451) ✅ · o rong 0.0%
+    dataidx 185: centroids (1, 32, 1332, 128) ✅ · labels (1, 32, 26654) (mong 26654) ✅ · o rong 0.0%
+    dataidx 186: centroids (1, 32, 999, 128) ✅ · labels (1, 32, 19982) (mong 19982) ✅ · o rong 0.0%
+    dataidx 187: centroids (1, 32, 440, 128) ✅ · labels (1, 32, 8805) (mong 8805) ✅ · o rong 0.0%
+    dataidx 188: centroids (1, 32, 286, 128) ✅ · labels (1, 32, 5730) (mong 5730) ✅ · o rong 0.0%
+    dataidx 189: centroids (1, 32, 1266, 128) ✅ · labels (1, 32, 25334) (mong 25334) ✅ · o rong 0.0%
+    dataidx 190: centroids (1, 32, 444, 128) ✅ · labels (1, 32, 8898) (mong 8898) ✅ · o rong 0.0%
+    dataidx 191: centroids (1, 32, 909, 128) ✅ · labels (1, 32, 18180) (mong 18180) ✅ · o rong 0.0%
+    dataidx 192: centroids (1, 32, 1035, 128) ✅ · labels (1, 32, 20715) (mong 20715) ✅ · o rong 0.0%
+    dataidx 193: centroids (1, 32, 319, 128) ✅ · labels (1, 32, 6392) (mong 6392) ✅ · o rong 0.0%
+    dataidx 194: centroids (1, 32, 276, 128) ✅ · labels (1, 32, 5521) (mong 5521) ✅ · o rong 0.0%
+    dataidx 195: centroids (1, 32, 753, 128) ✅ · labels (1, 32, 15075) (mong 15075) ✅ · o rong 0.0%
+    dataidx 196: centroids (1, 32, 395, 128) ✅ · labels (1, 32, 7906) (mong 7906) ✅ · o rong 0.0%
+    dataidx 197: centroids (1, 32, 847, 128) ✅ · labels (1, 32, 16956) (mong 16956) ✅ · o rong 0.0%
+    dataidx 198: centroids (1, 32, 851, 128) ✅ · labels (1, 32, 17037) (mong 17037) ✅ · o rong 0.0%
+    dataidx 199: centroids (1, 32, 522, 128) ✅ · labels (1, 32, 10455) (mong 10455) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — hard_boundary
+    dataidx 0: [!] sp_len dung lai 15895 != meta 16498
+    dataidx 1: [!] sp_len dung lai 22923 != meta 24119
+    dataidx 2: [!] sp_len dung lai 18771 != meta 19137
+    dataidx 3: [!] sp_len dung lai 22923 != meta 24006
+    dataidx 4: [!] sp_len dung lai 18918 != meta 20930
+    dataidx 5: [!] sp_len dung lai 20315 != meta 20710
+    dataidx 6: [!] sp_len dung lai 4433 != meta 5107
+    dataidx 7: [!] sp_len dung lai 19192 != meta 20358
+    dataidx 8: [!] sp_len dung lai 20547 != meta 23097
+    dataidx 9: [!] sp_len dung lai 23762 != meta 25927
+    dataidx 10: [!] sp_len dung lai 4156 != meta 4562
+    dataidx 11: [!] sp_len dung lai 5451 != meta 6680
+    dataidx 12: [!] sp_len dung lai 11373 != meta 12490
+    dataidx 13: [!] sp_len dung lai 4789 != meta 6717
+    dataidx 14: [!] sp_len dung lai 27502 != meta 27856
+    dataidx 15: [!] sp_len dung lai 5731 != meta 6208
+    dataidx 16: [!] sp_len dung lai 18852 != meta 20035
+    dataidx 17: [!] sp_len dung lai 15753 != meta 16803
+    dataidx 18: [!] sp_len dung lai 7249 != meta 7986
+    dataidx 19: [!] sp_len dung lai 1926 != meta 4584
+    dataidx 20: [!] sp_len dung lai 8388 != meta 9262
+    dataidx 21: [!] sp_len dung lai 21205 != meta 22154
+    dataidx 22: [!] sp_len dung lai 21045 != meta 23253
+    dataidx 23: [!] sp_len dung lai 27455 != meta 29351
+    dataidx 24: [!] sp_len dung lai 8042 != meta 9583
+    dataidx 25: [!] sp_len dung lai 7567 != meta 8062
+    dataidx 26: [!] sp_len dung lai 16846 != meta 18353
+    dataidx 27: [!] sp_len dung lai 8468 != meta 10300
+    dataidx 28: [!] sp_len dung lai 13835 != meta 15165
+    dataidx 29: [!] sp_len dung lai 6097 != meta 8073
+    dataidx 30: [!] sp_len dung lai 11558 != meta 13761
+    dataidx 31: [!] sp_len dung lai 4705 != meta 5318
+    dataidx 32: [!] sp_len dung lai 15112 != meta 16792
+    dataidx 33: [!] sp_len dung lai 20679 != meta 22510
+    dataidx 34: [!] sp_len dung lai 30875 != meta 31494
+    dataidx 35: [!] sp_len dung lai 7554 != meta 8838
+    dataidx 36: [!] sp_len dung lai 4468 != meta 5371
+    dataidx 37: [!] sp_len dung lai 17652 != meta 19447
+    dataidx 38: [!] sp_len dung lai 19521 != meta 21056
+    dataidx 39: [!] sp_len dung lai 6320 != meta 7261
+    dataidx 40: [!] sp_len dung lai 5655 != meta 7970
+    dataidx 41: [!] sp_len dung lai 16411 != meta 17664
+    dataidx 42: [!] sp_len dung lai 8930 != meta 10420
+    dataidx 43: [!] sp_len dung lai 17173 != meta 18840
+    dataidx 44: [!] sp_len dung lai 10544 != meta 12500
+    dataidx 45: [!] sp_len dung lai 16750 != meta 18950
+    dataidx 46: [!] sp_len dung lai 30511 != meta 31494
+    dataidx 47: [!] sp_len dung lai 16846 != meta 18397
+    dataidx 48: [!] sp_len dung lai 15809 != meta 17026
+    dataidx 49: [!] sp_len dung lai 4893 != meta 5942
+    dataidx 50: [!] sp_len dung lai 9352 != meta 10767
+    dataidx 51: [!] sp_len dung lai 4364 != meta 4992
+    dataidx 52: [!] sp_len dung lai 5749 != meta 6816
+    dataidx 53: [!] sp_len dung lai 15818 != meta 17195
+    dataidx 54: [!] sp_len dung lai 21919 != meta 23681
+    dataidx 55: [!] sp_len dung lai 21266 != meta 21943
+    dataidx 56: [!] sp_len dung lai 15576 != meta 16388
+    dataidx 57: [!] sp_len dung lai 4317 != meta 6694
+    dataidx 58: [!] sp_len dung lai 21770 != meta 23064
+    dataidx 59: [!] sp_len dung lai 29243 != meta 31494
+    dataidx 60: [!] sp_len dung lai 13059 != meta 13307
+    dataidx 61: [!] sp_len dung lai 13816 != meta 15704
+    dataidx 62: [!] sp_len dung lai 27350 != meta 29326
+    dataidx 63: [!] sp_len dung lai 3081 != meta 3781
+    dataidx 64: [!] sp_len dung lai 1698 != meta 4188
+    dataidx 65: [!] sp_len dung lai 19945 != meta 20717
+    dataidx 66: [!] sp_len dung lai 7981 != meta 9262
+    dataidx 67: [!] sp_len dung lai 10517 != meta 11065
+    dataidx 68: [!] sp_len dung lai 12324 != meta 13909
+    dataidx 69: [!] sp_len dung lai 2794 != meta 4667
+    dataidx 70: [!] sp_len dung lai 30490 != meta 31494
+    dataidx 71: [!] sp_len dung lai 4882 != meta 5825
+    dataidx 72: [!] sp_len dung lai 6406 != meta 7203
+    dataidx 73: [!] sp_len dung lai 18900 != meta 21185
+    dataidx 74: [!] sp_len dung lai 7803 != meta 8447
+    dataidx 75: [!] sp_len dung lai 30543 != meta 31494
+    dataidx 76: [!] sp_len dung lai 7667 != meta 11928
+    dataidx 77: [!] sp_len dung lai 19456 != meta 21103
+    dataidx 78: [!] sp_len dung lai 7101 != meta 8750
+    dataidx 79: [!] sp_len dung lai 4003 != meta 5216
+    dataidx 80: [!] sp_len dung lai 19604 != meta 21970
+    dataidx 81: [!] sp_len dung lai 15753 != meta 17169
+    dataidx 82: [!] sp_len dung lai 3789 != meta 4949
+    dataidx 83: [!] sp_len dung lai 3565 != meta 5243
+    dataidx 84: [!] sp_len dung lai 14504 != meta 16045
+    dataidx 85: [!] sp_len dung lai 9684 != meta 10020
+    dataidx 86: [!] sp_len dung lai 7224 != meta 7716
+    dataidx 87: [!] sp_len dung lai 22955 != meta 25027
+    dataidx 88: [!] sp_len dung lai 8329 != meta 9657
+    dataidx 89: [!] sp_len dung lai 3387 != meta 4702
+    dataidx 90: [!] sp_len dung lai 29627 != meta 31494
+    dataidx 91: [!] sp_len dung lai 14508 != meta 16035
+    dataidx 92: [!] sp_len dung lai 28162 != meta 30346
+    dataidx 93: [!] sp_len dung lai 4943 != meta 6377
+    dataidx 94: [!] sp_len dung lai 16901 != meta 19870
+    dataidx 95: [!] sp_len dung lai 9048 != meta 11048
+    dataidx 96: [!] sp_len dung lai 3414 != meta 5161
+    dataidx 97: [!] sp_len dung lai 22956 != meta 25726
+    dataidx 98: [!] sp_len dung lai 4156 != meta 5513
+    dataidx 99: [!] sp_len dung lai 12514 != meta 13091
+    dataidx 100: [!] sp_len dung lai 4272 != meta 4757
+    dataidx 102: [!] sp_len dung lai 9879 != meta 11273
+    dataidx 103: [!] sp_len dung lai 22191 != meta 23793
+    dataidx 104: [!] sp_len dung lai 2794 != meta 4459
+    dataidx 105: [!] sp_len dung lai 11234 != meta 11835
+    dataidx 106: [!] sp_len dung lai 10693 != meta 11778
+    dataidx 107: [!] sp_len dung lai 6514 != meta 8538
+    dataidx 108: [!] sp_len dung lai 6254 != meta 7378
+    dataidx 109: [!] sp_len dung lai 11119 != meta 12136
+    dataidx 110: [!] sp_len dung lai 10950 != meta 11722
+    dataidx 111: [!] sp_len dung lai 4072 != meta 4362
+    dataidx 112: [!] sp_len dung lai 21045 != meta 22998
+    dataidx 113: [!] sp_len dung lai 9027 != meta 10432
+    dataidx 114: [!] sp_len dung lai 22987 != meta 24188
+    dataidx 115: [!] sp_len dung lai 17462 != meta 19496
+    dataidx 116: [!] sp_len dung lai 7435 != meta 8406
+    dataidx 117: [!] sp_len dung lai 4024 != meta 4836
+    dataidx 118: [!] sp_len dung lai 7772 != meta 8756
+    dataidx 119: [!] sp_len dung lai 3234 != meta 4000
+    dataidx 120: [!] sp_len dung lai 16531 != meta 17322
+    dataidx 121: [!] sp_len dung lai 8053 != meta 10557
+    dataidx 122: [!] sp_len dung lai 6299 != meta 8075
+    dataidx 123: [!] sp_len dung lai 22209 != meta 23761
+    dataidx 124: [!] sp_len dung lai 25235 != meta 27674
+    dataidx 125: [!] sp_len dung lai 16901 != meta 19694
+    dataidx 126: [!] sp_len dung lai 5613 != meta 6878
+    dataidx 127: [!] sp_len dung lai 28839 != meta 30079
+    dataidx 128: [!] sp_len dung lai 8980 != meta 10417
+    dataidx 129: [!] sp_len dung lai 7185 != meta 7685
+    dataidx 130: [!] sp_len dung lai 9838 != meta 11228
+    dataidx 131: [!] sp_len dung lai 13934 != meta 14365
+    dataidx 132: [!] sp_len dung lai 18353 != meta 19314
+    dataidx 133: [!] sp_len dung lai 10777 != meta 11421
+    dataidx 134: [!] sp_len dung lai 13097 != meta 15212
+    dataidx 135: [!] sp_len dung lai 20679 != meta 23314
+    dataidx 136: [!] sp_len dung lai 6327 != meta 7977
+    dataidx 137: [!] sp_len dung lai 4281 != meta 4742
+    dataidx 138: [!] sp_len dung lai 24224 != meta 25573
+    dataidx 139: [!] sp_len dung lai 14950 != meta 15573
+    dataidx 140: [!] sp_len dung lai 25364 != meta 26128
+    dataidx 141: [!] sp_len dung lai 5914 != meta 7224
+    dataidx 142: [!] sp_len dung lai 13275 != meta 15632
+    dataidx 143: [!] sp_len dung lai 19136 != meta 19538
+    dataidx 144: [!] sp_len dung lai 1855 != meta 4614
+    dataidx 145: [!] sp_len dung lai 10339 != meta 11423
+    dataidx 146: [!] sp_len dung lai 8843 != meta 10530
+    dataidx 147: [!] sp_len dung lai 12155 != meta 13202
+    dataidx 148: [!] sp_len dung lai 4494 != meta 4883
+    dataidx 149: [!] sp_len dung lai 9573 != meta 11946
+    dataidx 150: [!] sp_len dung lai 5395 != meta 7688
+    dataidx 151: [!] sp_len dung lai 13713 != meta 14307
+    dataidx 152: [!] sp_len dung lai 6670 != meta 7083
+    dataidx 153: [!] sp_len dung lai 3928 != meta 5474
+    dataidx 154: [!] sp_len dung lai 30895 != meta 31494
+    dataidx 155: [!] sp_len dung lai 4170 != meta 5353
+    dataidx 156: [!] sp_len dung lai 15669 != meta 16114
+    dataidx 157: [!] sp_len dung lai 16037 != meta 18379
+    dataidx 158: [!] sp_len dung lai 16613 != meta 17452
+    dataidx 159: [!] sp_len dung lai 5929 != meta 6912
+    dataidx 160: [!] sp_len dung lai 4564 != meta 6056
+    dataidx 161: [!] sp_len dung lai 30527 != meta 31494
+    dataidx 162: [!] sp_len dung lai 5749 != meta 7309
+    dataidx 163: [!] sp_len dung lai 13377 != meta 15070
+    dataidx 164: [!] sp_len dung lai 21956 != meta 23159
+    dataidx 165: [!] sp_len dung lai 13097 != meta 14890
+    dataidx 166: [!] sp_len dung lai 4712 != meta 6035
+    dataidx 167: [!] sp_len dung lai 9685 != meta 11407
+    dataidx 168: [!] sp_len dung lai 18928 != meta 19423
+    dataidx 169: [!] sp_len dung lai 13275 != meta 14428
+    dataidx 170: [!] sp_len dung lai 29571 != meta 31494
+    dataidx 171: [!] sp_len dung lai 3947 != meta 5178
+    dataidx 172: [!] sp_len dung lai 28016 != meta 28530
+    dataidx 173: [!] sp_len dung lai 16147 != meta 16765
+    dataidx 174: [!] sp_len dung lai 4760 != meta 5683
+    dataidx 175: [!] sp_len dung lai 14637 != meta 15282
+    dataidx 176: [!] sp_len dung lai 11705 != meta 12678
+    dataidx 177: [!] sp_len dung lai 9888 != meta 11297
+    dataidx 178: [!] sp_len dung lai 4716 != meta 5053
+    dataidx 179: [!] sp_len dung lai 5608 != meta 7815
+    dataidx 180: [!] sp_len dung lai 29366 != meta 30521
+    dataidx 181: [!] sp_len dung lai 2740 != meta 4543
+    dataidx 182: [!] sp_len dung lai 14594 != meta 15188
+    dataidx 183: [!] sp_len dung lai 12959 != meta 14034
+    dataidx 184: [!] sp_len dung lai 5655 != meta 6551
+    dataidx 185: [!] sp_len dung lai 25020 != meta 26754
+    dataidx 186: [!] sp_len dung lai 17863 != meta 20082
+    dataidx 187: [!] sp_len dung lai 7276 != meta 8905
+    dataidx 188: [!] sp_len dung lai 3179 != meta 5830
+    dataidx 189: [!] sp_len dung lai 24002 != meta 25434
+    dataidx 190: [!] sp_len dung lai 7778 != meta 8998
+    dataidx 191: [!] sp_len dung lai 16846 != meta 18280
+    dataidx 192: [!] sp_len dung lai 19552 != meta 20815
+    dataidx 193: [!] sp_len dung lai 5215 != meta 6492
+    dataidx 194: [!] sp_len dung lai 5206 != meta 5621
+    dataidx 195: [!] sp_len dung lai 13420 != meta 15175
+    dataidx 196: [!] sp_len dung lai 6832 != meta 8006
+    dataidx 197: [!] sp_len dung lai 15809 != meta 17056
+    dataidx 198: [!] sp_len dung lai 15378 != meta 17137
+    dataidx 199: [!] sp_len dung lai 9076 != meta 10555
+
+[C] Shape + do dai — struct_hierarchy
+    dataidx   0: centroids (1, 32, 819, 128) ✅ · labels (1, 32, 16398) (mong 16398) ✅ · o rong 0.0%
+    dataidx   1: centroids (1, 32, 1200, 128) ✅ · labels (1, 32, 24019) (mong 24019) ✅ · o rong 0.0%
+    dataidx   2: centroids (1, 32, 951, 128) ✅ · labels (1, 32, 19037) (mong 19037) ✅ · o rong 0.0%
+    dataidx   3: centroids (1, 32, 1195, 128) ✅ · labels (1, 32, 23906) (mong 23906) ✅ · o rong 0.0%
+    dataidx   4: centroids (1, 32, 1041, 128) ✅ · labels (1, 32, 20830) (mong 20830) ✅ · o rong 0.0%
+    dataidx   5: centroids (1, 32, 1030, 128) ✅ · labels (1, 32, 20610) (mong 20610) ✅ · o rong 0.0%
+    dataidx   6: centroids (1, 32, 250, 128) ✅ · labels (1, 32, 5007) (mong 5007) ✅ · o rong 0.0%
+    dataidx   7: centroids (1, 32, 1012, 128) ✅ · labels (1, 32, 20258) (mong 20258) ✅ · o rong 0.0%
+    dataidx   8: centroids (1, 32, 1149, 128) ✅ · labels (1, 32, 22997) (mong 22997) ✅ · o rong 0.0%
+    dataidx   9: centroids (1, 32, 1291, 128) ✅ · labels (1, 32, 25827) (mong 25827) ✅ · o rong 0.0%
+    dataidx  10: centroids (1, 32, 223, 128) ✅ · labels (1, 32, 4462) (mong 4462) ✅ · o rong 0.0%
+    dataidx  11: centroids (1, 32, 329, 128) ✅ · labels (1, 32, 6580) (mong 6580) ✅ · o rong 0.0%
+    dataidx  12: centroids (1, 32, 619, 128) ✅ · labels (1, 32, 12390) (mong 12390) ✅ · o rong 0.0%
+    dataidx  13: centroids (1, 32, 330, 128) ✅ · labels (1, 32, 6617) (mong 6617) ✅ · o rong 0.0%
+    dataidx  14: centroids (1, 32, 1387, 128) ✅ · labels (1, 32, 27756) (mong 27756) ✅ · o rong 0.0%
+    dataidx  15: centroids (1, 32, 305, 128) ✅ · labels (1, 32, 6108) (mong 6108) ✅ · o rong 0.0%
+    dataidx  16: centroids (1, 32, 996, 128) ✅ · labels (1, 32, 19935) (mong 19935) ✅ · o rong 0.0%
+    dataidx  17: centroids (1, 32, 835, 128) ✅ · labels (1, 32, 16703) (mong 16703) ✅ · o rong 0.0%
+    dataidx  18: centroids (1, 32, 394, 128) ✅ · labels (1, 32, 7886) (mong 7886) ✅ · o rong 0.0%
+    dataidx  19: centroids (1, 32, 224, 128) ✅ · labels (1, 32, 4484) (mong 4484) ✅ · o rong 0.0%
+    dataidx  20: centroids (1, 32, 458, 128) ✅ · labels (1, 32, 9162) (mong 9162) ✅ · o rong 0.0%
+    dataidx  21: centroids (1, 32, 1102, 128) ✅ · labels (1, 32, 22054) (mong 22054) ✅ · o rong 0.0%
+    dataidx  22: centroids (1, 32, 1157, 128) ✅ · labels (1, 32, 23153) (mong 23153) ✅ · o rong 0.0%
+    dataidx  23: centroids (1, 32, 1462, 128) ✅ · labels (1, 32, 29251) (mong 29251) ✅ · o rong 0.0%
+    dataidx  24: centroids (1, 32, 474, 128) ✅ · labels (1, 32, 9483) (mong 9483) ✅ · o rong 0.0%
+    dataidx  25: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7962) (mong 7962) ✅ · o rong 0.0%
+    dataidx  26: centroids (1, 32, 912, 128) ✅ · labels (1, 32, 18253) (mong 18253) ✅ · o rong 0.0%
+    dataidx  27: centroids (1, 32, 510, 128) ✅ · labels (1, 32, 10200) (mong 10200) ✅ · o rong 0.0%
+    dataidx  28: centroids (1, 32, 753, 128) ✅ · labels (1, 32, 15065) (mong 15065) ✅ · o rong 0.0%
+    dataidx  29: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7973) (mong 7973) ✅ · o rong 0.0%
+    dataidx  30: centroids (1, 32, 683, 128) ✅ · labels (1, 32, 13661) (mong 13661) ✅ · o rong 0.0%
+    dataidx  31: centroids (1, 32, 260, 128) ✅ · labels (1, 32, 5218) (mong 5218) ✅ · o rong 0.0%
+    dataidx  32: centroids (1, 32, 834, 128) ✅ · labels (1, 32, 16692) (mong 16692) ✅ · o rong 0.0%
+    dataidx  33: centroids (1, 32, 1120, 128) ✅ · labels (1, 32, 22410) (mong 22410) ✅ · o rong 0.0%
+    dataidx  34: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  35: centroids (1, 32, 436, 128) ✅ · labels (1, 32, 8738) (mong 8738) ✅ · o rong 0.0%
+    dataidx  36: centroids (1, 32, 263, 128) ✅ · labels (1, 32, 5271) (mong 5271) ✅ · o rong 0.0%
+    dataidx  37: centroids (1, 32, 967, 128) ✅ · labels (1, 32, 19347) (mong 19347) ✅ · o rong 0.0%
+    dataidx  38: centroids (1, 32, 1047, 128) ✅ · labels (1, 32, 20956) (mong 20956) ✅ · o rong 0.0%
+    dataidx  39: centroids (1, 32, 358, 128) ✅ · labels (1, 32, 7161) (mong 7161) ✅ · o rong 0.0%
+    dataidx  40: centroids (1, 32, 393, 128) ✅ · labels (1, 32, 7870) (mong 7870) ✅ · o rong 0.0%
+    dataidx  41: centroids (1, 32, 878, 128) ✅ · labels (1, 32, 17564) (mong 17564) ✅ · o rong 0.0%
+    dataidx  42: centroids (1, 32, 516, 128) ✅ · labels (1, 32, 10320) (mong 10320) ✅ · o rong 0.0%
+    dataidx  43: centroids (1, 32, 937, 128) ✅ · labels (1, 32, 18740) (mong 18740) ✅ · o rong 0.0%
+    dataidx  44: centroids (1, 32, 620, 128) ✅ · labels (1, 32, 12400) (mong 12400) ✅ · o rong 0.0%
+    dataidx  45: centroids (1, 32, 942, 128) ✅ · labels (1, 32, 18850) (mong 18850) ✅ · o rong 0.0%
+    dataidx  46: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  47: centroids (1, 32, 914, 128) ✅ · labels (1, 32, 18297) (mong 18297) ✅ · o rong 0.0%
+    dataidx  48: centroids (1, 32, 846, 128) ✅ · labels (1, 32, 16926) (mong 16926) ✅ · o rong 0.0%
+    dataidx  49: centroids (1, 32, 292, 128) ✅ · labels (1, 32, 5842) (mong 5842) ✅ · o rong 0.0%
+    dataidx  50: centroids (1, 32, 533, 128) ✅ · labels (1, 32, 10667) (mong 10667) ✅ · o rong 0.0%
+    dataidx  51: centroids (1, 32, 244, 128) ✅ · labels (1, 32, 4892) (mong 4892) ✅ · o rong 0.0%
+    dataidx  52: centroids (1, 32, 335, 128) ✅ · labels (1, 32, 6716) (mong 6716) ✅ · o rong 0.0%
+    dataidx  53: centroids (1, 32, 854, 128) ✅ · labels (1, 32, 17095) (mong 17095) ✅ · o rong 0.0%
+    dataidx  54: centroids (1, 32, 1179, 128) ✅ · labels (1, 32, 23581) (mong 23581) ✅ · o rong 0.0%
+    dataidx  55: centroids (1, 32, 1092, 128) ✅ · labels (1, 32, 21843) (mong 21843) ✅ · o rong 0.0%
+    dataidx  56: centroids (1, 32, 814, 128) ✅ · labels (1, 32, 16288) (mong 16288) ✅ · o rong 0.0%
+    dataidx  57: centroids (1, 32, 329, 128) ✅ · labels (1, 32, 6594) (mong 6594) ✅ · o rong 0.0%
+    dataidx  58: centroids (1, 32, 1148, 128) ✅ · labels (1, 32, 22964) (mong 22964) ✅ · o rong 0.0%
+    dataidx  59: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  60: centroids (1, 32, 660, 128) ✅ · labels (1, 32, 13207) (mong 13207) ✅ · o rong 0.0%
+    dataidx  61: centroids (1, 32, 780, 128) ✅ · labels (1, 32, 15604) (mong 15604) ✅ · o rong 0.0%
+    dataidx  62: centroids (1, 32, 1461, 128) ✅ · labels (1, 32, 29226) (mong 29226) ✅ · o rong 0.0%
+    dataidx  63: centroids (1, 32, 184, 128) ✅ · labels (1, 32, 3681) (mong 3681) ✅ · o rong 0.0%
+    dataidx  64: centroids (1, 32, 204, 128) ✅ · labels (1, 32, 4088) (mong 4088) ✅ · o rong 0.0%
+    dataidx  65: centroids (1, 32, 1030, 128) ✅ · labels (1, 32, 20617) (mong 20617) ✅ · o rong 0.0%
+    dataidx  66: centroids (1, 32, 458, 128) ✅ · labels (1, 32, 9162) (mong 9162) ✅ · o rong 0.0%
+    dataidx  67: centroids (1, 32, 548, 128) ✅ · labels (1, 32, 10965) (mong 10965) ✅ · o rong 0.0%
+    dataidx  68: centroids (1, 32, 690, 128) ✅ · labels (1, 32, 13809) (mong 13809) ✅ · o rong 0.0%
+    dataidx  69: centroids (1, 32, 228, 128) ✅ · labels (1, 32, 4567) (mong 4567) ✅ · o rong 0.0%
+    dataidx  70: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  71: centroids (1, 32, 286, 128) ✅ · labels (1, 32, 5725) (mong 5725) ✅ · o rong 0.0%
+    dataidx  72: centroids (1, 32, 355, 128) ✅ · labels (1, 32, 7103) (mong 7103) ✅ · o rong 0.0%
+    dataidx  73: centroids (1, 32, 1054, 128) ✅ · labels (1, 32, 21085) (mong 21085) ✅ · o rong 0.0%
+    dataidx  74: centroids (1, 32, 417, 128) ✅ · labels (1, 32, 8347) (mong 8347) ✅ · o rong 0.0%
+    dataidx  75: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  76: centroids (1, 32, 591, 128) ✅ · labels (1, 32, 11828) (mong 11828) ✅ · o rong 0.0%
+    dataidx  77: centroids (1, 32, 1050, 128) ✅ · labels (1, 32, 21003) (mong 21003) ✅ · o rong 0.0%
+    dataidx  78: centroids (1, 32, 432, 128) ✅ · labels (1, 32, 8650) (mong 8650) ✅ · o rong 0.0%
+    dataidx  79: centroids (1, 32, 255, 128) ✅ · labels (1, 32, 5116) (mong 5116) ✅ · o rong 0.0%
+    dataidx  80: centroids (1, 32, 1093, 128) ✅ · labels (1, 32, 21870) (mong 21870) ✅ · o rong 0.0%
+    dataidx  81: centroids (1, 32, 853, 128) ✅ · labels (1, 32, 17069) (mong 17069) ✅ · o rong 0.0%
+    dataidx  82: centroids (1, 32, 242, 128) ✅ · labels (1, 32, 4849) (mong 4849) ✅ · o rong 0.0%
+    dataidx  83: centroids (1, 32, 257, 128) ✅ · labels (1, 32, 5143) (mong 5143) ✅ · o rong 0.0%
+    dataidx  84: centroids (1, 32, 797, 128) ✅ · labels (1, 32, 15945) (mong 15945) ✅ · o rong 0.0%
+    dataidx  85: centroids (1, 32, 496, 128) ✅ · labels (1, 32, 9920) (mong 9920) ✅ · o rong 0.0%
+    dataidx  86: centroids (1, 32, 380, 128) ✅ · labels (1, 32, 7616) (mong 7616) ✅ · o rong 0.0%
+    dataidx  87: centroids (1, 32, 1246, 128) ✅ · labels (1, 32, 24927) (mong 24927) ✅ · o rong 0.0%
+    dataidx  88: centroids (1, 32, 477, 128) ✅ · labels (1, 32, 9557) (mong 9557) ✅ · o rong 0.0%
+    dataidx  89: centroids (1, 32, 230, 128) ✅ · labels (1, 32, 4602) (mong 4602) ✅ · o rong 0.0%
+    dataidx  90: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx  91: centroids (1, 32, 796, 128) ✅ · labels (1, 32, 15935) (mong 15935) ✅ · o rong 0.0%
+    dataidx  92: centroids (1, 32, 1512, 128) ✅ · labels (1, 32, 30246) (mong 30246) ✅ · o rong 0.0%
+    dataidx  93: centroids (1, 32, 313, 128) ✅ · labels (1, 32, 6277) (mong 6277) ✅ · o rong 0.0%
+    dataidx  94: centroids (1, 32, 988, 128) ✅ · labels (1, 32, 19770) (mong 19770) ✅ · o rong 0.0%
+    dataidx  95: centroids (1, 32, 547, 128) ✅ · labels (1, 32, 10948) (mong 10948) ✅ · o rong 0.0%
+    dataidx  96: centroids (1, 32, 253, 128) ✅ · labels (1, 32, 5061) (mong 5061) ✅ · o rong 0.0%
+    dataidx  97: centroids (1, 32, 1281, 128) ✅ · labels (1, 32, 25626) (mong 25626) ✅ · o rong 0.0%
+    dataidx  98: centroids (1, 32, 270, 128) ✅ · labels (1, 32, 5413) (mong 5413) ✅ · o rong 0.0%
+    dataidx  99: centroids (1, 32, 649, 128) ✅ · labels (1, 32, 12991) (mong 12991) ✅ · o rong 0.0%
+    dataidx 100: centroids (1, 32, 232, 128) ✅ · labels (1, 32, 4657) (mong 4657) ✅ · o rong 0.0%
+    dataidx 102: centroids (1, 32, 558, 128) ✅ · labels (1, 32, 11173) (mong 11173) ✅ · o rong 0.0%
+    dataidx 103: centroids (1, 32, 1184, 128) ✅ · labels (1, 32, 23693) (mong 23693) ✅ · o rong 0.0%
+    dataidx 104: centroids (1, 32, 217, 128) ✅ · labels (1, 32, 4359) (mong 4359) ✅ · o rong 0.0%
+    dataidx 105: centroids (1, 32, 586, 128) ✅ · labels (1, 32, 11735) (mong 11735) ✅ · o rong 0.0%
+    dataidx 106: centroids (1, 32, 583, 128) ✅ · labels (1, 32, 11678) (mong 11678) ✅ · o rong 0.0%
+    dataidx 107: centroids (1, 32, 421, 128) ✅ · labels (1, 32, 8438) (mong 8438) ✅ · o rong 0.0%
+    dataidx 108: centroids (1, 32, 363, 128) ✅ · labels (1, 32, 7278) (mong 7278) ✅ · o rong 0.0%
+    dataidx 109: centroids (1, 32, 601, 128) ✅ · labels (1, 32, 12036) (mong 12036) ✅ · o rong 0.0%
+    dataidx 110: centroids (1, 32, 581, 128) ✅ · labels (1, 32, 11622) (mong 11622) ✅ · o rong 0.0%
+    dataidx 111: centroids (1, 32, 213, 128) ✅ · labels (1, 32, 4262) (mong 4262) ✅ · o rong 0.0%
+    dataidx 112: centroids (1, 32, 1144, 128) ✅ · labels (1, 32, 22898) (mong 22898) ✅ · o rong 0.0%
+    dataidx 113: centroids (1, 32, 516, 128) ✅ · labels (1, 32, 10332) (mong 10332) ✅ · o rong 0.0%
+    dataidx 114: centroids (1, 32, 1204, 128) ✅ · labels (1, 32, 24088) (mong 24088) ✅ · o rong 0.0%
+    dataidx 115: centroids (1, 32, 969, 128) ✅ · labels (1, 32, 19396) (mong 19396) ✅ · o rong 0.0%
+    dataidx 116: centroids (1, 32, 415, 128) ✅ · labels (1, 32, 8306) (mong 8306) ✅ · o rong 0.0%
+    dataidx 117: centroids (1, 32, 236, 128) ✅ · labels (1, 32, 4736) (mong 4736) ✅ · o rong 0.0%
+    dataidx 118: centroids (1, 32, 432, 128) ✅ · labels (1, 32, 8656) (mong 8656) ✅ · o rong 0.0%
+    dataidx 119: centroids (1, 32, 195, 128) ✅ · labels (1, 32, 3900) (mong 3900) ✅ · o rong 0.0%
+    dataidx 120: centroids (1, 32, 861, 128) ✅ · labels (1, 32, 17222) (mong 17222) ✅ · o rong 0.0%
+    dataidx 121: centroids (1, 32, 522, 128) ✅ · labels (1, 32, 10457) (mong 10457) ✅ · o rong 0.0%
+    dataidx 122: centroids (1, 32, 398, 128) ✅ · labels (1, 32, 7975) (mong 7975) ✅ · o rong 0.0%
+    dataidx 123: centroids (1, 32, 1183, 128) ✅ · labels (1, 32, 23661) (mong 23661) ✅ · o rong 0.0%
+    dataidx 124: centroids (1, 32, 1378, 128) ✅ · labels (1, 32, 27574) (mong 27574) ✅ · o rong 0.0%
+    dataidx 125: centroids (1, 32, 979, 128) ✅ · labels (1, 32, 19594) (mong 19594) ✅ · o rong 0.0%
+    dataidx 126: centroids (1, 32, 338, 128) ✅ · labels (1, 32, 6778) (mong 6778) ✅ · o rong 0.0%
+    dataidx 127: centroids (1, 32, 1498, 128) ✅ · labels (1, 32, 29979) (mong 29979) ✅ · o rong 0.0%
+    dataidx 128: centroids (1, 32, 515, 128) ✅ · labels (1, 32, 10317) (mong 10317) ✅ · o rong 0.0%
+    dataidx 129: centroids (1, 32, 379, 128) ✅ · labels (1, 32, 7585) (mong 7585) ✅ · o rong 0.0%
+    dataidx 130: centroids (1, 32, 556, 128) ✅ · labels (1, 32, 11128) (mong 11128) ✅ · o rong 0.0%
+    dataidx 131: centroids (1, 32, 713, 128) ✅ · labels (1, 32, 14265) (mong 14265) ✅ · o rong 0.0%
+    dataidx 132: centroids (1, 32, 960, 128) ✅ · labels (1, 32, 19214) (mong 19214) ✅ · o rong 0.0%
+    dataidx 133: centroids (1, 32, 566, 128) ✅ · labels (1, 32, 11321) (mong 11321) ✅ · o rong 0.0%
+    dataidx 134: centroids (1, 32, 755, 128) ✅ · labels (1, 32, 15112) (mong 15112) ✅ · o rong 0.0%
+    dataidx 135: centroids (1, 32, 1160, 128) ✅ · labels (1, 32, 23214) (mong 23214) ✅ · o rong 0.0%
+    dataidx 136: centroids (1, 32, 393, 128) ✅ · labels (1, 32, 7877) (mong 7877) ✅ · o rong 0.0%
+    dataidx 137: centroids (1, 32, 232, 128) ✅ · labels (1, 32, 4642) (mong 4642) ✅ · o rong 0.0%
+    dataidx 138: centroids (1, 32, 1273, 128) ✅ · labels (1, 32, 25473) (mong 25473) ✅ · o rong 0.0%
+    dataidx 139: centroids (1, 32, 773, 128) ✅ · labels (1, 32, 15473) (mong 15473) ✅ · o rong 0.0%
+    dataidx 140: centroids (1, 32, 1301, 128) ✅ · labels (1, 32, 26028) (mong 26028) ✅ · o rong 0.0%
+    dataidx 141: centroids (1, 32, 356, 128) ✅ · labels (1, 32, 7124) (mong 7124) ✅ · o rong 0.0%
+    dataidx 142: centroids (1, 32, 776, 128) ✅ · labels (1, 32, 15532) (mong 15532) ✅ · o rong 0.0%
+    dataidx 143: centroids (1, 32, 971, 128) ✅ · labels (1, 32, 19438) (mong 19438) ✅ · o rong 0.0%
+    dataidx 144: centroids (1, 32, 225, 128) ✅ · labels (1, 32, 4514) (mong 4514) ✅ · o rong 0.0%
+    dataidx 145: centroids (1, 32, 566, 128) ✅ · labels (1, 32, 11323) (mong 11323) ✅ · o rong 0.0%
+    dataidx 146: centroids (1, 32, 521, 128) ✅ · labels (1, 32, 10430) (mong 10430) ✅ · o rong 0.0%
+    dataidx 147: centroids (1, 32, 655, 128) ✅ · labels (1, 32, 13102) (mong 13102) ✅ · o rong 0.0%
+    dataidx 148: centroids (1, 32, 239, 128) ✅ · labels (1, 32, 4783) (mong 4783) ✅ · o rong 0.0%
+    dataidx 149: centroids (1, 32, 592, 128) ✅ · labels (1, 32, 11846) (mong 11846) ✅ · o rong 0.0%
+    dataidx 150: centroids (1, 32, 379, 128) ✅ · labels (1, 32, 7588) (mong 7588) ✅ · o rong 0.0%
+    dataidx 151: centroids (1, 32, 710, 128) ✅ · labels (1, 32, 14207) (mong 14207) ✅ · o rong 0.0%
+    dataidx 152: centroids (1, 32, 349, 128) ✅ · labels (1, 32, 6983) (mong 6983) ✅ · o rong 0.0%
+    dataidx 153: centroids (1, 32, 268, 128) ✅ · labels (1, 32, 5374) (mong 5374) ✅ · o rong 0.0%
+    dataidx 154: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 155: centroids (1, 32, 262, 128) ✅ · labels (1, 32, 5253) (mong 5253) ✅ · o rong 0.0%
+    dataidx 156: centroids (1, 32, 800, 128) ✅ · labels (1, 32, 16014) (mong 16014) ✅ · o rong 0.0%
+    dataidx 157: centroids (1, 32, 913, 128) ✅ · labels (1, 32, 18279) (mong 18279) ✅ · o rong 0.0%
+    dataidx 158: centroids (1, 32, 867, 128) ✅ · labels (1, 32, 17352) (mong 17352) ✅ · o rong 0.0%
+    dataidx 159: centroids (1, 32, 340, 128) ✅ · labels (1, 32, 6812) (mong 6812) ✅ · o rong 0.0%
+    dataidx 160: centroids (1, 32, 297, 128) ✅ · labels (1, 32, 5956) (mong 5956) ✅ · o rong 0.0%
+    dataidx 161: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 162: centroids (1, 32, 360, 128) ✅ · labels (1, 32, 7209) (mong 7209) ✅ · o rong 0.0%
+    dataidx 163: centroids (1, 32, 748, 128) ✅ · labels (1, 32, 14970) (mong 14970) ✅ · o rong 0.0%
+    dataidx 164: centroids (1, 32, 1152, 128) ✅ · labels (1, 32, 23059) (mong 23059) ✅ · o rong 0.0%
+    dataidx 165: centroids (1, 32, 739, 128) ✅ · labels (1, 32, 14790) (mong 14790) ✅ · o rong 0.0%
+    dataidx 166: centroids (1, 32, 296, 128) ✅ · labels (1, 32, 5935) (mong 5935) ✅ · o rong 0.0%
+    dataidx 167: centroids (1, 32, 565, 128) ✅ · labels (1, 32, 11307) (mong 11307) ✅ · o rong 0.0%
+    dataidx 168: centroids (1, 32, 966, 128) ✅ · labels (1, 32, 19323) (mong 19323) ✅ · o rong 0.0%
+    dataidx 169: centroids (1, 32, 716, 128) ✅ · labels (1, 32, 14328) (mong 14328) ✅ · o rong 0.0%
+    dataidx 170: centroids (1, 32, 1569, 128) ✅ · labels (1, 32, 31394) (mong 31394) ✅ · o rong 0.0%
+    dataidx 171: centroids (1, 32, 253, 128) ✅ · labels (1, 32, 5078) (mong 5078) ✅ · o rong 0.0%
+    dataidx 172: centroids (1, 32, 1421, 128) ✅ · labels (1, 32, 28430) (mong 28430) ✅ · o rong 0.0%
+    dataidx 173: centroids (1, 32, 833, 128) ✅ · labels (1, 32, 16665) (mong 16665) ✅ · o rong 0.0%
+    dataidx 174: centroids (1, 32, 279, 128) ✅ · labels (1, 32, 5583) (mong 5583) ✅ · o rong 0.0%
+    dataidx 175: centroids (1, 32, 759, 128) ✅ · labels (1, 32, 15182) (mong 15182) ✅ · o rong 0.0%
+    dataidx 176: centroids (1, 32, 628, 128) ✅ · labels (1, 32, 12578) (mong 12578) ✅ · o rong 0.0%
+    dataidx 177: centroids (1, 32, 559, 128) ✅ · labels (1, 32, 11197) (mong 11197) ✅ · o rong 0.0%
+    dataidx 178: centroids (1, 32, 247, 128) ✅ · labels (1, 32, 4953) (mong 4953) ✅ · o rong 0.0%
+    dataidx 179: centroids (1, 32, 385, 128) ✅ · labels (1, 32, 7715) (mong 7715) ✅ · o rong 0.0%
+    dataidx 180: centroids (1, 32, 1521, 128) ✅ · labels (1, 32, 30421) (mong 30421) ✅ · o rong 0.0%
+    dataidx 181: centroids (1, 32, 222, 128) ✅ · labels (1, 32, 4443) (mong 4443) ✅ · o rong 0.0%
+    dataidx 182: centroids (1, 32, 754, 128) ✅ · labels (1, 32, 15088) (mong 15088) ✅ · o rong 0.0%
+    dataidx 183: centroids (1, 32, 696, 128) ✅ · labels (1, 32, 13934) (mong 13934) ✅ · o rong 0.0%
+    dataidx 184: centroids (1, 32, 322, 128) ✅ · labels (1, 32, 6451) (mong 6451) ✅ · o rong 0.0%
+    dataidx 185: centroids (1, 32, 1332, 128) ✅ · labels (1, 32, 26654) (mong 26654) ✅ · o rong 0.0%
+    dataidx 186: centroids (1, 32, 999, 128) ✅ · labels (1, 32, 19982) (mong 19982) ✅ · o rong 0.0%
+    dataidx 187: centroids (1, 32, 440, 128) ✅ · labels (1, 32, 8805) (mong 8805) ✅ · o rong 0.0%
+    dataidx 188: centroids (1, 32, 286, 128) ✅ · labels (1, 32, 5730) (mong 5730) ✅ · o rong 0.0%
+    dataidx 189: centroids (1, 32, 1266, 128) ✅ · labels (1, 32, 25334) (mong 25334) ✅ · o rong 0.0%
+    dataidx 190: centroids (1, 32, 444, 128) ✅ · labels (1, 32, 8898) (mong 8898) ✅ · o rong 0.0%
+    dataidx 191: centroids (1, 32, 909, 128) ✅ · labels (1, 32, 18180) (mong 18180) ✅ · o rong 0.0%
+    dataidx 192: centroids (1, 32, 1035, 128) ✅ · labels (1, 32, 20715) (mong 20715) ✅ · o rong 0.0%
+    dataidx 193: centroids (1, 32, 319, 128) ✅ · labels (1, 32, 6392) (mong 6392) ✅ · o rong 0.0%
+    dataidx 194: centroids (1, 32, 276, 128) ✅ · labels (1, 32, 5521) (mong 5521) ✅ · o rong 0.0%
+    dataidx 195: centroids (1, 32, 753, 128) ✅ · labels (1, 32, 15075) (mong 15075) ✅ · o rong 0.0%
+    dataidx 196: centroids (1, 32, 395, 128) ✅ · labels (1, 32, 7906) (mong 7906) ✅ · o rong 0.0%
+    dataidx 197: centroids (1, 32, 847, 128) ✅ · labels (1, 32, 16956) (mong 16956) ✅ · o rong 0.0%
+    dataidx 198: centroids (1, 32, 851, 128) ✅ · labels (1, 32, 17037) (mong 17037) ✅ · o rong 0.0%
+    dataidx 199: centroids (1, 32, 522, 128) ✅ · labels (1, 32, 10455) (mong 10455) ✅ · o rong 0.0%
+
+[A] Ranh gioi cung — struct_hierarchy
+    dataidx 0: [!] sp_len dung lai 15895 != meta 16498
+    dataidx 1: [!] sp_len dung lai 22923 != meta 24119
+    dataidx 2: [!] sp_len dung lai 18771 != meta 19137
+    dataidx 3: [!] sp_len dung lai 22923 != meta 24006
+    dataidx 4: [!] sp_len dung lai 18918 != meta 20930
+    dataidx 5: [!] sp_len dung lai 20315 != meta 20710
+    dataidx 6: [!] sp_len dung lai 4433 != meta 5107
+    dataidx 7: [!] sp_len dung lai 19192 != meta 20358
+    dataidx 8: [!] sp_len dung lai 20547 != meta 23097
+    dataidx 9: [!] sp_len dung lai 23762 != meta 25927
+    dataidx 10: [!] sp_len dung lai 4156 != meta 4562
+    dataidx 11: [!] sp_len dung lai 5451 != meta 6680
+    dataidx 12: [!] sp_len dung lai 11373 != meta 12490
+    dataidx 13: [!] sp_len dung lai 4789 != meta 6717
+    dataidx 14: [!] sp_len dung lai 27502 != meta 27856
+    dataidx 15: [!] sp_len dung lai 5731 != meta 6208
+    dataidx 16: [!] sp_len dung lai 18852 != meta 20035
+    dataidx 17: [!] sp_len dung lai 15753 != meta 16803
+    dataidx 18: [!] sp_len dung lai 7249 != meta 7986
+    dataidx 19: [!] sp_len dung lai 1926 != meta 4584
+    dataidx 20: [!] sp_len dung lai 8388 != meta 9262
+    dataidx 21: [!] sp_len dung lai 21205 != meta 22154
+    dataidx 22: [!] sp_len dung lai 21045 != meta 23253
+    dataidx 23: [!] sp_len dung lai 27455 != meta 29351
+    dataidx 24: [!] sp_len dung lai 8042 != meta 9583
+    dataidx 25: [!] sp_len dung lai 7567 != meta 8062
+    dataidx 26: [!] sp_len dung lai 16846 != meta 18353
+    dataidx 27: [!] sp_len dung lai 8468 != meta 10300
+    dataidx 28: [!] sp_len dung lai 13835 != meta 15165
+    dataidx 29: [!] sp_len dung lai 6097 != meta 8073
+    dataidx 30: [!] sp_len dung lai 11558 != meta 13761
+    dataidx 31: [!] sp_len dung lai 4705 != meta 5318
+    dataidx 32: [!] sp_len dung lai 15112 != meta 16792
+    dataidx 33: [!] sp_len dung lai 20679 != meta 22510
+    dataidx 34: [!] sp_len dung lai 30875 != meta 31494
+    dataidx 35: [!] sp_len dung lai 7554 != meta 8838
+    dataidx 36: [!] sp_len dung lai 4468 != meta 5371
+    dataidx 37: [!] sp_len dung lai 17652 != meta 19447
+    dataidx 38: [!] sp_len dung lai 19521 != meta 21056
+    dataidx 39: [!] sp_len dung lai 6320 != meta 7261
+    dataidx 40: [!] sp_len dung lai 5655 != meta 7970
+    dataidx 41: [!] sp_len dung lai 16411 != meta 17664
+    dataidx 42: [!] sp_len dung lai 8930 != meta 10420
+    dataidx 43: [!] sp_len dung lai 17173 != meta 18840
+    dataidx 44: [!] sp_len dung lai 10544 != meta 12500
+    dataidx 45: [!] sp_len dung lai 16750 != meta 18950
+    dataidx 46: [!] sp_len dung lai 30511 != meta 31494
+    dataidx 47: [!] sp_len dung lai 16846 != meta 18397
+    dataidx 48: [!] sp_len dung lai 15809 != meta 17026
+    dataidx 49: [!] sp_len dung lai 4893 != meta 5942
+    dataidx 50: [!] sp_len dung lai 9352 != meta 10767
+    dataidx 51: [!] sp_len dung lai 4364 != meta 4992
+    dataidx 52: [!] sp_len dung lai 5749 != meta 6816
+    dataidx 53: [!] sp_len dung lai 15818 != meta 17195
+    dataidx 54: [!] sp_len dung lai 21919 != meta 23681
+    dataidx 55: [!] sp_len dung lai 21266 != meta 21943
+    dataidx 56: [!] sp_len dung lai 15576 != meta 16388
+    dataidx 57: [!] sp_len dung lai 4317 != meta 6694
+    dataidx 58: [!] sp_len dung lai 21770 != meta 23064
+    dataidx 59: [!] sp_len dung lai 29243 != meta 31494
+    dataidx 60: [!] sp_len dung lai 13059 != meta 13307
+    dataidx 61: [!] sp_len dung lai 13816 != meta 15704
+    dataidx 62: [!] sp_len dung lai 27350 != meta 29326
+    dataidx 63: [!] sp_len dung lai 3081 != meta 3781
+    dataidx 64: [!] sp_len dung lai 1698 != meta 4188
+    dataidx 65: [!] sp_len dung lai 19945 != meta 20717
+    dataidx 66: [!] sp_len dung lai 7981 != meta 9262
+    dataidx 67: [!] sp_len dung lai 10517 != meta 11065
+    dataidx 68: [!] sp_len dung lai 12324 != meta 13909
+    dataidx 69: [!] sp_len dung lai 2794 != meta 4667
+    dataidx 70: [!] sp_len dung lai 30490 != meta 31494
+    dataidx 71: [!] sp_len dung lai 4882 != meta 5825
+    dataidx 72: [!] sp_len dung lai 6406 != meta 7203
+    dataidx 73: [!] sp_len dung lai 18900 != meta 21185
+    dataidx 74: [!] sp_len dung lai 7803 != meta 8447
+    dataidx 75: [!] sp_len dung lai 30543 != meta 31494
+    dataidx 76: [!] sp_len dung lai 7667 != meta 11928
+    dataidx 77: [!] sp_len dung lai 19456 != meta 21103
+    dataidx 78: [!] sp_len dung lai 7101 != meta 8750
+    dataidx 79: [!] sp_len dung lai 4003 != meta 5216
+    dataidx 80: [!] sp_len dung lai 19604 != meta 21970
+    dataidx 81: [!] sp_len dung lai 15753 != meta 17169
+    dataidx 82: [!] sp_len dung lai 3789 != meta 4949
+    dataidx 83: [!] sp_len dung lai 3565 != meta 5243
+    dataidx 84: [!] sp_len dung lai 14504 != meta 16045
+    dataidx 85: [!] sp_len dung lai 9684 != meta 10020
+    dataidx 86: [!] sp_len dung lai 7224 != meta 7716
+    dataidx 87: [!] sp_len dung lai 22955 != meta 25027
+    dataidx 88: [!] sp_len dung lai 8329 != meta 9657
+    dataidx 89: [!] sp_len dung lai 3387 != meta 4702
+    dataidx 90: [!] sp_len dung lai 29627 != meta 31494
+    dataidx 91: [!] sp_len dung lai 14508 != meta 16035
+    dataidx 92: [!] sp_len dung lai 28162 != meta 30346
+    dataidx 93: [!] sp_len dung lai 4943 != meta 6377
+    dataidx 94: [!] sp_len dung lai 16901 != meta 19870
+    dataidx 95: [!] sp_len dung lai 9048 != meta 11048
+    dataidx 96: [!] sp_len dung lai 3414 != meta 5161
+    dataidx 97: [!] sp_len dung lai 22956 != meta 25726
+    dataidx 98: [!] sp_len dung lai 4156 != meta 5513
+    dataidx 99: [!] sp_len dung lai 12514 != meta 13091
+    dataidx 100: [!] sp_len dung lai 4272 != meta 4757
+    dataidx 102: [!] sp_len dung lai 9879 != meta 11273
+    dataidx 103: [!] sp_len dung lai 22191 != meta 23793
+    dataidx 104: [!] sp_len dung lai 2794 != meta 4459
+    dataidx 105: [!] sp_len dung lai 11234 != meta 11835
+    dataidx 106: [!] sp_len dung lai 10693 != meta 11778
+    dataidx 107: [!] sp_len dung lai 6514 != meta 8538
+    dataidx 108: [!] sp_len dung lai 6254 != meta 7378
+    dataidx 109: [!] sp_len dung lai 11119 != meta 12136
+    dataidx 110: [!] sp_len dung lai 10950 != meta 11722
+    dataidx 111: [!] sp_len dung lai 4072 != meta 4362
+    dataidx 112: [!] sp_len dung lai 21045 != meta 22998
+    dataidx 113: [!] sp_len dung lai 9027 != meta 10432
+    dataidx 114: [!] sp_len dung lai 22987 != meta 24188
+    dataidx 115: [!] sp_len dung lai 17462 != meta 19496
+    dataidx 116: [!] sp_len dung lai 7435 != meta 8406
+    dataidx 117: [!] sp_len dung lai 4024 != meta 4836
+    dataidx 118: [!] sp_len dung lai 7772 != meta 8756
+    dataidx 119: [!] sp_len dung lai 3234 != meta 4000
+    dataidx 120: [!] sp_len dung lai 16531 != meta 17322
+    dataidx 121: [!] sp_len dung lai 8053 != meta 10557
+    dataidx 122: [!] sp_len dung lai 6299 != meta 8075
+    dataidx 123: [!] sp_len dung lai 22209 != meta 23761
+    dataidx 124: [!] sp_len dung lai 25235 != meta 27674
+    dataidx 125: [!] sp_len dung lai 16901 != meta 19694
+    dataidx 126: [!] sp_len dung lai 5613 != meta 6878
+    dataidx 127: [!] sp_len dung lai 28839 != meta 30079
+    dataidx 128: [!] sp_len dung lai 8980 != meta 10417
+    dataidx 129: [!] sp_len dung lai 7185 != meta 7685
+    dataidx 130: [!] sp_len dung lai 9838 != meta 11228
+    dataidx 131: [!] sp_len dung lai 13934 != meta 14365
+    dataidx 132: [!] sp_len dung lai 18353 != meta 19314
+    dataidx 133: [!] sp_len dung lai 10777 != meta 11421
+    dataidx 134: [!] sp_len dung lai 13097 != meta 15212
+    dataidx 135: [!] sp_len dung lai 20679 != meta 23314
+    dataidx 136: [!] sp_len dung lai 6327 != meta 7977
+    dataidx 137: [!] sp_len dung lai 4281 != meta 4742
+    dataidx 138: [!] sp_len dung lai 24224 != meta 25573
+    dataidx 139: [!] sp_len dung lai 14950 != meta 15573
+    dataidx 140: [!] sp_len dung lai 25364 != meta 26128
+    dataidx 141: [!] sp_len dung lai 5914 != meta 7224
+    dataidx 142: [!] sp_len dung lai 13275 != meta 15632
+    dataidx 143: [!] sp_len dung lai 19136 != meta 19538
+    dataidx 144: [!] sp_len dung lai 1855 != meta 4614
+    dataidx 145: [!] sp_len dung lai 10339 != meta 11423
+    dataidx 146: [!] sp_len dung lai 8843 != meta 10530
+    dataidx 147: [!] sp_len dung lai 12155 != meta 13202
+    dataidx 148: [!] sp_len dung lai 4494 != meta 4883
+    dataidx 149: [!] sp_len dung lai 9573 != meta 11946
+    dataidx 150: [!] sp_len dung lai 5395 != meta 7688
+    dataidx 151: [!] sp_len dung lai 13713 != meta 14307
+    dataidx 152: [!] sp_len dung lai 6670 != meta 7083
+    dataidx 153: [!] sp_len dung lai 3928 != meta 5474
+    dataidx 154: [!] sp_len dung lai 30895 != meta 31494
+    dataidx 155: [!] sp_len dung lai 4170 != meta 5353
+    dataidx 156: [!] sp_len dung lai 15669 != meta 16114
+    dataidx 157: [!] sp_len dung lai 16037 != meta 18379
+    dataidx 158: [!] sp_len dung lai 16613 != meta 17452
+    dataidx 159: [!] sp_len dung lai 5929 != meta 6912
+    dataidx 160: [!] sp_len dung lai 4564 != meta 6056
+    dataidx 161: [!] sp_len dung lai 30527 != meta 31494
+    dataidx 162: [!] sp_len dung lai 5749 != meta 7309
+    dataidx 163: [!] sp_len dung lai 13377 != meta 15070
+    dataidx 164: [!] sp_len dung lai 21956 != meta 23159
+    dataidx 165: [!] sp_len dung lai 13097 != meta 14890
+    dataidx 166: [!] sp_len dung lai 4712 != meta 6035
+    dataidx 167: [!] sp_len dung lai 9685 != meta 11407
+    dataidx 168: [!] sp_len dung lai 18928 != meta 19423
+    dataidx 169: [!] sp_len dung lai 13275 != meta 14428
+    dataidx 170: [!] sp_len dung lai 29571 != meta 31494
+    dataidx 171: [!] sp_len dung lai 3947 != meta 5178
+    dataidx 172: [!] sp_len dung lai 28016 != meta 28530
+    dataidx 173: [!] sp_len dung lai 16147 != meta 16765
+    dataidx 174: [!] sp_len dung lai 4760 != meta 5683
+    dataidx 175: [!] sp_len dung lai 14637 != meta 15282
+    dataidx 176: [!] sp_len dung lai 11705 != meta 12678
+    dataidx 177: [!] sp_len dung lai 9888 != meta 11297
+    dataidx 178: [!] sp_len dung lai 4716 != meta 5053
+    dataidx 179: [!] sp_len dung lai 5608 != meta 7815
+    dataidx 180: [!] sp_len dung lai 29366 != meta 30521
+    dataidx 181: [!] sp_len dung lai 2740 != meta 4543
+    dataidx 182: [!] sp_len dung lai 14594 != meta 15188
+    dataidx 183: [!] sp_len dung lai 12959 != meta 14034
+    dataidx 184: [!] sp_len dung lai 5655 != meta 6551
+    dataidx 185: [!] sp_len dung lai 25020 != meta 26754
+    dataidx 186: [!] sp_len dung lai 17863 != meta 20082
+    dataidx 187: [!] sp_len dung lai 7276 != meta 8905
+    dataidx 188: [!] sp_len dung lai 3179 != meta 5830
+    dataidx 189: [!] sp_len dung lai 24002 != meta 25434
+    dataidx 190: [!] sp_len dung lai 7778 != meta 8998
+    dataidx 191: [!] sp_len dung lai 16846 != meta 18280
+    dataidx 192: [!] sp_len dung lai 19552 != meta 20815
+    dataidx 193: [!] sp_len dung lai 5215 != meta 6492
+    dataidx 194: [!] sp_len dung lai 5206 != meta 5621
+    dataidx 195: [!] sp_len dung lai 13420 != meta 15175
+    dataidx 196: [!] sp_len dung lai 6832 != meta 8006
+    dataidx 197: [!] sp_len dung lai 15809 != meta 17056
+    dataidx 198: [!] sp_len dung lai 15378 != meta 17137
+    dataidx 199: [!] sp_len dung lai 9076 != meta 10555
+
+[E] Tang L1 — struct_hierarchy   (199 mau co file L1)
+    dataidx   0: K1= 163 K2= 819 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx   1: K1= 219 K2=1200 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.8e-07 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx   2: K1=  91 K2= 951 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.1e-07 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx   3: K1= 221 K2=1195 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.4e-07 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx   4: K1= 208 K2=1041 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx   5: K1= 206 K2=1030 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx   6: K1=  45 K2= 250 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.6e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx   7: K1= 184 K2=1012 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.6e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx   8: K1=  83 K2=1149 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.7e-07 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx   9: K1= 150 K2=1291 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.6e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  10: K1=  44 K2= 223 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  11: K1=  65 K2= 329 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  12: K1= 123 K2= 619 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.0e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  13: K1=  60 K2= 330 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  14: K1=  89 K2=1387 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.0e-07 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx  15: K1=  61 K2= 305 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  16: K1=  93 K2= 996 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.3e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  17: K1= 167 K2= 835 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.4e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  18: K1=  78 K2= 394 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  19: K1=  15 K2= 224 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx  20: K1=  91 K2= 458 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  21: K1= 104 K2=1102 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.3e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  22: K1= 164 K2=1157 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.5e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx  23: K1= 286 K2=1462 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  24: K1=  90 K2= 474 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  25: K1=  41 K2= 398 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.0e-07 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  26: K1= 182 K2= 912 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.1e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  27: K1=  20 K2= 510 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.6e-08 · metadata (K1+K2)/n_ctx=5.2% (L2 rieng 5.0%)   ✅
+    dataidx  28: K1=  84 K2= 753 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.1e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  29: K1=  79 K2= 398 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  30: K1= 136 K2= 683 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  31: K1=  50 K2= 260 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.2e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  32: K1= 166 K2= 834 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.7e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  33: K1= 127 K2=1120 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  34: K1= 310 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  35: K1=  69 K2= 436 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.4e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx  36: K1=  52 K2= 263 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  37: K1= 193 K2= 967 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  38: K1= 135 K2=1047 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.5e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  39: K1=  71 K2= 358 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.3e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  40: K1=  16 K2= 393 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-01 · metadata (K1+K2)/n_ctx=5.2% (L2 rieng 5.0%)   ❌
+        E5: centroid L1 lech trung binh trong so, rel=1.22e-01 > 0.05
+    dataidx  41: K1= 175 K2= 878 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  42: K1=  53 K2= 516 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.5e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  43: K1=  80 K2= 937 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.5e-08 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx  44: K1= 120 K2= 620 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.7e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  45: K1=  21 K2= 942 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.1e-07 · metadata (K1+K2)/n_ctx=5.1% (L2 rieng 5.0%)   ✅
+    dataidx  46: K1= 310 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  47: K1= 182 K2= 914 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.1e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  48: K1= 145 K2= 846 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.8e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  49: K1=  58 K2= 292 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  50: K1=  55 K2= 533 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.1e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  51: K1=  48 K2= 244 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  52: K1=  67 K2= 335 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  53: K1=  97 K2= 854 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.9e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  54: K1= 104 K2=1179 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.8e-08 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx  55: K1= 165 K2=1092 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.7e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx  56: K1= 162 K2= 814 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  57: K1=  44 K2= 329 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.2e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx  58: K1=  68 K2=1148 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx  59: K1= 227 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.4e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx  60: K1=  83 K2= 660 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.8e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  61: K1=  84 K2= 780 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.3e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  62: K1= 231 K2=1461 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.3e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx  63: K1=  26 K2= 184 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx  64: K1=  11 K2= 204 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx  65: K1= 134 K2=1030 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.8e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  66: K1=  82 K2= 458 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.1e-07 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  67: K1= 109 K2= 548 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  68: K1= 138 K2= 690 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  69: K1=  45 K2= 228 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  70: K1= 178 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.7e-07 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  71: K1=  57 K2= 286 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  72: K1=  71 K2= 355 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  73: K1= 201 K2=1054 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  74: K1=  83 K2= 417 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  75: K1= 271 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.9e-07 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  76: K1=  64 K2= 591 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.1e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  77: K1= 166 K2=1050 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx  78: K1=  86 K2= 432 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  79: K1=  45 K2= 255 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.6e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  80: K1= 218 K2=1093 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  81: K1= 170 K2= 853 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=2.3e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  82: K1=  48 K2= 242 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  83: K1=  48 K2= 257 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.9e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  84: K1= 159 K2= 797 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  85: K1=  54 K2= 496 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx  86: K1=  76 K2= 380 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  87: K1= 249 K2=1246 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  88: K1=  95 K2= 477 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  89: K1=  46 K2= 230 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  90: K1= 245 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.0e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx  91: K1= 159 K2= 796 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  92: K1=  94 K2=1512 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.7e-08 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx  93: K1=  46 K2= 313 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.9e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx  94: K1= 197 K2= 988 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.7e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  95: K1= 109 K2= 547 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.3e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx  96: K1=  44 K2= 253 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.7e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  97: K1= 158 K2=1281 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=2.1e-07 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx  98: K1=  47 K2= 270 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.6e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx  99: K1= 129 K2= 649 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 100: K1=  46 K2= 232 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 102: K1=  53 K2= 558 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.6e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx 103: K1=  49 K2=1184 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.9e-08 · metadata (K1+K2)/n_ctx=5.2% (L2 rieng 5.0%)   ✅
+    dataidx 104: K1=  43 K2= 217 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 105: K1= 117 K2= 586 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 106: K1= 116 K2= 583 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 107: K1=  84 K2= 421 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 108: K1=  72 K2= 363 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 109: K1= 120 K2= 601 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 110: K1=  94 K2= 581 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.2e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 111: K1=  42 K2= 213 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.4e-01 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ❌
+        E5: centroid L1 lech trung binh trong so, rel=1.39e-01 > 0.05
+    dataidx 112: K1= 165 K2=1144 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.7e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 113: K1= 103 K2= 516 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.1e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 114: K1= 149 K2=1204 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.4e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx 115: K1= 131 K2= 969 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.4e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 116: K1=  30 K2= 415 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.2e-08 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx 117: K1=  47 K2= 236 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 118: K1=  86 K2= 432 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 119: K1=  39 K2= 195 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 120: K1= 156 K2= 861 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.5e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 121: K1=  77 K2= 522 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.6e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 122: K1=  78 K2= 398 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 123: K1= 163 K2=1183 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.9e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 124: K1= 230 K2=1378 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.1e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 125: K1= 195 K2= 979 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 126: K1=  38 K2= 338 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.9e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx 127: K1= 281 K2=1498 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=2.6e-01 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ❌
+        E5: centroid L1 lech trung binh trong so, rel=2.60e-01 > 0.05
+    dataidx 128: K1= 103 K2= 515 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 129: K1=  60 K2= 379 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.9e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 130: K1=  64 K2= 556 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.3e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx 131: K1= 142 K2= 713 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 132: K1= 192 K2= 960 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 133: K1=  78 K2= 566 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.7e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 134: K1= 151 K2= 755 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 135: K1= 127 K2=1160 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx 136: K1=  64 K2= 393 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.6e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 137: K1=  46 K2= 232 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 138: K1= 204 K2=1273 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.6e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 139: K1=  70 K2= 773 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx 140: K1=  73 K2=1301 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.9e-07 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx 141: K1=  51 K2= 356 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.6e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 142: K1= 155 K2= 776 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 143: K1=  80 K2= 971 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.6e-07 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx 144: K1=  12 K2= 225 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx 145: K1= 109 K2= 566 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.7e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 146: K1= 104 K2= 521 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 147: K1= 111 K2= 655 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.8e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 148: K1=  32 K2= 239 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 149: K1= 106 K2= 592 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.5e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 150: K1=  75 K2= 379 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=3.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 151: K1= 131 K2= 710 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.8e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 152: K1=  69 K2= 349 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.9e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 153: K1=  38 K2= 268 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.8e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 154: K1= 224 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 155: K1=  52 K2= 262 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=4.3e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 156: K1= 136 K2= 800 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.4e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 157: K1= 181 K2= 913 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 158: K1=  76 K2= 867 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.9e-08 · metadata (K1+K2)/n_ctx=5.4% (L2 rieng 5.0%)   ✅
+    dataidx 159: K1=  68 K2= 340 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 160: K1=  59 K2= 297 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 161: K1= 302 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.3e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 162: K1=  72 K2= 360 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 163: K1=  77 K2= 748 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.1e-07 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx 164: K1= 215 K2=1152 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 165: K1= 147 K2= 739 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 166: K1=  59 K2= 296 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 167: K1= 113 K2= 565 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 168: K1= 122 K2= 966 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.5e-08 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx 169: K1= 143 K2= 716 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 170: K1= 313 K2=1569 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 171: K1=  50 K2= 253 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 172: K1= 284 K2=1421 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.7e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 173: K1= 132 K2= 833 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 174: K1=  47 K2= 279 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.5e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 175: K1= 151 K2= 759 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=8.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 176: K1=  85 K2= 628 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.5e-08 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 177: K1= 102 K2= 559 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.4e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 178: K1=  49 K2= 247 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=5.6e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 179: K1=   5 K2= 385 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.2e-07 · metadata (K1+K2)/n_ctx=5.1% (L2 rieng 5.0%)   ✅
+    dataidx 180: K1= 304 K2=1521 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.8e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 181: K1=  44 K2= 222 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.0e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 182: K1=  72 K2= 754 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.7e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx 183: K1=  65 K2= 696 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.3e-08 · metadata (K1+K2)/n_ctx=5.5% (L2 rieng 5.0%)   ✅
+    dataidx 184: K1=  18 K2= 322 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.5e-08 · metadata (K1+K2)/n_ctx=5.3% (L2 rieng 5.0%)   ✅
+    dataidx 185: K1= 192 K2=1332 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.0e-07 · metadata (K1+K2)/n_ctx=5.7% (L2 rieng 5.0%)   ✅
+    dataidx 186: K1=  17 K2= 999 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.5e-07 · metadata (K1+K2)/n_ctx=5.1% (L2 rieng 5.0%)   ✅
+    dataidx 187: K1=  88 K2= 440 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=2.7e-01 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ❌
+        E5: centroid L1 lech trung binh trong so, rel=2.66e-01 > 0.05
+    dataidx 188: K1=  57 K2= 286 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=9.2e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 189: K1= 253 K2=1266 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 190: K1=  88 K2= 444 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.7e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 191: K1= 181 K2= 909 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=7.5e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 192: K1= 172 K2=1035 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.8e-07 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 193: K1=  63 K2= 319 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.4e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 194: K1=  47 K2= 276 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=3.4e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 195: K1= 150 K2= 753 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.7e-08 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+    dataidx 196: K1=  73 K2= 395 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.1e-08 · metadata (K1+K2)/n_ctx=5.9% (L2 rieng 5.0%)   ✅
+    dataidx 197: K1= 144 K2= 847 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=6.5e-08 · metadata (K1+K2)/n_ctx=5.8% (L2 rieng 5.0%)   ✅
+    dataidx 198: K1= 105 K2= 851 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.3e-07 · metadata (K1+K2)/n_ctx=5.6% (L2 rieng 5.0%)   ✅
+    dataidx 199: K1= 104 K2= 522 (K1<=K2 ✅) · mode=split · centroid L1 vs tb-trong-so rel=1.0e-07 · metadata (K1+K2)/n_ctx=6.0% (L2 rieng 5.0%)   ✅
+
+========================================================================
+  ❌ CO BAT BIEN BI VI PHAM
+========================================================================
