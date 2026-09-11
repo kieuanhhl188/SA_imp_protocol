@@ -1,0 +1,11 @@
+file       : /workspace/phase5_repobench_l1pc01.json
+baseline   : sa   n_samples=197   layers_pooled=3   B=20000
+hierarchical: True   ratios=[1.0, 0.9, 0.7, 0.5]
+
+Hieu so (x100) = branch - sa,  KTC 95% ghep cap (percentile)
+config                         sp70                     sp80                     sp90                    
+hard_boundary r=1.0            -1.33 [-1.48;-1.19]      -1.77 [-1.94;-1.61]      -2.45 [-2.65;-2.26]       <all CI<0
+struct_hierarchy r=1.0         -1.33 [-1.48;-1.20]      -1.77 [-1.94;-1.61]      -2.45 [-2.65;-2.26]       <all CI<0
+struct_hierarchy r=0.9         -2.24 [-2.49;-2.01]      -2.40 [-2.62;-2.19]      -2.84 [-3.06;-2.62]       <all CI<0
+struct_hierarchy r=0.7         -6.58 [-7.64;-5.66]      -5.70 [-6.71;-4.86]      -5.09 [-5.91;-4.39]       <all CI<0
+struct_hierarchy r=0.5         -14.39 [-15.74;-13.12]   -11.75 [-13.01;-10.54]   -9.21 [-10.31;-8.20]      <all CI<0

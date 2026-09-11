@@ -1,5 +1,24 @@
 # Phase 2 — Bảng kết quả
 
+> ## 📌 CẬP NHẬT 12/9/2026 (b) — `--percent_clusters_l2` float, nhánh *merge* của tầng L1 lần đầu chạy thật trên RepoBench-P
+>
+> `--level_l1 class` trước đó (11/9) vô tác dụng — 199/199 mẫu đi nhánh *split* vì ngân sách
+> L1 (`--percent_clusters_l2`, kiểu `int`, giá trị hợp lệ nhỏ nhất là 1) luôn lớn hơn số class
+> thật (trung vị 17 class/mẫu), nên `build_l1_groups` luôn chẻ tới trần = số function. Đổi
+> `type=int` → `type=float` để dùng được `--percent_clusters_l2 0.1` — target_k1 giờ nhỏ hơn
+> số class thật, ép nhánh *merge* chạy: **139/199 mẫu merge, 52 split, 8 as-is** (trước 0
+> merge). `k1_raw` trung vị 17 → `k1_actual` trung vị 10.
+>
+> **Kiểm chứng lại trên dữ liệu thật ép nhánh merge (không chỉ dựng thủ công như test hồi
+> quy).** CRC 1393/1393 file đúng. `check_phase2_invariants.py --checks BCE`: **MỌI BẤT BIẾN
+> QUA**, bất biến [E] rel ≈ 7e-8…5e-7 trên toàn bộ 199 mẫu kể cả các mẫu đi nhánh merge — xác
+> nhận thêm bản fix bug E5 (`533b8ed`) vững trên đường merge chưa từng có dữ liệu thật đi qua
+> trước đó. Log: `phase2_evidence/repobench_l1pc01_12-9/p2_invariants_repobench_l1pc01.log`.
+>
+> C2 (Phase 5) với hierarchy thật này: **vẫn FAIL, và tệ hơn** bản hierarchy giả 11/9 — xem
+> [PHASE5_RESULTS.md](PHASE5_RESULTS.md) cập nhật 12/9 và
+> [EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md) mục 6 entry 12/9 (b).
+
 > ## 📌 CẬP NHẬT 11/9/2026 — bất biến [E] (tầng L1) hoàn tất, RepoBench-P đã chạy, bug E5 đã root-cause + fix
 >
 > **10/9 — Bất biến [E] hoàn tất ở LCC.** `check_phase2_invariants.py` trước đó chỉ đọc nhãn

@@ -22,7 +22,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟢 **đề xuất 1 + đề xuất 2 XONG** (LongChat/LCC full 200: function 31/8 + block 9/9; bất biến A–E TẤT CẢ QUA, tầng L1 thêm 10/9). C2 cả hai đề xuất = FAIL |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
-| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🔴 **5.1–5.4 có code + kết quả · 5.5 xong · C2 FAIL** 4 cấu hình (Qwen fn, LongChat fn/block LCC, LongChat fn RepoBench-P), tất cả KTC loại 0 & âm. Đề xuất 2 (lookup 2 tầng) đo 10/9 + RepoBench 11/9 — đơn điệu tệ hơn phẳng. **Không chạy Phase 6** |
+| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🔴 **5.1–5.4 có code + kết quả · 5.5 xong · C2 FAIL** 5 cấu hình (Qwen fn, LongChat fn/block LCC, LongChat fn RepoBench-P ×2 — hierarchy giả `--level_l1 class` vô tác dụng, và hierarchy THẬT `--percent_clusters_l2 0.1` ép nhánh merge 139/199), tất cả KTC loại 0 & âm. Bản hierarchy thật (12/9) còn TỆ HƠN bản giả (9/9–11/9), không phải cứu vãn. **Không chạy Phase 6** |
 | 6 | C1 accuracy@budget end-task | — | ❌ 0/5 |
 | 7 | C3 + phân tích | — | ❌ 0/4 |
 
@@ -800,12 +800,13 @@ Công cụ: `phase5_recall.py`. Kết quả: `docs/PHASE5_RESULTS.md` (Qwen) ·
 | 5.2 | Mỗi method lấy `K_m` ở cùng budget N | ✅ **sa, hard_boundary, struct_hierarchy** | +SymbolSignal ❌ (Phase 3 = 0/4). struct_hierarchy phẳng ≡ hard_boundary; lookup 2 bước (`--hierarchical`) đã đo 10/9 |
 | 5.3 | `Recall@budget` + attention-mass | ✅ recall + mass | **precision ❌ chưa tính** |
 | 5.4 | Quét {70, 80, 90}, vẽ Recall vs budget | ✅ số · **hình ❌** | |
-| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 (`scripts/phase5_bootstrap.py`) | **FAIL** — 4 cấu hình, mọi KTC loại 0 & âm (mục 6, entry 9/9 + 10/9 + 11/9). `hard_boundary − sa`: Qwen fn −0,89/−1,13/−1,37 · LongChat fn LCC −0,93/−1,43/−2,28 (n=200) · LongChat block LCC −3,24/−4,15/−5,44 · **LongChat fn RepoBench-P −1,33/−1,77/−2,45 (n=197)**. Đề xuất 2 (lookup 2 bước, r<1.0) đơn điệu tệ hơn phẳng ở cả LCC lẫn RepoBench |
+| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 (`scripts/phase5_bootstrap.py`) | **FAIL** — 5 cấu hình, mọi KTC loại 0 & âm (mục 6, entry 9/9 + 10/9 + 11/9 + 12/9). `hard_boundary − sa`: Qwen fn −0,89/−1,13/−1,37 · LongChat fn LCC −0,93/−1,43/−2,28 (n=200) · LongChat block LCC −3,24/−4,15/−5,44 · **LongChat fn RepoBench-P −1,33/−1,77/−2,45 (n=197)**. Đề xuất 2 (lookup 2 bước, r<1.0) đơn điệu tệ hơn phẳng ở LCC, RepoBench-hierarchy-giả **lẫn RepoBench-hierarchy-thật** (r=0.5: −14,39/−11,75/−9,21, tệ hơn cả bản giả) |
 
 **Còn lại:** (a) ~~nhánh truy hồi phân tầng~~ ✅ 10/9 — đề xuất 2 FAIL, đơn điệu tệ hơn phẳng ·
 (b) ~~RepoBench-P (cấu trúc dày ~7×)~~ ✅ 11/9 — C2 FAIL, gap ≈ LCC func (giả thuyết "dày hơn
-→ gap rộng hơn" sai); ⚠️ E5 hở 4/199 mẫu, xem entry 11/9 · (c) precision + hình. Theo
-protocol: **không chạy Phase 6** trên cấu hình này.
+→ gap rộng hơn" sai); ⚠️ E5 hở 4/199 mẫu, xem entry 11/9 · (b') ~~RepoBench-P hierarchy THẬT
+(nhánh merge)~~ ✅ 12/9 — vẫn FAIL, nặng hơn bản giả, đóng luôn hướng thoát "hierarchy chưa
+được thử thật" · (c) precision + hình. Theo protocol: **không chạy Phase 6** trên cấu hình này.
 
 ---
 
@@ -979,6 +980,66 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-09-12 (b) — RepoBench-P với hierarchy L1 THẬT (`--percent_clusters_l2 0.1`) — C2 FAIL cấu hình thứ 5, tệ hơn bản giả
+
+Tiếp entry trước (int→float). Chạy `offline_clustering_struct.py --method struct_hierarchy
+--percent_clusters_l2 0.1` trên RepoBench-P (199/199 mẫu, GPU, ~12 phút), output
+`/workspace/p2-longchat-repobench/struct_hierarchy_l1pc01/repobench-p/`.
+
+**Xác nhận mục tiêu đạt được — nhánh merge lần đầu chạy thật.** Tổng hợp `k1_stats_*.pt`
+199 mẫu: **139 merge / 52 split / 8 as-is** (trước đó 11/9: 199/199 split, `--level_l1 class`
+vô tác dụng). `k1_raw` trung vị 17 (số class), `k1_target` trung vị 12 (`0.1% × n_ctx`),
+`k1_actual` trung vị 10 — ngân sách giờ thực sự chặt hơn số class thật nên phải gộp.
+
+**Kiểm toàn vẹn + bất biến.** CRC 1393/1393 file đúng. `check_phase2_invariants.py --checks
+BCE` (3 nhánh sa/hard_boundary/struct_hierarchy_l1pc01): **MỌI BẤT BIẾN QUA** — bất biến [E]
+(centroid L1 vs trung-bình-có-trọng-số) rel ≈ 7e-8…5e-7 trên toàn bộ 199 mẫu, kể cả những mẫu
+đi nhánh *merge* (trước đây bug E5 chỉ lộ ra ở nhánh *split* với cluster rỗng theo head — nay
+merge cũng sạch, xác nhận thêm bản fix `533b8ed` vững trên đường merge chưa từng chạy trước
+đó). Log: `/workspace/p2_invariants_repobench_l1pc01.log`.
+
+**Phase 5 (C2), `phase5_recall.py --hierarchical --l1_ratios 1.0 0.9 0.7 0.5`, n=197:**
+
+recall% / attention-mass%:
+
+| nhánh | sp70 | sp80 | sp90 |
+|---|---|---|---|
+| `sa` | 78,24 / 98,02 | 74,46 / 97,29 | 69,00 / 95,96 |
+| `hard_boundary` ≡ `struct_hierarchy` r=1,0 | 76,90 / 95,36 | 72,69 / 92,97 | 66,55 / 87,86 |
+| `struct_hierarchy` r=0,9 (hierarchy thật) | 76,00 / 94,38 | 72,06 / 92,08 | 66,17 / 87,20 |
+| `struct_hierarchy` r=0,7 (hierarchy thật) | 71,66 / 90,86 | 68,75 / 88,95 | 63,92 / 84,60 |
+| `struct_hierarchy` r=0,5 (hierarchy thật) | 63,85 / 85,62 | 62,71 / 83,78 | 59,79 / 79,86 |
+
+`r=1,0` trùng bit-for-bit `hard_boundary` như dự kiến (r=1,0 = giữ hết nhóm L1 ở bước
+routing → L1 không ảnh hưởng điểm số). Khác biệt hierarchy giả/thật chỉ lộ ra ở `r<1,0`.
+
+Hiệu số ×100 = nhánh − `sa`, KTC 95% ghép cặp (bootstrap 20.000, n=197),
+`scripts/phase5_bootstrap.py`:
+
+| config | sp70 | sp80 | sp90 |
+|---|---:|---:|---:|
+| `hard_boundary` r=1,0 | −1,33 [−1,48;−1,19] | −1,77 [−1,94;−1,61] | −2,45 [−2,65;−2,26] |
+| `struct_hierarchy` r=0,9 | **−2,24** [−2,49;−2,01] | **−2,40** [−2,62;−2,19] | **−2,84** [−3,06;−2,62] |
+| `struct_hierarchy` r=0,7 | **−6,58** [−7,64;−5,66] | **−5,70** [−6,71;−4,86] | **−5,09** [−5,91;−4,39] |
+| `struct_hierarchy` r=0,5 | **−14,39** [−15,74;−13,12] | **−11,75** [−13,01;−10,54] | **−9,21** [−10,31;−8,20] |
+
+So với bản hierarchy giả (11/9, "L1 = TB theo function"): r=0,9 −1,72/−2,04/−2,61 →
+**−2,24/−2,40/−2,84** (tệ hơn) · r=0,7 −3,34/−3,12/−3,26 → **−6,58/−5,70/−5,09** (tệ hơn rõ) ·
+r=0,5 −7,55/−5,87/−4,85 → **−14,39/−11,75/−9,21** (tệ gần gấp đôi). Mọi KTC loại 0 & âm.
+
+**Kết luận — cấu hình thứ 5, vẫn FAIL, và đóng một hướng thoát.** Lo ngại còn treo từ 9/9–11/9
+là "hierarchy chưa từng được thử thật (toàn đi nhánh split, L1 = TB theo function giả), nên
+kết luận FAIL có thể chỉ phản ánh cách đo, không phản ánh ý tưởng." Kết quả này bác bỏ lo ngại
+đó: khi ép hierarchy chạy thật (class→function→token, 139/199 mẫu merge), lọc thô ở tầng L1
+**hại nhiều hơn**, không phải ít hơn. Việc gộp nhiều class nhỏ vào một nhóm L1 (để đạt ngân
+sách 0,1%) làm centroid L1 đại diện kém hơn nữa cho các class thành viên, nên bộ lọc sai
+nhiều hơn khi `r<1,0` loại bớt nhóm. Không có bằng chứng nào còn lại ủng hộ giả thuyết H0 ở
+Phase 5; xem cập nhật `docs/PHASE5_RESULTS.md` và `docs/PHASE2_RESULTS.md`.
+
+Bằng chứng: `phase2_evidence/repobench_l1pc01_12-9/` (`phase5_repobench_l1pc01.json`,
+`phase5_repobench_l1pc01_bootstrap.txt`, `p2_invariants_repobench_l1pc01.log`,
+`phase5_repobench_l1pc01_run.log`).
 
 ### 2026-09-12 — `--percent_clusters_l2` đổi int -> float, để ép nhánh *merge* chạy được trên RepoBench-P
 

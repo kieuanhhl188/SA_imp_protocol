@@ -1,5 +1,15 @@
 # Phase 5 (C2) — Recall@budget · **KẾT QUẢ ÂM**
 
+> **Cập nhật 12/9/2026 — hierarchy L1 THẬT trên RepoBench-P (không còn giả "TB theo
+> function"), vẫn FAIL và TỆ HƠN bản giả.** `--percent_clusters_l2 0.1` ép ngân sách L1 chặt
+> hơn số class thật (trung vị 17 class/mẫu) → nhánh *merge* của `build_l1_groups` lần đầu
+> chạy thật: 139/199 mẫu merge (trước đó 11/9: 199/199 đi *split*, L1 chỉ là "trung bình theo
+> function", không phải hierarchy). Bootstrap ghép cặp `struct_hierarchy(r) − sa`, n=197:
+> r=0,9: −2,24/−2,40/−2,84 · r=0,7: −6,58/−5,70/−5,09 · r=0,5: **−14,39/−11,75/−9,21** ở sp
+> 70/80/90 — mọi KTC loại 0 và âm, nặng hơn rõ rệt so với bản hierarchy giả (r=0,5 giả:
+> −7,55/−5,87/−4,85). Đóng hướng thoát "hierarchy chưa được thử thật" còn treo từ 9–11/9.
+> Bằng chứng: `EXPERIMENT_LOG.md` mục 6 entry 12/9 (b) · `phase2_evidence/repobench_l1pc01_12-9/`.
+>
 > **Cập nhật 9/9/2026 — kết quả âm lặp lại trên LongChat.** Chạy thêm 2 cấu hình, kiểm định
 > ghép cặp `hard_boundary − sa`:
 > - LongChat / LCC / `function` (n=100): −1,00 / −1,49 / −2,33 ở sp 70/80/90 — KTC loại 0
