@@ -980,6 +980,43 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 
 ## 6. Thay đổi code
 
+### 2026-09-11 (b) — Fix bug bất biến E5: `cl2_to_l1` chỉ dùng head 0
+
+Root-cause cho E5 hở 4/199 mẫu RepoBench-P ghi ở entry dưới (11/9, không nhãn).
+
+**Nguyên nhân.** [struct_clustering.py](../struct_clustering.py) hàm `struct_hierarchy_l1`
+dựng ánh xạ cluster-L2 → nhóm-L1 (`cl2_to_l1`) bằng `cl2_to_l1.scatter_(0, l2[0], l1_compact)`
+— chỉ đọc nhãn của **head 0**. Ranh giới cứng đảm bảo mọi head cùng phân hoạch theo *unit*,
+nhưng không đảm bảo một cluster id cụ thể có key ở head 0: k-means chạy độc lập theo head
+bên trong unit ([hard_boundary_kmeans](../struct_clustering.py)), nên cluster hoàn toàn có
+thể rỗng ở head 0 mà không rỗng ở head khác. Khi đó `cl2_to_l1[k2]` giữ nguyên giá trị khởi
+tạo (nhóm L1 số 0) thay vì nhóm thật — centroid L1 lệch ở cả nhóm nhận nhầm trọng số lẫn
+nhóm lẽ ra phải nhận. Cùng lớp lỗi với bug trọng số `w` đã fix 15/8, nhưng bản fix đó bỏ sót
+`cl2_to_l1`. Không tái hiện được trên LCC (0/500) vì unit lớn hơn, ít có cluster nào rỗng
+tuyệt đối ở một head cụ thể; RepoBench-P (cross-file, nhiều unit nhỏ) lộ ra ở 4/199 mẫu.
+
+**Fix.** Quét TẤT CẢ head khi dựng `cl2_to_l1` — cluster chỉ cần khác rỗng ở MỘT head là đủ
+suy đúng nhóm, vì ánh xạ này vốn bất biến theo head (cluster id → unit là cố định, không phụ
+thuộc head). Cluster rỗng ở MỌI head thì `raise ValueError` thay vì âm thầm nhận nhóm mặc
+định sai — biến lỗi im lặng thành lỗi ồn ào.
+
+**Kiểm chứng.** Test hồi quy mới `test_hierarchy_head_empty_cluster`
+([scripts/test_struct_clustering.py](../scripts/test_struct_clustering.py)) dựng thủ công
+`labels_l2` với cluster rỗng riêng ở head 0 (không dùng `hard_boundary_kmeans`, để loại trừ
+nhiễu từ bước clustering). Chạy trên code CŨ: **FAIL rõ ràng**, lệch 0,73–0,85 — đúng cỡ độ
+lớn quan sát trên RepoBench-P thật (12–26%). Chạy trên code MỚI: **PASS tuyệt đối**, lệch
+0,00e+00. Toàn bộ 80+ test CPU khác không đổi kết quả (`python scripts/test_struct_clustering.py`
+→ TẤT CẢ PASS).
+
+⚠️ **Chưa chạy lại 4 mẫu RepoBench-P bị ảnh hưởng (idx 40, 111, 127, 187) trên GPU** để xác
+nhận bằng dữ liệu thật — fix đã kiểm chứng đủ bằng test hồi quy tất định trên CPU, không phụ
+thuộc GPU/model. Cần chạy lại `check_phase2_invariants.py --checks E` trên cây
+`struct_hierarchy` cũ của RepoBench-P (`phase2_evidence/repobench_11-9/`, hoặc sinh lại từ
+`/workspace/p2-longchat-repobench/` nếu volume còn) để đóng hẳn mục này — **việc chặn, chưa
+làm, không cần GPU mới nếu cluster tree cũ còn trên volume**.
+
+Cập nhật: [docs/PHASE2_RESULTS.md](../docs/PHASE2_RESULTS.md) mục 2.4 + banner CẬP NHẬT 11/9.
+
 ### 2026-09-11 — RepoBench-P: Phase 2 (nhánh `sa`) + Phase 5 C2 chạy chung trong một script — C2 FAIL cấu hình #4 · E5 hở 4/199
 
 Chốt điểm (b) còn treo của Phase 5: **RepoBench-P** (cấu trúc code dày hơn LCC — cross-file

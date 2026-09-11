@@ -1,5 +1,45 @@
 # Phase 2 — Bảng kết quả
 
+> ## 📌 CẬP NHẬT 11/9/2026 — bất biến [E] (tầng L1) hoàn tất, RepoBench-P đã chạy, bug E5 đã root-cause + fix
+>
+> **10/9 — Bất biến [E] hoàn tất ở LCC.** `check_phase2_invariants.py` trước đó chỉ đọc nhãn
+> L2 — output tầng L1 của `struct_hierarchy` (đề xuất 2) chưa có bất biến nào kiểm. Thêm
+> section **[E]** (6 kiểm tra: `K1≤K2`, hierarchy lồng nhau, `labels_l1` không per-head, độ
+> dài đúng `n_ctx`, centroid L1 = trung bình có trọng số các centroid L2, `K1` khớp
+> `k1_stats`). Chạy trên 200 mẫu LCC function-level: **[E] QUA 200/200**, `rel ≤ 1,7e-7`.
+> Cùng ngày, `phase5_recall.py --hierarchical` lần đầu thực sự định tuyến 2 bước (trước đó
+> luôn đo recall phẳng) — kết quả: **C2 FAIL cho đề xuất 2**, đơn điệu tệ hơn khi hạ `l1_ratio`
+> (không `l1_ratio` nào vượt được trần `r=1.0` ≡ đề xuất 1, vốn đã thua `sa`).
+> Bằng chứng: `phase2_evidence/l1_invariant_10-9/`, `phase2_evidence/func_hier_10-9/`.
+>
+> **11/9 — RepoBench-P (3 nhánh + Phase 5 C2), phát hiện + fix bug bất biến E5.**
+> `--level function --level_l1 class --percent_clusters 5 --limit 200`. [B]/[C] qua 199/199
+> (idx 101 skip vì vượt ngân sách). **[E] chỉ 195/199 PASS** — 4 mẫu (idx 40, 111, 127, 187)
+> FAIL riêng **E5** (centroid L1 lệch trung bình có trọng số 12–26%, ngưỡng `rtol=0,05`).
+>
+> **Root-cause:** [struct_clustering.py](../struct_clustering.py) hàm `struct_hierarchy_l1`
+> dựng ánh xạ cluster-L2→nhóm-L1 (`cl2_to_l1`) chỉ từ nhãn của **head 0** (`l2[0]`). Ranh
+> giới cứng đảm bảo mọi head cùng phân hoạch theo *unit*, nhưng KHÔNG đảm bảo một cluster cụ
+> thể có key ở head 0 — k-means chạy độc lập theo head bên trong unit nên một cluster hoàn
+> toàn có thể rỗng ở head 0 mà không rỗng ở head khác. Khi đó `cl2_to_l1` giữ giá trị khởi
+> tạo (nhóm L1 số 0) thay vì nhóm thật, làm centroid L1 lệch ở cả nhóm nhận nhầm lẫn nhóm bị
+> thiếu trọng số. Cùng lớp lỗi với bug đã fix ở biến `w` (15/8) nhưng bản fix đó bỏ sót
+> `cl2_to_l1`. Xảy ra thường hơn ở RepoBench-P (cross-file context → nhiều unit nhỏ, dễ có
+> cluster rỗng riêng lẻ theo head) hơn LCC (0/500 mẫu).
+>
+> **Fix:** dựng `cl2_to_l1` bằng cách quét **toàn bộ head** (một cluster chỉ cần khác rỗng ở
+> MỘT head là đủ suy đúng nhóm, vì ánh xạ vốn bất biến theo head); cluster rỗng ở **mọi**
+> head thì `raise` thay vì âm thầm nhận nhóm mặc định sai. Thêm test hồi quy
+> `test_hierarchy_head_empty_cluster` ([scripts/test_struct_clustering.py](../scripts/test_struct_clustering.py))
+> dựng thủ công tình huống cluster rỗng riêng ở head 0 — **FAIL rõ ràng trên code cũ** (lệch
+> 0,73–0,85, đúng cỡ độ lớn quan sát trên dữ liệu thật) và **PASS tuyệt đối** (lệch 0,00e+00)
+> sau fix. Toàn bộ 80+ test CPU khác không đổi kết quả. **Chưa chạy lại 4 mẫu RepoBench-P bị
+> ảnh hưởng trên GPU để xác nhận bằng dữ liệu thật** — fix đã kiểm chứng bằng test hồi quy
+> tất định, không phụ thuộc GPU.
+>
+> C2 (Phase 5) trên RepoBench-P: **FAIL — cấu hình thứ 4** (cùng chiều với 3 cấu hình trước).
+> Chi tiết đầy đủ: [EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md) mục 2026-09-10/11.
+
 > ## 📌 CẬP NHẬT 9/9/2026 — đã có số LongChat full (function + block); bảng dưới vẫn là lượt Qwen
 >
 > Đã chạy full 200 mẫu LongChat/LCC: `function` (31/8, `phase2_evidence/full200_longchat_31-8/`)
@@ -203,7 +243,7 @@ kiểm toàn vẹn ≠ kiểm đầy đủ: CRC nói từng file còn sống, kh
 | 2.1 | Parse AST bằng tree-sitter, có offset | ✅ 5 level · 5 ngôn ngữ |
 | 2.2 | Gán `unit_id` cho từng key token | ✅ 500/500 mẫu |
 | 2.3 | **Hard boundary** — K-means trong từng unit | ✅ **0% vắt biên, 500/500** |
-| 2.4 | **StructHierarchy** — L2 + L1 theo unit cha | ✅ chạy được; ⚠️ K1 thực tế ≠ danh nghĩa |
+| 2.4 | **StructHierarchy** — L2 + L1 theo unit cha | ✅ chạy được; bất biến [E] QUA 200/200 (LCC), 195/199 (RepoBench-P, bug E5 đã fix — xem CẬP NHẬT 11/9); ⚠️ K1 thực tế ≠ danh nghĩa |
 | 2.5 | Ablation tách bạch SA / +HB / +SH | ✅ ba nhánh, cùng 500 mẫu, cùng budget |
 | 2.6 | Giữ nguyên Si, threshold, kernel | ✅ threshold do `run_global_threshold` tính, mọi nhánh |
 

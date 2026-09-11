@@ -346,6 +346,53 @@ def test_hierarchy():
                                     unit_ids_l2=torch.zeros(S, dtype=torch.long))))
 
 
+def test_hierarchy_head_empty_cluster():
+    """
+    Hồi quy cho bug bất biến E5 (11/9, 4/199 mẫu RepoBench-P): `cl2_to_l1` trước đây chỉ
+    dựng từ `l2[0]` (head 0). Một cluster L2 rỗng riêng ở head 0 (nhưng không rỗng ở head
+    khác — hoàn toàn có thể, vì k-means chạy độc lập theo head bên trong unit) khiến cluster
+    đó bị gán nhầm về nhóm L1 số 0 thay vì nhóm thật.
+
+    Dựng thủ công labels_l2 (bỏ qua hard_boundary_kmeans) để ép đúng tình huống: cluster id 2
+    có mặt ở head 1 (token 2,3) nhưng KHÔNG có mặt ở head 0.
+    """
+    print("\n=== 9b. struct_hierarchy_l1 — cluster rỗng riêng ở head 0 ===")
+    H, K2, D, S = 2, 3, 4, 6
+    torch.manual_seed(3)
+    c2 = torch.randn(1, H, K2, D)
+    l2 = torch.tensor([[
+        [0, 0, 1, 1, 1, 1],   # head 0: cluster 2 KHÔNG xuất hiện
+        [0, 0, 2, 2, 1, 1],   # head 1: cluster 2 xuất hiện ở token 2,3
+    ]])
+    # token 0,1 -> nhóm L1 0 · token 2..5 -> nhóm L1 1. Cluster 2 (chỉ thấy ở head 1, token
+    # 2,3) phải được suy đúng là nhóm 1 — bug cũ suy thành nhóm 0 (mặc định).
+    unit_l1 = torch.tensor([0, 0, 1, 1, 1, 1])
+
+    c1, l1 = struct_hierarchy_l1(c2, l2, unit_l1, weighted=True)
+
+    for g in range(2):
+        want = torch.zeros(H, D)
+        # Trung bình đúng: với mỗi head, trung bình các centroid L2 THẬT SỰ có key trong
+        # nhóm g ở head đó (trọng số = số key trong head đó) — vì centroid L1 phải bằng
+        # trung bình toàn bộ key trong nhóm, không phải trung bình các centroid trần.
+        for h in range(H):
+            keys_h, cnts = torch.unique(l2[0, h][unit_l1 == g], return_counts=True)
+            num = sum(float(c) * c2[0, h, int(k)] for k, c in zip(keys_h, cnts))
+            den = float(cnts.sum())
+            want[h] = num / den
+        check(f"cluster rỗng ở head 0 vẫn suy đúng nhóm L1 {g}",
+              torch.allclose(c1[0, :, g, :], want, atol=1e-5),
+              f"lệch max {float((c1[0, :, g, :] - want).abs().max()):.2e}")
+
+    # cluster rỗng ở MỌI head phải raise, không được âm thầm nhận nhóm mặc định.
+    l2_dead = torch.tensor([[
+        [0, 0, 1, 1, 1, 1],
+        [0, 0, 1, 1, 1, 1],
+    ]])  # cluster 2 rỗng ở CẢ hai head
+    check("cluster rỗng ở mọi head -> raise thay vì mặc định sai", _raises(
+        lambda: struct_hierarchy_l1(c2, l2_dead, unit_l1, weighted=True)))
+
+
 def test_l1_groups():
     from struct_clustering import build_l1_groups
     print("\n=== 10b. build_l1_groups — ép K1 về đúng mục tiêu ===")
@@ -474,6 +521,7 @@ def main():
     test_budget_policy()
     test_hard_boundary()
     test_hierarchy()
+    test_hierarchy_head_empty_cluster()
     test_l1_groups()
     test_token_weights()
     print("\n" + ("TẤT CẢ PASS" if OK else "CÓ TEST FAIL"))

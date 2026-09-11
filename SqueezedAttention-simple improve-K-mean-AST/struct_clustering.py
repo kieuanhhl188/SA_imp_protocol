@@ -784,9 +784,29 @@ def struct_hierarchy_l1(
                 )
 
     # cluster L2 -> nhóm L1. Mọi key của một cluster L2 thuộc cùng unit L2, mà mỗi unit L2
-    # nằm gọn trong một nhóm L1, nên ánh xạ này xác định duy nhất.
-    cl2_to_l1 = torch.zeros(K2, dtype=torch.long, device=dev)
-    cl2_to_l1.scatter_(0, l2[0], l1_compact)
+    # nằm gọn trong một nhóm L1, nên ánh xạ này xác định duy nhất VÀ GIỐNG NHAU Ở MỌI HEAD
+    # (cluster_offset trong hard_boundary_kmeans cấp id cluster theo unit, không theo head).
+    #
+    # BUG (phát hiện 11/9 qua bất biến E5 FAIL 4/199 mẫu RepoBench-P): bản trước chỉ dùng
+    # `l2[0]` (head 0) để dựng ánh xạ. Ranh giới cứng đảm bảo mọi head CÙNG PHÂN HOẠCH theo
+    # unit, nhưng KHÔNG đảm bảo cluster k2 có key trong head 0 cụ thể — k-means chạy độc lập
+    # theo head bên trong unit, nên một cluster hoàn toàn có thể rỗng ở head 0 mà không rỗng
+    # ở head khác. Khi đó `cl2_to_l1[k2]` giữ nguyên giá trị khởi tạo (nhóm L1 số 0) thay vì
+    # nhóm thật — centroid L1 lệch ở CẢ HAI nhóm: nhóm nhận nhầm trọng số của k2 lẫn nhóm lẽ
+    # ra phải nhận nhưng bị thiếu. Đây là lý do sai số E5 lớn (12–26%) dù hiếm gặp (~2%).
+    #
+    # Sửa: quét TẤT CẢ head — cluster chỉ cần khác rỗng ở MỘT head là đủ suy đúng nhóm, vì
+    # ánh xạ là bất biến theo head. Cluster rỗng ở MỌI head (không suy được) thì raise thay
+    # vì âm thầm nhận giá trị mặc định sai.
+    cl2_to_l1 = torch.full((K2,), -1, dtype=torch.long, device=dev)
+    cl2_to_l1.scatter_(0, l2.reshape(-1),
+                       l1_compact.unsqueeze(0).expand(H, -1).reshape(-1))
+    dead = cl2_to_l1 < 0
+    if bool(dead.any()):
+        raise ValueError(
+            f"{int(dead.sum())}/{K2} cluster L2 không có key ở bất kỳ head nào — "
+            "không suy được nhóm L1 cho cluster đó."
+        )
 
     # Trọng số mỗi cluster L2 = số key của nó, tính RIÊNG TỪNG HEAD.
     # Ranh giới cứng chỉ đảm bảo mọi head có cùng phân hoạch theo UNIT; bên trong một unit
