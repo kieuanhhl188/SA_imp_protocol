@@ -33,12 +33,26 @@
 > `test_hierarchy_head_empty_cluster` ([scripts/test_struct_clustering.py](../scripts/test_struct_clustering.py))
 > dựng thủ công tình huống cluster rỗng riêng ở head 0 — **FAIL rõ ràng trên code cũ** (lệch
 > 0,73–0,85, đúng cỡ độ lớn quan sát trên dữ liệu thật) và **PASS tuyệt đối** (lệch 0,00e+00)
-> sau fix. Toàn bộ 80+ test CPU khác không đổi kết quả. **Chưa chạy lại 4 mẫu RepoBench-P bị
-> ảnh hưởng trên GPU để xác nhận bằng dữ liệu thật** — fix đã kiểm chứng bằng test hồi quy
-> tất định, không phụ thuộc GPU.
+> sau fix. Toàn bộ 80+ test CPU khác không đổi kết quả.
 >
-> C2 (Phase 5) trên RepoBench-P: **FAIL — cấu hình thứ 4** (cùng chiều với 3 cấu hình trước).
-> Chi tiết đầy đủ: [EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md) mục 2026-09-10/11.
+> **12/9 — Xác nhận fix trên dữ liệu thật (GPU).** Sinh lại tầng L1 cho đúng 4 mẫu bị ảnh
+> hưởng (xoá file L1 cũ, `offline_clustering_struct.py` tự bỏ qua 195 mẫu đã đúng, chỉ tính
+> lại 4 mẫu — không cần chạy lại toàn bộ 199 mẫu). Kết quả:
+>
+> | dataidx | K1 | K2 | rel trước fix | rel sau fix |
+> |---:|---:|---:|---:|---:|
+> | 40  | 16  | 393  | 1,22e-01 | **5,7e-08** ✅ |
+> | 111 | 42  | 213  | 1,39e-01 | **8,9e-08** ✅ |
+> | 127 | 281 | 1498 | 2,60e-01 | **9,0e-08** ✅ |
+> | 187 | 88  | 440  | 2,66e-01 | **8,3e-08** ✅ |
+>
+> **Bất biến [E] giờ QUA 199/199 trên RepoBench-P** — cùng cỡ sai số (~1e-7–1e-8) với 195 mẫu
+> vốn đã PASS từ đầu. `check_phase2_invariants.py --checks E` báo `✅ MOI BAT BIEN QUA`. Log:
+> `/workspace/p2_invariants_repobench_E_refix2.log` (trên pod, chưa copy vào repo).
+>
+> C2 (Phase 5) trên RepoBench-P: **FAIL — cấu hình thứ 4** (cùng chiều với 3 cấu hình trước;
+> bug E5 không ảnh hưởng tới kết luận này — xem [EXPERIMENT_LOG.md:1025-1027](../EXPERIMENT_LOG.md#L1025-L1027)
+> giải thích vì sao). Chi tiết đầy đủ: [EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md) mục 2026-09-10/11/12.
 
 > ## 📌 CẬP NHẬT 9/9/2026 — đã có số LongChat full (function + block); bảng dưới vẫn là lượt Qwen
 >
@@ -243,7 +257,7 @@ kiểm toàn vẹn ≠ kiểm đầy đủ: CRC nói từng file còn sống, kh
 | 2.1 | Parse AST bằng tree-sitter, có offset | ✅ 5 level · 5 ngôn ngữ |
 | 2.2 | Gán `unit_id` cho từng key token | ✅ 500/500 mẫu |
 | 2.3 | **Hard boundary** — K-means trong từng unit | ✅ **0% vắt biên, 500/500** |
-| 2.4 | **StructHierarchy** — L2 + L1 theo unit cha | ✅ chạy được; bất biến [E] QUA 200/200 (LCC), 195/199 (RepoBench-P, bug E5 đã fix — xem CẬP NHẬT 11/9); ⚠️ K1 thực tế ≠ danh nghĩa |
+| 2.4 | **StructHierarchy** — L2 + L1 theo unit cha | ✅ chạy được; bất biến [E] QUA 200/200 (LCC) và 199/199 (RepoBench-P, sau khi fix bug E5 — xem CẬP NHẬT 11–12/9); ⚠️ K1 thực tế ≠ danh nghĩa |
 | 2.5 | Ablation tách bạch SA / +HB / +SH | ✅ ba nhánh, cùng 500 mẫu, cùng budget |
 | 2.6 | Giữ nguyên Si, threshold, kernel | ✅ threshold do `run_global_threshold` tính, mọi nhánh |
 

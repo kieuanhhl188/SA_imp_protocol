@@ -1008,14 +1008,32 @@ lớn quan sát trên RepoBench-P thật (12–26%). Chạy trên code MỚI: **
 0,00e+00. Toàn bộ 80+ test CPU khác không đổi kết quả (`python scripts/test_struct_clustering.py`
 → TẤT CẢ PASS).
 
-⚠️ **Chưa chạy lại 4 mẫu RepoBench-P bị ảnh hưởng (idx 40, 111, 127, 187) trên GPU** để xác
-nhận bằng dữ liệu thật — fix đã kiểm chứng đủ bằng test hồi quy tất định trên CPU, không phụ
-thuộc GPU/model. Cần chạy lại `check_phase2_invariants.py --checks E` trên cây
-`struct_hierarchy` cũ của RepoBench-P (`phase2_evidence/repobench_11-9/`, hoặc sinh lại từ
-`/workspace/p2-longchat-repobench/` nếu volume còn) để đóng hẳn mục này — **việc chặn, chưa
-làm, không cần GPU mới nếu cluster tree cũ còn trên volume**.
+**12/9 — Xác nhận trên GPU thật.** Xoá 4 bộ file L1 cũ của idx 40/111/127/187 trong
+`/workspace/p2-longchat-repobench/struct_hierarchy/repobench-p/`, chạy lại
+`offline_clustering_struct.py --method struct_hierarchy` (195 mẫu còn lại tự bị bỏ qua vì đã
+đủ file — chỉ 4 mẫu bị tính lại, không cần GPU cho cả 199 mẫu). `check_phase2_invariants.py
+--checks E`:
 
-Cập nhật: [docs/PHASE2_RESULTS.md](../docs/PHASE2_RESULTS.md) mục 2.4 + banner CẬP NHẬT 11/9.
+| dataidx | K1 | K2 | rel trước fix | rel sau fix |
+|---:|---:|---:|---:|---:|
+| 40  | 16  | 393  | 1,22e-01 | 5,7e-08 ✅ |
+| 111 | 42  | 213  | 1,39e-01 | 8,9e-08 ✅ |
+| 127 | 281 | 1498 | 2,60e-01 | 9,0e-08 ✅ |
+| 187 | 88  | 440  | 2,66e-01 | 8,3e-08 ✅ |
+
+**Bất biến [E] QUA 199/199** — `✅ MOI BAT BIEN QUA`. Log:
+`/workspace/p2_invariants_repobench_E_refix2.log` (trên pod, chưa copy vào `phase2_evidence/`).
+
+Lưu ý vận hành phát sinh khi làm việc này: fix chỉ nằm trên nhánh `main` (commit `533b8ed`),
+**không có trên `phase5-func-hier-c2`** — nhánh mà pod đang checkout khi chạy các job Phase 2
+trước đó. `phase5-func-hier-c2` là tổ tiên đầy đủ của `main` (đã merge qua `13f4407`, không
+có commit riêng), nên `git checkout main && git pull` trên pod là an toàn tuyệt đối, không mất
+gì. Bài học: khi pod tracking một feature branch cũ thay vì `main`, mọi commit fix sau merge
+sẽ **không tự xuất hiện trên pod** dù `git pull` chạy "thành công" (vì nó pull đúng branch
+đang checkout, không phải `main`) — phải kiểm `git branch --show-current` trên pod trước khi
+kết luận "pull rồi mà vẫn sai" là do code.
+
+Cập nhật: [docs/PHASE2_RESULTS.md](../docs/PHASE2_RESULTS.md) mục 2.4 + banner CẬP NHẬT 11-12/9.
 
 ### 2026-09-11 — RepoBench-P: Phase 2 (nhánh `sa`) + Phase 5 C2 chạy chung trong một script — C2 FAIL cấu hình #4 · E5 hở 4/199
 
