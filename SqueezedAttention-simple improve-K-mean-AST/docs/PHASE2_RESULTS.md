@@ -282,12 +282,19 @@ kiểm toàn vẹn ≠ kiểm đầy đủ: CRC nói từng file còn sống, kh
 
 ---
 
-## Những gì Phase 2 CHƯA trả lời
+## Những gì Phase 2 CHƯA trả lời (và ai đã trả lời rồi)
 
-- **Ranh giới cứng có làm chất lượng tốt lên không.** Chưa đo. Đó là Phase 5 (recall@budget)
-  và Phase 6 (accuracy@budget).
-- **Chi phí clustering có tăng không.** Đã đo thời gian tổng nhưng chưa tách riêng so với `sa`
-  ở cùng điều kiện.
-- **Kết quả trên RepoBench-P.** Mới chạy LCC. Dữ liệu Phase 1 của RepoBench-P đã sẵn sàng.
-- **Các level khác `function`.** `block` bỏ 2,6% mẫu (LCC) và 10,6% (RepoBench-P);
-  `statement` bỏ 77–90% — xem quyết định D6.
+Đây là giới hạn PHẠM VI của riêng Phase 2 — nó chỉ đo việc thi hành, không đo chất lượng
+(xem trích dẫn đầu file). Các câu hỏi dưới đây thuộc Phase 5/6 — **đã được Phase 5 trả lời**,
+không còn treo:
+
+- **Ranh giới cứng có làm chất lượng tốt lên không.** → Phase 5 (C2) đã đo: **KHÔNG** — FAIL
+  5/5 cấu hình, xem [PHASE5_RESULTS.md](PHASE5_RESULTS.md) và kết luận cuối Idea 1 trong
+  [EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md). Theo protocol, không chạy Phase 6 (accuracy@budget)
+  cho hướng này.
+- **Kết quả trên RepoBench-P.** → Đã chạy đầy đủ (11/9, 12/9) — cùng kết luận âm như LCC.
+- **Chi phí clustering có tăng không.** Vẫn chưa tách riêng thời gian `struct_hierarchy`/
+  `hard_boundary` so với `sa` ở cùng điều kiện — không chặn kết luận Idea 1 (đã FAIL ở chất
+  lượng, chi phí thêm chỉ càng bất lợi hơn).
+- **Các level khác `function`.** Đã thử thêm `block` (LCC và tương đương RepoBench-P qua cấu
+  hình khác). `statement` chưa thử — bỏ 77–90% mẫu (quyết định D6), không đáng làm.

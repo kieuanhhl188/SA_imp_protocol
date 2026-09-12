@@ -22,7 +22,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟢 **đề xuất 1 + đề xuất 2 XONG** (LongChat/LCC full 200: function 31/8 + block 9/9; bất biến A–E TẤT CẢ QUA, tầng L1 thêm 10/9). C2 cả hai đề xuất = FAIL |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
-| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🔴 **5.1–5.4 có code + kết quả · 5.5 xong · C2 FAIL** 5 cấu hình (Qwen fn, LongChat fn/block LCC, LongChat fn RepoBench-P ×2 — hierarchy giả `--level_l1 class` vô tác dụng, và hierarchy THẬT `--percent_clusters_l2 0.1` ép nhánh merge 139/199), tất cả KTC loại 0 & âm. Bản hierarchy thật (12/9) còn TỆ HƠN bản giả (9/9–11/9), không phải cứu vãn. **Không chạy Phase 6** |
+| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🔴 **5.1–5.4 có code + kết quả · 5.5 xong · C2 FAIL** 5 cấu hình (Qwen fn, LongChat fn/block LCC, LongChat fn RepoBench-P ×2 — hierarchy giả `--level_l1 class` vô tác dụng, và hierarchy THẬT `--percent_clusters_l2 0.1` ép nhánh merge 139/199), tất cả KTC loại 0 & âm. Bản hierarchy thật (12/9) còn TỆ HƠN bản giả (9/9–11/9), không phải cứu vãn. **Không chạy Phase 6.** ⚠️ Theo đúng tiêu chí protocol, đây là "H0 **yếu**" chứ chưa phải "H0 sai" dứt khoát — mọi cấu hình đều dùng ranh giới L2 bằng/mịn hơn `function`, chưa thử `--level class` (thô hơn) như protocol yêu cầu trước khi kết luận. Xem entry 12/9 (c) |
 | 6 | C1 accuracy@budget end-task | — | ❌ 0/5 |
 | 7 | C3 + phân tích | — | ❌ 0/4 |
 
@@ -806,7 +806,10 @@ Công cụ: `phase5_recall.py`. Kết quả: `docs/PHASE5_RESULTS.md` (Qwen) ·
 (b) ~~RepoBench-P (cấu trúc dày ~7×)~~ ✅ 11/9 — C2 FAIL, gap ≈ LCC func (giả thuyết "dày hơn
 → gap rộng hơn" sai); ⚠️ E5 hở 4/199 mẫu, xem entry 11/9 · (b') ~~RepoBench-P hierarchy THẬT
 (nhánh merge)~~ ✅ 12/9 — vẫn FAIL, nặng hơn bản giả, đóng luôn hướng thoát "hierarchy chưa
-được thử thật" · (c) precision + hình. Theo protocol: **không chạy Phase 6** trên cấu hình này.
+được thử thật" · (c) precision + hình · **(d) `--level class` làm ranh giới L2 (chưa làm, xem
+entry 12/9 (c) — bước bắt buộc theo chính tiêu chí protocol trước khi coi H0 là sai hẳn, không
+phải chỉ "yếu"), trên RepoBench-P.** Theo protocol: **không chạy Phase 6** trên các cấu hình
+đã có, nhưng "H0 sai" còn là kết luận tạm cho tới khi (d) xong.
 
 ---
 
@@ -980,6 +983,34 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-09-12 (c) — Phát hiện lỗ hổng: "xem lại định nghĩa unit/level" (tiêu chí C2) chưa từng được làm
+
+Sau khi tổng hợp 5 cấu hình FAIL và định viết kết luận đóng Idea 1, bị chỉ ra rằng tiêu chí
+gốc của protocol cho C2 có **hai vế**, không phải một:
+
+> *"C2 pass nếu... Nếu không → H0 yếu, xem lại định nghĩa unit/level trước khi bỏ."*
+
+Vế thứ hai chưa từng được thực hiện tường minh. Soát lại toàn bộ 5 cấu hình đã chạy: **tất cả
+đều dùng `--level function` hoặc `--level block` làm ranh giới L2** — tức bằng hoặc **mịn
+hơn** function. `--level class` (đã có sẵn trong `LEVELS` của `struct_clustering.py`, hỗ trợ
+đầy đủ trong `offline_clustering_struct.py --level`) **chưa từng được dùng làm ranh giới L2
+chính** — chỉ dùng cho tầng L1 phụ trợ của `struct_hierarchy`.
+
+Xu hướng đo được nhất quán qua 5 cấu hình: mịn hơn → tệ hơn (block tệ ~3× function, cùng
+dataset LCC). Chưa loại trừ được khả năng xu hướng này đảo chiều ở phía thô hơn — tức
+`--level class` có thể thu hẹp gap hoặc thậm chí đảo dấu. Cho tới khi kiểm, "H0 sai" đúng
+nghĩa protocol là **"H0 yếu"**, chưa phải kết luận đóng.
+
+**Kế hoạch bịt lỗ hổng (chưa chạy):** `--level class` chỉ có ý nghĩa nơi code thật có class —
+RepoBench-P trung vị 17 class/mẫu (đo từ `k1_raw`, thí nghiệm L1 12/9 (b)); LCC nhiều khả năng
+suy biến gần về 1 unit/mẫu (hàm rời rạc, ít nằm trong class) nên không đáng thử trước. Chi phí
+thấp: nhánh `sa` không đọc `--level` nên tái dùng thẳng `sa/repobench-p/` đã có; chỉ cần sinh
+mới `hard_boundary --level class --percent_clusters 5` trên RepoBench-P (ước ~30-45 phút GPU,
+cùng cỡ các lượt trước) rồi chạy `phase5_recall.py` (không cần `--hierarchical`, vì đang kiểm
+L2 không phải L1) so với `sa` đã có sẵn.
+
+Cập nhật: [docs/PHASE5_RESULTS.md](../docs/PHASE5_RESULTS.md) mục "Theo protocol thì làm gì".
 
 ### 2026-09-12 (b) — RepoBench-P với hierarchy L1 THẬT (`--percent_clusters_l2 0.1`) — C2 FAIL cấu hình thứ 5, tệ hơn bản giả
 

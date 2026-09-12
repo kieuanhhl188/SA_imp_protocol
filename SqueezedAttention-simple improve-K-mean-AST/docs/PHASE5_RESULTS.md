@@ -77,31 +77,55 @@ centroid tóm tắt kém đi.
 thay đổi 44,5% số cluster. Nghĩa là phần lớn việc vắt biên là **trung tính**, và cấm nó phải
 trả một cái giá nhỏ nhưng có hệ thống. Không được viết thành "cấu trúc phá hoại nghiêm trọng".
 
-## Những gì kết quả này KHÔNG nói
+## Những gì kết quả này KHÔNG nói (bảng gốc 24/8 — chỉ áp dụng cho cấu hình Qwen/LCC ở trên)
 
 | | |
 |---|---|
-| **Đề xuất 2 (`struct_hierarchy`) chưa được đo** | Thước đo chấm điểm key bằng centroid **L2**, mà L2 của `struct_hierarchy` chính là centroid của `hard_boundary`. Tầng L1 chỉ tham gia ở bước lookup phân tầng — `phase5_recall.py` không mô phỏng bước đó. Hai nhánh ra số **trùng khít từng chữ số**, đó là hệ quả của phép đo chứ không phải phát hiện |
-| Chỉ mới `level=function` | LCC có trung vị 15 đơn vị/mẫu. Level `block` (trung vị 48) hoặc `statement` chưa thử |
-| Chỉ mới LCC | RepoBench-P có trung vị **107 đơn vị/mẫu** — cấu trúc dày hơn 7 lần. Chưa đo |
 | Đây là **cận trên** của recall thực tế | Thước đo cắt top-N theo thứ hạng; cài đặt thật dùng ngưỡng toàn cục nên còn mất thêm. Sai số này như nhau cho mọi nhánh nên so sánh vẫn hợp lệ |
+
+Ba dòng từng đứng ở đây — *"đề xuất 2 chưa được đo"*, *"chỉ mới level=function"*, *"chỉ mới
+LCC"* — **đã lỗi thời, đã xoá**. Tại thời điểm 24/8 đúng là cả ba đều đúng; sau các lượt 9/9,
+10/9, 11/9, 12/9 (xem banner đầu file) cả ba đều đã được đo, trên nhiều cấu hình, và không có
+cấu hình nào đảo ngược kết luận.
+
+## Tổng hợp toàn bộ 5 cấu hình đã đo (chốt 12/9/2026)
+
+| # | Model / dataset / level | n | sp70 | sp80 | sp90 |
+|---|---|---:|---:|---:|---:|
+| 1 | Qwen-fn / LCC (bảng ở trên) | 300 | −0,89 | −1,13 | −1,37 |
+| 2 | LongChat-fn / LCC | 100 | −1,00 | −1,49 | −2,33 |
+| 3 | LongChat-block / LCC | 98 | −3,24 | −4,15 | −5,44 |
+| 4 | LongChat-fn / RepoBench-P (đề xuất 2, hierarchy **giả** — L1=1%, luôn *split*) | 197 | −1,33 | −1,77 | −2,45 |
+| 5 | LongChat-fn / RepoBench-P (đề xuất 2, hierarchy **thật** — L1=0,1%, phần lớn *merge*) | 197 | −1,33 (r=1,0) → **−14,39 ở r=0,5** | −1,77 → **−11,75** | −2,45 → **−9,21** |
+
+Tất cả là hiệu số `(nhánh − sa)`, đơn vị điểm phần trăm. **15/15 khoảng tin cậy (5 cấu hình ×
+3 mức budget) loại trừ 0 và âm.** Cấu hình #5 cho thấy: hierarchy càng "thật" (đúng nghĩa
+class→function→token, không phải nguỵ trang) thì càng tệ, không phải càng tốt — bác bỏ khả
+năng đây chỉ là vấn đề đo chưa đúng cách.
 
 ## Theo protocol thì làm gì
 
-> *"Nếu C2 fail thì H0 sai → dừng, không chạy C1/C3."*
+> *"Tiêu chí: C2 pass nếu structure-aware recall cao hơn SA có ý nghĩa thống kê ở ≥2 mức
+> budget. **Nếu không → H0 yếu, xem lại định nghĩa unit/level trước khi bỏ.**"*
 
-Không chạy Phase 6 trên cấu hình này. Ước tính chi phí tiết kiệm được: **90–390 giờ A100**
-cho grid đầy đủ bốn dataset.
+**Không chạy Phase 6** — vế đầu của tiêu chí rõ ràng không đạt, 5/5 cấu hình. Nhưng câu lệnh
+thứ hai của chính tiêu chí này ("xem lại định nghĩa unit/level trước khi bỏ") là một bước
+**bắt buộc, chưa làm**: mọi cấu hình đã thử (5/5) dùng `--level function` hoặc `--level block`
+làm ranh giới L2 — tức **bằng hoặc mịn hơn function**. Xu hướng đo được nhất quán là "mịn hơn
+→ tệ hơn" (block tệ gấp ~3× function trên cùng dataset). **`--level class` — ranh giới THÔ
+hơn function — chưa từng được thử làm ranh giới L2 chính** (chỉ dùng cho tầng L1 phụ trợ của
+`struct_hierarchy`). Nếu xu hướng "mịn hơn → tệ hơn" tiếp diễn tuyến tính theo chiều ngược
+lại, ranh giới thô hơn có thể thu hẹp gap, thậm chí đảo chiều — **khả năng này chưa bị loại
+trừ**, nên "H0 sai" hiện tại đúng nghĩa "H0 yếu" theo protocol, không phải kết luận đóng.
 
-**Ba việc rẻ nên làm trước khi kết luận về cả hướng đi:**
+`--level class` chỉ có ý nghĩa nơi code thật sự có class: **RepoBench-P có trung vị 17
+class/mẫu** (đo được từ `k1_raw` ở thí nghiệm L1 12/9); LCC (code-completion snippet, nhiều
+hàm rời rạc không nằm trong class) nhiều khả năng suy biến gần về `sa` ở mức này — không đáng
+thử trước. Việc còn lại, rẻ (nhánh `sa` không phụ thuộc `--level`, tái dùng được dữ liệu đã
+có; chỉ cần sinh `hard_boundary` mới ở `level=class` trên RepoBench-P + Phase 5): xem
+[EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md) mục 6, entry 2026-09-12 (c).
 
-1. **LCC ở `level=block`** — kiểm xem độ mịn của đơn vị có phải là vấn đề không.
-   Phase 2 hai nhánh ~30 phút + Phase 5 ~20 phút.
-2. **RepoBench-P** — nơi cấu trúc dày gấp 7 lần. Nếu ranh giới cấu trúc giúp ở đâu thì phải
-   là ở đó. Phase 2 hai nhánh ~18 giờ.
-3. **Đo đề xuất 2 cho đúng** — cần mô phỏng lookup phân tầng (L1 lọc trước, L2 lọc sau),
-   hoặc đo bằng `centroid_lookup` thật thay vì xếp hạng.
-
-Nếu cả ba đều âm thì đây là kết quả chính của dự án, và là một kết quả **có giá trị công
-bố**: một giả thuyết hợp lý về mặt trực giác, được kiểm bằng phép đo trực tiếp, và bị bác bỏ
-bằng số liệu nhất quán trên 10 lớp × 3 mức ngân sách × 300 mẫu.
+Ba việc rẻ từng đề xuất ở bản 9/9 (LCC `level=block`, RepoBench-P, đo đề xuất 2 cho đúng bằng
+lookup phân tầng thật) đã làm đủ cả ba, cả ba đều âm. Đây là bằng chứng mạnh cho hướng "H0
+sai", nhưng **chưa phải kết luận cuối** cho tới khi mục "xem lại định nghĩa unit/level" ở trên
+được đóng.
