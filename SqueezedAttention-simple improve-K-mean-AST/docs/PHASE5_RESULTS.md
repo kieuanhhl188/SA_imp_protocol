@@ -1,5 +1,18 @@
 # Phase 5 (C2) — Recall@budget · **KẾT QUẢ ÂM**
 
+> **Cập nhật 13/9/2026 — sweep đủ 4 mức `--level` (class/function/block/statement) trên
+> RepoBench-P, ranh giới L2 (không phải L1 hierarchy).** Xu hướng đơn điệu: `class` (thô hơn
+> function) **DƯƠNG** ở sp70/80 (+0,30/+0,16, KTC loại 0) nhưng âm ở sp90 (−0,09) · `function`
+> âm cả 3 (−1,33/−1,77/−2,45) · `block` âm cả 3 (−3,65/−4,43/−5,57, n=195) · `statement` (mịn
+> nhất) âm cả 3 và **nặng nhất đo được** trong toàn bộ Phase 5 (−6,75/−7,95/−9,83), nhưng
+> ⚠️ chỉ đo trên **n=56/200** — 72% mẫu vượt ngân sách centroid ở mức này bị bỏ (chính sách
+> skip), tập còn lại thiên lệch về mẫu ít cấu trúc hơn, nên không so trực tiếp 1-1 với 3 mức
+> kia được, chỉ là quan sát củng cố thêm. Coi như đã trả lời câu "chưa thử level thô/mịn hơn
+> trước khi kết luận H0" nêu ở entry 12/9 (c) của EXPERIMENT_LOG.md — không có đảo chiều bất
+> ngờ ở phía mịn, tín hiệu dương chỉ tồn tại quanh `class`/sp thấp. Chi tiết đầy đủ + nguồn dữ
+> liệu: [EXPERIMENT_LOG.md](../EXPERIMENT_LOG.md) mục 6, entry 2026-09-12 (d) và 2026-09-13
+> (e)/(f).
+
 > **Cập nhật 12/9/2026 — hierarchy L1 THẬT trên RepoBench-P (không còn giả "TB theo
 > function"), vẫn FAIL và TỆ HƠN bản giả.** `--percent_clusters_l2 0.1` ép ngân sách L1 chặt
 > hơn số class thật (trung vị 17 class/mẫu) → nhánh *merge* của `build_l1_groups` lần đầu

@@ -22,7 +22,7 @@ Ký hiệu: ✅ xong · 🟡 một phần · ❌ chưa làm · ⏸️ hoãn (pro
 | 2 | Structure-aware clustering (Idea 1) | **22/8** | 🟢 **đề xuất 1 + đề xuất 2 XONG** (LongChat/LCC full 200: function 31/8 + block 9/9; bất biến A–E TẤT CẢ QUA, tầng L1 thêm 10/9). C2 cả hai đề xuất = FAIL |
 | 3 | Symbol / def-use signal (Idea 2) | **30/8** | ❌ 0/4 |
 | 4 | Incremental re-clustering (Idea 3) | **8/9** | ❌ 0/4 |
-| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🔴 **5.1–5.4 có code + kết quả · 5.5 xong · C2 FAIL** 5 cấu hình (Qwen fn, LongChat fn/block LCC, LongChat fn RepoBench-P ×2 — hierarchy giả `--level_l1 class` vô tác dụng, và hierarchy THẬT `--percent_clusters_l2 0.1` ép nhánh merge 139/199), tất cả KTC loại 0 & âm. Bản hierarchy thật (12/9) còn TỆ HƠN bản giả (9/9–11/9), không phải cứu vãn. **Không chạy Phase 6.** ⚠️ Theo đúng tiêu chí protocol, đây là "H0 **yếu**" chứ chưa phải "H0 sai" dứt khoát — mọi cấu hình đều dùng ranh giới L2 bằng/mịn hơn `function`, chưa thử `--level class` (thô hơn) như protocol yêu cầu trước khi kết luận. Xem entry 12/9 (c) |
+| 5 | C2 retrieval quality — chạy TRƯỚC Phase 6 | — | 🟡 **Sweep `--level` đủ cả 4 mức đo được trên RepoBench-P (13/9)**: `class` **DƯƠNG** ở sp70/80 (+0,30/+0,16, KTC loại 0) nhưng âm ở sp90 (−0,09); `function` âm cả 3 (−1,33/−1,77/−2,45); `block` âm cả 3, nặng hơn (−3,65/−4,43/−5,57); `statement` âm cả 3, **nặng nhất** (−6,75/−7,95/−9,83) nhưng ⚠️ chỉ n=56/200 (72% mẫu vượt ngân sách bị bỏ, tập thiên lệch — không so trực tiếp với 3 mức kia được). Xu hướng đơn điệu nhất quán: thô hơn → đỡ hại/có lợi, mịn hơn → hại nhiều hơn — ranh giới "giúp/hại" nằm giữa `class` và `function`; không có mức nào đảo chiều. **Vẫn chưa chạy Phase 6** — quyết định "H0 yếu hay sai hẳn" từ đây là quyết định của nhóm, chưa tự chốt. 5 cấu hình cũ (Qwen fn, LongChat fn/block LCC, LongChat fn RepoBench-P ×2 hierarchy) vẫn FAIL nguyên trạng. Xem entry 13/9 (e) và (f) |
 | 6 | C1 accuracy@budget end-task | — | ❌ 0/5 |
 | 7 | C3 + phân tích | — | ❌ 0/4 |
 
@@ -800,16 +800,23 @@ Công cụ: `phase5_recall.py`. Kết quả: `docs/PHASE5_RESULTS.md` (Qwen) ·
 | 5.2 | Mỗi method lấy `K_m` ở cùng budget N | ✅ **sa, hard_boundary, struct_hierarchy** | +SymbolSignal ❌ (Phase 3 = 0/4). struct_hierarchy phẳng ≡ hard_boundary; lookup 2 bước (`--hierarchical`) đã đo 10/9 |
 | 5.3 | `Recall@budget` + attention-mass | ✅ recall + mass | **precision ❌ chưa tính** |
 | 5.4 | Quét {70, 80, 90}, vẽ Recall vs budget | ✅ số · **hình ❌** | |
-| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 (`scripts/phase5_bootstrap.py`) | **FAIL** — 5 cấu hình, mọi KTC loại 0 & âm (mục 6, entry 9/9 + 10/9 + 11/9 + 12/9). `hard_boundary − sa`: Qwen fn −0,89/−1,13/−1,37 · LongChat fn LCC −0,93/−1,43/−2,28 (n=200) · LongChat block LCC −3,24/−4,15/−5,44 · **LongChat fn RepoBench-P −1,33/−1,77/−2,45 (n=197)**. Đề xuất 2 (lookup 2 bước, r<1.0) đơn điệu tệ hơn phẳng ở LCC, RepoBench-hierarchy-giả **lẫn RepoBench-hierarchy-thật** (r=0.5: −14,39/−11,75/−9,21, tệ hơn cả bản giả) |
+| 5.5 | Paired test qua các mẫu | ✅ bootstrap 20.000 (`scripts/phase5_bootstrap.py`) | **FAIL ở function/block/statement, DƯƠNG một phần ở class** — mục 6, entry 9/9 + 10/9 + 11/9 + 12/9 + 13/9 (e)(f). `hard_boundary − sa` (function, trừ khi ghi khác): Qwen fn −0,89/−1,13/−1,37 · LongChat fn LCC −0,93/−1,43/−2,28 (n=200) · LongChat block LCC −3,24/−4,15/−5,44 · **LongChat fn RepoBench-P −1,33/−1,77/−2,45 (n=197)** · **LongChat class RepoBench-P +0,30/+0,16/−0,09** (n≈195, KTC loại 0 cả 3, dương ở sp70/80) · **LongChat block RepoBench-P −3,65/−4,43/−5,57** (n=195, KTC loại 0) · **LongChat statement RepoBench-P −6,75/−7,95/−9,83** (⚠️ n=56/200, 72% mẫu vượt ngân sách bị bỏ, tập thiên lệch — nặng nhất đo được nhưng không so trực tiếp được với 3 mức kia do khác tập mẫu). Sweep đủ 4 mức trên cùng RepoBench-P cho xu hướng đơn điệu nhất quán: thô hơn (class) → đỡ hại/có lợi, mịn hơn (block/statement) → hại nặng hơn. Đề xuất 2 (lookup 2 bước, r<1.0) đơn điệu tệ hơn phẳng ở LCC, RepoBench-hierarchy-giả **lẫn RepoBench-hierarchy-thật** (r=0.5: −14,39/−11,75/−9,21, tệ hơn cả bản giả) |
 
 **Còn lại:** (a) ~~nhánh truy hồi phân tầng~~ ✅ 10/9 — đề xuất 2 FAIL, đơn điệu tệ hơn phẳng ·
 (b) ~~RepoBench-P (cấu trúc dày ~7×)~~ ✅ 11/9 — C2 FAIL, gap ≈ LCC func (giả thuyết "dày hơn
 → gap rộng hơn" sai); ⚠️ E5 hở 4/199 mẫu, xem entry 11/9 · (b') ~~RepoBench-P hierarchy THẬT
 (nhánh merge)~~ ✅ 12/9 — vẫn FAIL, nặng hơn bản giả, đóng luôn hướng thoát "hierarchy chưa
-được thử thật" · (c) precision + hình · **(d) `--level class` làm ranh giới L2 (chưa làm, xem
-entry 12/9 (c) — bước bắt buộc theo chính tiêu chí protocol trước khi coi H0 là sai hẳn, không
-phải chỉ "yếu"), trên RepoBench-P.** Theo protocol: **không chạy Phase 6** trên các cấu hình
-đã có, nhưng "H0 sai" còn là kết luận tạm cho tới khi (d) xong.
+được thử thật" · (c) precision + hình — **vẫn chưa làm** (precision toán học trùng recall vì
+`|K_m|=|K^*|=N` cùng budget, nên rủi ro thấp; hình vẫn thiếu) · (d) ~~`--level class` làm ranh
+giới L2~~ ✅ 12/9 (d) — DƯƠNG ở sp70/80, âm ở sp90 · (e) ~~`--level block`~~ ✅ 13/9 (e) — âm
+cả 3 · (f) ~~`--level statement` (mức mịn nhất còn lại)~~ ✅ 13/9 (f) — âm cả 3, nặng nhất
+nhưng n nhỏ (56) và tập mẫu thiên lệch, đọc như quan sát bổ sung chứ không ngang hàng 3 mức
+kia. **Sweep cả 4 mức đo được (class/function/block/statement) trên RepoBench-P coi như đã đủ
+theo yêu cầu "xem lại định nghĩa unit/level trước khi kết luận H0" của entry 12/9 (c) — không
+mức nào cho thấy dấu hiệu đảo chiều ngoài `class`.** Theo protocol: **không chạy Phase 6** trên
+các cấu hình đã có. Kết luận "H0 yếu hay sai hẳn" từ dữ liệu này — có gồm cả xử lý theo hướng
+nào với tín hiệu dương ở `class`/sp70-80 hay không — là quyết định của nhóm nghiên cứu, chưa tự
+chốt ở đây.
 
 ---
 
@@ -983,6 +990,196 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 ---
 
 ## 6. Thay đổi code
+
+### 2026-09-13 (g) — Smoke test (chỉ 3 mẫu, KHÔNG chạy full): `--level class`/`statement` trên LCC — xác nhận thêm lý do đã không thử trước đây
+
+Sau khi có bộ 4 mức đầy đủ trên RepoBench-P (entry (e)/(f)), thử làm tương tự trên LCC để đối
+xứng. Trước khi chạy full mới nhận ra **baseline `sa` cho LCC không còn tồn tại trên pod này**
+(centroid cũ đã bị dọn/mất, khác RepoBench-P lúc nãy tái dùng được `sa/repobench-p` có sẵn) —
+phải sinh lại từ đầu nếu muốn so sánh thật.
+
+**Smoke 3 mẫu (không chạy full) cho cả 3 nhánh cần thiết:**
+
+| Nhánh | Kết quả smoke | Chi phí đo được |
+|---|---|---|
+| `sa` (baseline, bắt buộc phải sinh lại) | 3 mẫu hết 5m38s cluster (đơn hàng ~90-110s/mẫu sau mẫu đầu) | Ước full 200 mẫu: **2-4+ giờ GPU** |
+| `hard_boundary --level class` | **2-4 unit/mẫu** (min=2 tb=3,3 max=4) | — |
+| `hard_boundary --level statement` | **3/3 mẫu (100%) vượt ngân sách**, `feasible=0` | — |
+
+**Kết luận: không chạy full.** Cả hai lý do đã ghi trong header của
+[scripts/run_phase2_class_repobench.sh](scripts/run_phase2_class_repobench.sh) (*"LCC nhiều
+khả năng suy biến gần về 1 unit/mẫu ở mức class, không đáng thử trước"*) được **xác nhận thật
+bằng số đo**, không còn là suy đoán:
+- `class` trên LCC chỉ có 2-4 đơn vị/mẫu — gần như không có ranh giới nào để `hard_boundary`
+  ràng buộc, nên kết quả full nhiều khả năng chỉ lặp lại "≈ `sa`", không thêm thông tin, trong
+  khi phải tốn thêm 2-4 giờ GPU sinh lại `sa`.
+- `statement` trên LCC còn tệ hơn RepoBench-P (72% infeasible ở entry (f)): **100% mẫu vượt
+  ngân sách** trong smoke — context LCC ngắn (median ~2-3K token) không đủ chỗ cho nhiều cụm
+  nhỏ cấp statement dưới ngân sách 5%. Full 200 mẫu nhiều khả năng cho gần như 0 mẫu khả thi.
+
+Không sinh thêm dữ liệu GPU nào ngoài 3 thư mục smoke (~1,6 GB, giữ nguyên làm bằng chứng, không
+xoá). Bộ sweep 4 mức trên RepoBench-P (entry (e)/(f)) vẫn là bộ dữ liệu chính cho câu hỏi
+"level nào giúp/hại" — kết luận không đổi.
+
+### 2026-09-13 (f) — RepoBench-P `--level statement` (mức mịn nhất) — ÂM nặng nhất, nhưng ⚠️ n chỉ 56/200 và mẫu thiên lệch
+
+Hoàn tất nốt mức cuối cùng trong 5 mức (`file/class/function/block/statement`) chưa đo trên
+RepoBench-P. Script [scripts/run_phase2_statement_repobench.sh](scripts/run_phase2_statement_repobench.sh)
+(nhân bản từ bản `block`).
+
+**⚠️ Đọc cảnh báo này trước khi đọc số bên dưới.** Đúng như D6 (Phase 1) đã đo trước: ở
+`level=statement`, tuyệt đại đa số mẫu vượt ngân sách centroid 5%. Full 200 mẫu: chỉ
+**56/200 (28%) khả thi**, **144/200 (72%) bị bỏ** (chính sách `skip`, không merge — giữ đúng
+nghĩa "statement thật", nhất quán với class/function/block). Script tự in cảnh báo lớn:
+*"Tập mẫu còn lại THIÊN LỆCH (mẫu bị bỏ thường dài và cấu trúc mịn) — KHÔNG so điểm level này
+với level khác trên số mẫu khác nhau."* Con số dưới đây đo trên **56 mẫu**, khác tập mẫu với
+class/function/block (n≈195-197) — **không phải cùng một phép so sánh apples-to-apples**, chỉ
+là quan sát bổ sung, không dùng để "cộng" vào bảng xu hướng đơn điệu trước đó một cách trực
+tiếp.
+
+**Kỹ thuật:** smoke 3 mẫu (734–1172 unit/mẫu, 0/3 vượt ngân sách) không phản ánh đúng tỷ lệ
+khả thi thật của cả 200 mẫu — cùng bài học với block: chỉ full run mới cho số tin được. CRC
+168/168 file đúng, đúng 144 mẫu thiếu file khớp danh sách infeasible (không phải lỗi ghi đĩa).
+`check_phase2_invariants.py --checks ABC` trên 56 mẫu khả thi: **MỌI BẤT BIẾN QUA**, 0,0% vắt
+biên. Script gốc dừng ở bước CRC (cùng lý do như entry (e): `--skip_idx` hard-code 21 102
+không tính 144 mẫu infeasible mới) — chạy tay tiếp 2 bước còn lại với `--skip_idx` = đúng
+144 dataidx trong `feasibility_repobench-p_hard_boundary_statement_pc5.json` (21 và 102 vốn
+đã nằm trong danh sách này).
+
+**Kết quả recall + bootstrap** (n=56, 20.000 lượt):
+
+| | sp70 | sp80 | sp90 |
+|---|---:|---:|---:|
+| recall `sa` / `hard_boundary_statement` | 78,51% / 71,76% | 74,83% / 66,88% | 69,56% / 59,73% |
+| mass `sa` / `hard_boundary_statement` | 98,11% / 92,60% | 97,39% / 89,79% | 96,11% / 84,11% |
+| Hiệu số bootstrap (statement − sa) | **−6,75 [−7,39;−6,10]** | **−7,95 [−8,67;−7,19]** | **−9,83 [−10,71;−8,93]** |
+
+Cả 3 KTC đều loại 0 và âm — **nặng nhất trong mọi cấu hình đo được ở Phase 5**, kể cả so với
+`block` (n=195: −3,65/−4,43/−5,57). Nguồn: `/workspace/phase5_repobench_statement.json`,
+`_bootstrap.txt`, `/workspace/p2_invariants_repobench_statement.log`.
+
+**Đọc kết quả này thế nào.** Hai cách giải thích không loại trừ nhau:
+1. Xu hướng đơn điệu "mịn hơn → hại nhiều hơn" tiếp tục đúng ngay cả ở mức cực đoan nhất.
+2. Một phần độ lớn effect có thể do **thiên lệch chọn mẫu** (n=56 chỉ gồm các mẫu có ít
+   unit/cấu trúc đơn giản hơn — xem cảnh báo ở trên), không thuần là do bản chất `statement`.
+   Không có tập giao đủ lớn giữa `statement` và các mức khác để tách hai nguồn này.
+
+**Không dùng con số n=56 này làm bằng chứng "mạnh" ngang với block/function/class (n≈195).**
+Giá trị của nó là xác nhận: không có dấu hiệu đảo chiều ở cực mịn nhất, và không có lý do để
+nghi ngờ hướng đi đã thấy ở `block`.
+
+### 2026-09-13 (e) — Chạy kế hoạch (d): RepoBench-P `--level block` n=200 — quay lại ÂM ở cả 3 mức, nặng hơn cả `function`
+
+Hoàn tất việc còn treo ở cuối entry (d): sweep `--level block` cho RepoBench-P để định vị
+ranh giới "giúp/hại" nằm giữa `class` (dương ở sp70/80) và `function` (âm cả 3 mức).
+
+**Chạy dữ liệu.** Script mới [scripts/run_phase2_block_repobench.sh](scripts/run_phase2_block_repobench.sh)
+(nhân bản từ `run_phase2_class_repobench.sh`, đổi `--level class` → `--level block`).
+Smoke 3 mẫu: 290–473 unit/mẫu, không suy biến → `--level block` có ý nghĩa trên tập này.
+Full 200 mẫu, ~17 phút GPU (nhanh hơn ước tính 30–45 phút): **197/200 khả thi**, 3 mẫu vượt
+ngân sách (`on_budget_exceeded=skip`) — dataidx **101** (trùng với mẫu đã infeasible ở
+`--level function`, entry 11/9), **155**, **166** (hai mẫu này mới, riêng của `block` vì đơn
+vị mịn hơn → nhiều unit hơn → dễ vượt ngân sách hơn). `check_cluster_integrity.py`:
+**591/591 file CRC đúng**, đúng 3 mẫu trên thiếu file như feasibility đã báo (không phải lỗi
+ghi đĩa). `check_phase2_invariants.py --checks ABC`: **MỌI BẤT BIẾN QUA**, 0,0% vắt biên ở
+197/197 mẫu khả thi.
+
+⚠️ **Script `run_phase2_block_repobench.sh` dừng giữa chừng ở đúng bước `check_cluster_integrity.py`**
+vì `set -e` cộng với cảnh báo "THIEU FILE cho 3/200 sample" của script đó trả về exit code
+khác 0 — cảnh báo này đúng (3 mẫu infeasible thật), nhưng script gốc chỉ hard-code
+`--skip_idx 21 102` (2 mẫu lệch tokenizer đã biết từ trước, xem `run_phase2_phase5_repobench.sh`),
+chưa tính tới 3 mẫu infeasible mới của riêng `block`. Toàn bộ clustering GPU đã lưu an toàn
+(591/591 CRC đúng) nên không mất gì — chỉ chạy tay tiếp hai bước còn lại
+(`check_phase2_invariants.py`, `phase5_recall.py`) với `--skip_idx 21 101 102 155 166` đúng
+theo D6 ("so trên tập giao mẫu khả thi").
+
+**Kết quả recall + bootstrap** (`phase5_recall.py` + `scripts/phase5_bootstrap.py`, baseline
+`sa`, **n=195**, ghép cặp, 20.000 lượt):
+
+| | sp70 | sp80 | sp90 |
+|---|---:|---:|---:|
+| recall `sa` / `hard_boundary_block` | 78,23% / 74,58% | 74,46% / 70,03% | 69,03% / 63,46% |
+| mass `sa` / `hard_boundary_block` | 98,02% / 93,83% | 97,29% / 91,15% | 95,97% / 85,82% |
+| Hiệu số bootstrap (block − sa) | **−3,65 [−3,87;−3,43]** | **−4,43 [−4,69;−4,18]** | **−5,57 [−5,89;−5,25]** |
+
+Cả 3 KTC đều loại 0 và âm. Nguồn: `/workspace/phase5_repobench_block.json`,
+`/workspace/phase5_repobench_block_bootstrap.txt`, `/workspace/p2_invariants_repobench_block.log`.
+
+**Đọc cả 3 mức cạnh nhau trên cùng RepoBench-P, cùng n≈195-197:**
+
+| `--level` (L2, thô → mịn) | sp70 | sp80 | sp90 |
+|---|---:|---:|---:|
+| `class` (entry 12/9 (d)) | **+0,30** [+0,26;+0,34] | **+0,16** [+0,10;+0,21] | −0,09 [−0,16;−0,02] |
+| `function` (entry 11/9) | −1,33 | −1,77 | −2,45 |
+| `block` (entry này) | **−3,65** | **−4,43** | **−5,57** |
+
+Xu hướng đơn điệu, không nhiễu: **thô hơn → tốt hơn/ít hại hơn, mịn hơn → hại nhiều hơn**,
+nhất quán với phát hiện trên LCC (block tệ hơn function ~3×, entry 9/9). `block` không "cứu"
+được gì — nó xác nhận thêm chiều đã thấy, không mở ra khả năng đảo chiều mà entry (c)/(d) còn
+để ngỏ. Ranh giới "giúp/hại" nằm ở đâu đó **giữa class và function**, không lan tới phía mịn.
+
+Việc kế hoạch (c)/(d) đặt ra ("`--level class` là bước bắt buộc theo protocol trước khi coi H0
+sai hẳn") coi như đã làm đủ: đã quét từ mịn nhất khả dụng (`block`) tới thô nhất có ý nghĩa
+(`class`) trên đúng dataset có nhiều class thật (RepoBench-P). Quyết định "H0 yếu hay sai hẳn"
+và có mở thêm nhánh tại `class` (ví dụ đo thêm ở n lớn hơn, hoặc thử level thô hơn `class` nếu
+có) là quyết định của nhóm nghiên cứu, không tự chốt ở đây.
+
+### 2026-09-12 (d) — Chạy kế hoạch (c): RepoBench-P `--level class` n=200 — C2 DƯƠNG lần đầu ở sp70/80, vẫn âm ở sp90 · sửa 2 bug audit
+
+Thực thi đúng kế hoạch để ở entry (c) bên dưới.
+
+**Chạy dữ liệu.** `offline_clustering_struct.py longchat-v1.5-7b-32k --dataset repobench-p
+--method hard_boundary --level class --percent_clusters 5 --limit 200 --output_path
+hard_boundary_class/`. Lượt đầu crash giữa chừng ở mẫu 98 (file `.pt` cụt 0 byte); lệnh resume
+dùng `--output_path` thiếu hậu tố `/repobench-p` nên không nhận ra 97 mẫu đã có → tính lại cả
+200 mẫu (tốn thêm ~21 phút GPU) và ghi ra thư mục phẳng sai quy ước. Đã gộp lại đúng vị trí
+`hard_boundary_class/repobench-p/`, `check_cluster_integrity.py --expect 200`: **600/600 file
+CRC đúng, đủ 200/200 mẫu**. Feasibility: `feasible=200/200, infeasible=0, merged=0`.
+
+**Kết quả recall + bootstrap** (`phase5_recall.py` + `scripts/phase5_bootstrap.py`, baseline
+`sa`, n=200, ghép cặp):
+
+| sp70 | sp80 | sp90 |
+|---|---|---|
+| **+0,30 [+0,26;+0,34]** | **+0,16 [+0,10;+0,21]** | **−0,09 [−0,16;−0,02]** |
+
+Cả 3 KTC đều loại 0. sp70/sp80 **dương lần đầu tiên trong toàn bộ lịch sử C2** (sau đúng 5
+cấu hình FAIL liên tiếp). sp90 quay lại âm có ý nghĩa. Theo quy tắc quyết định đã đặt: tín
+hiệu thật, **không đóng Idea 1**, nhưng cũng **chưa PASS dứt khoát** — ranh giới "giúp/hại"
+nằm đâu đó giữa `class` (dương ở sp70/80) và `function` (âm ở cả 3 mức, cấu hình #4). Nguồn:
+`/workspace/phase5_repobench_class_n200.json`.
+
+**Loại trừ nhiễu cấu hình.** Bị hỏi liệu kết quả dương có phải do đổi `fixed_context` thay vì
+đổi level không (D2 ở mục 7 ghi "chốt 15/8: giữ LongBench", tưởng chừng mâu thuẫn với code
+mặc định `full`). Đã xác minh: `docs/PHASE5_RESULTS.md` có chốt **24/8** (muộn hơn D2 9 ngày)
+khóa `fixed_context=full` — D2 chỉ là bản nháp chưa cập nhật, không phải quyết định còn hiệu
+lực. Quan trọng hơn: `phase1_data/longchat-v1.5-7b-32k/repobench-p_meta.jsonl` sinh **một lần
+duy nhất 10/9 07:11**, chưa hề sinh lại — kiểm cả 500 dòng: `fixed_context_mode=full` và
+`force_chat=False` **đồng nhất tuyệt đối**. Cấu hình #4 (11/9), #5 (12/9), và lượt class hôm
+nay đều đọc chung một file này → biến duy nhất đổi giữa các cấu hình là `--level`, không phải
+`fixed_context`. Kết quả dương không phải nhiễu cấu hình.
+
+**Sửa 2 bug trong `scripts/check_phase2_invariants.py`** (chỉ ảnh hưởng script audit, không
+đụng Phase 1/2/5 hay số liệu recall ở trên):
+1. `rebuild_prompts()` hard-code `d2p[dataset + "_prompt"]` (key `crossfile`), không đọc
+   `fixed_context_mode` từ meta từng mẫu → dựng sai prompt cho RepoBench-P (LCC không lộ vì
+   `lcc_prompt` == `lcc_prompt_full`). Khiến check [A] báo `[!] sp_len` lệch ở **200/200 mẫu
+   cả hai nhánh**, kể cả dataidx 0 (mẫu cũ chưa hề bị đụng) — xác nhận lỗi ở hàm dựng lại
+   prompt, không phải ở dữ liệu. Sửa: đọc `meta[idx]["fixed_context_mode"]` per-sample.
+2. `HARD = {"hard_boundary", "struct_hierarchy"}` so khớp CHÍNH XÁC tên nhãn `--cluster_dir`
+   → nhãn `hard_boundary_class` (đặt tên để tách thư mục theo level, xem entry trước) không
+   khớp, bị coi là "nhóm đối chứng", không bao giờ bị chấm ❌ dù có vi phạm thật. Sửa: thêm
+   `discover_method()` đọc field `"method"` thật từ `feasibility_*.json` trong chính thư mục,
+   không đoán qua tên nhãn.
+
+Sau khi sửa: check [A] chạy sạch, **hard_boundary_class = 0/200 vi phạm ranh giới** (✅ thật,
+không còn "đối chứng") — xác nhận ranh giới cứng được tôn trọng tuyệt đối ở level=class.
+
+**Việc CHƯA làm (để mai):** sweep `--level block` cho RepoBench-P (ranh giới giữa class-dương
+và function-âm), n=200, cùng `sa/repobench-p/` đã có sẵn để so. KHÔNG chạy lại LCC (function/
+block đã FAIL, và log entry (c) đã giải thích rõ LCC ít class nên không đáng thử `--level
+class`). Không chạy song song nhiều level/dataset — máy chỉ 1 GPU (A100 80GB), compute-bound
+nên chạy song song không rút ngắn tổng thời gian, chỉ nên tuần tự.
 
 ### 2026-09-12 (c) — Phát hiện lỗ hổng: "xem lại định nghĩa unit/level" (tiêu chí C2) chưa từng được làm
 

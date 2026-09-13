@@ -91,7 +91,7 @@ def main():
     offs = npz[f"offsets_{args.dataidx}"]
 
     n_ctx = rec["shared_prefix_length"] - args.observation_window
-    prompts = rebuild_prompts(args.model, args.dataset, {args.dataidx})
+    prompts = rebuild_prompts(args.model, args.dataset, {args.dataidx}, meta)
     prompt, sp = prompts[args.dataidx]
     assert sp == rec["shared_prefix_length"], (sp, rec["shared_prefix_length"])
 

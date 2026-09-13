@@ -93,6 +93,21 @@ def discover_l1(cluster_dir):
     return out
 
 
+def discover_method(cluster_dir, fallback):
+    """Tra ve `method` THAT da dung de sinh thu muc nay, doc tu feasibility_*.json —
+    khong doan qua ten nhan `--cluster_dir` (ten do nguoi goi lenh tu dat, co the lech
+    quy uoc, xem vu hard_boundary_class 12/9: bi coi la NHOM DOI CHUNG vi ten khong
+    khop y het chuoi "hard_boundary" trong HARD set, du du lieu la hard_boundary that).
+    Nhanh `sa` khong sinh file nay -> giu nguyen `fallback` (doan qua ten, nhu truoc).
+    """
+    for p in glob.glob(os.path.join(cluster_dir, "feasibility_*.json")):
+        try:
+            return json.load(open(p, encoding="utf-8")).get("method", fallback)
+        except Exception:
+            pass
+    return fallback
+
+
 def load_meta(phase1_dir, dataset):
     path = os.path.join(phase1_dir, f"{dataset}_meta.jsonl")
     if not os.path.exists(path):
@@ -105,12 +120,21 @@ def load_meta(phase1_dir, dataset):
     return recs
 
 
-def rebuild_prompts(model, dataset, idxs):
+def rebuild_prompts(model, dataset, idxs, meta):
     """Dung lai prompt CUOI CUNG (sau truncation) cho cac dataidx can kiem.
 
     `prepare_code_data.py` mac dinh KHONG luu `prompt` vao meta — 500 mau x ~40 KB se lam
     meta phinh len ~20 MB. Nen phai dung lai, theo dung tung buoc cua check_phase1_data.py
     de ra chuoi y het: tokenizer CHAM + truncate_fn.
+
+    QUAN TRONG: `fixed_context_mode` (full/crossfile) doi key template dung cho
+    `prompt_noquery` — VA CHI KHAC NHAU O REPOBENCH-P (lcc thi `_prompt` == `_prompt_full`,
+    xem LongBench/config/dataset2prompt.json). Phai doc dung gia tri DA GHI trong meta cho
+    TUNG dataidx (meta["fixed_context_mode"]), khong duoc doan/hard-code — neu khong sp_len
+    dung lai se lech voi meta o moi mau co {input} (repobench-p), vi truncate_fn se coi
+    {input} la phan "query" thay vi phan "co dinh". Da vap loi nay 12/9: 200/200 mau
+    repobench-p bao [!] sp_len lech, ke ca dataidx thuoc lo cu chua he bi dung — chung minh
+    loi nam o cho ham nay, khong phai o du lieu.
     """
     # REPO_ROOT chua thu muc `transformers/` — do la CAY NGUON cua fork (package that nam o
     # transformers/src/transformers), khong co __init__.py o cap do. Python coi no la
@@ -165,14 +189,19 @@ def rebuild_prompts(model, dataset, idxs):
 
     tok = AutoTokenizer.from_pretrained(model2path[model], use_fast=False)
     max_length = model2maxlen[model]
-    fmt, fmt_only = d2p[dataset], d2p[dataset + "_prompt"]
+    fmt = d2p[dataset]
 
     data = load_dataset("THUDM/LongBench", dataset, split="test")
     out = {}
     for i in sorted(idxs):
         d = data[int(i)]
+        rec = meta.get(i, {})
+        mode = rec.get("fixed_context_mode", "full")
+        key_only = dataset + ("_prompt_full" if mode == "full" else "_prompt")
+        fmt_only = d2p[key_only]
         prompt, sp_len = truncate_fn(fmt.format(**d), fmt_only.format(**d),
-                                     tok, max_length, dataset, "cpu")
+                                     tok, max_length, dataset, "cpu",
+                                     model_name=model, force_chat=rec.get("force_chat", False))
         out[i] = (prompt, int(sp_len))
     return out
 
@@ -440,13 +469,13 @@ def main():
         # phai vat qua bien o gan nhu moi cluster. Khong co con so do thi "0 vi pham" cua
         # hard_boundary chua chung minh duoc gi — biet dau du lieu nay von it unit den muc
         # moi cach cluster deu khong vat bien.
-        expect0 = name in HARD
+        expect0 = discover_method(path, fallback=name) in HARD
         print(f"\n[A] Ranh gioi cung — {name}"
               + ("" if expect0 else "   (NHOM DOI CHUNG — mong doi vat bien NHIEU)"))
         if not prompts:
             print("    (dung lai prompt sau truncation — can dataset + tokenizer)")
             prompts.update(rebuild_prompts(
-                args.model, args.dataset, set().union(*(set(d) for d in found.values()))))
+                args.model, args.dataset, set().union(*(set(d) for d in found.values())), meta))
         for idx in sorted(found[name]):
             K = found[name][idx]
             rec = meta.get(idx)
