@@ -1,0 +1,15 @@
+=== longchat-v1.5-7b-32k_PC5_PERC0.7_lim200_runfull200class ===
+Samples processed: 200 (unique dataidx 200, dups 0)
+Avg Time / sample: 70.61 s (± 44.72 s) | median 59.33 s | total 14122 s | 1286.4 ms/token
+Peak VRAM Max: 48.66 GiB | Avg VRAM: 29.08 GiB | Peak reserved max: 62.62 GiB
+
+=== longchat-v1.5-7b-32k_PC5_PERC0.7_lim200_runfull200sa ===
+Samples processed: 200 (unique dataidx 200, dups 0)
+Avg Time / sample: 71.49 s (± 46.46 s) | median 60.58 s | total 14298 s | 1336.7 ms/token
+Peak VRAM Max: 48.66 GiB | Avg VRAM: 29.08 GiB | Peak reserved max: 62.61 GiB
+
+=== longchat-v1.5-7b-32k_baseline_lim200_runfull200 ===
+Samples processed: 200 (unique dataidx 200, dups 0)
+Avg Time / sample: 3.81 s (± 1.92 s) | median 3.28 s | total 761 s | 70.3 ms/token
+Peak VRAM Max: 47.14 GiB | Avg VRAM: 28.38 GiB | Peak reserved max: 57.19 GiB
+

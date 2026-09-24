@@ -1,5 +1,10 @@
 # Phase 5 (C2) — Recall@budget · **KẾT QUẢ ÂM**
 
+> **Cập nhật 24/9/2026 — đã chạy Phase 6 cho cấu hình pass C2 duy nhất (RepoBench-P /
+> `class`), mới ở sp70.** End-task n=200: `class − sa` ΔES = −1,09, KTC95 [−3,25; +1,12] →
+> **C1 không đạt**. Recall +0,30 ở đây không chuyển thành độ chính xác sinh code. Mục "Không
+> chạy Phase 6" bên dưới giờ đã lỗi thời. Chi tiết: [PHASE6_RESULTS.md](PHASE6_RESULTS.md).
+
 > **Cập nhật 13/9/2026 — sweep đủ 4 mức `--level` (class/function/block/statement) trên
 > RepoBench-P, ranh giới L2 (không phải L1 hierarchy).** Xu hướng đơn điệu: `class` (thô hơn
 > function) **DƯƠNG** ở sp70/80 (+0,30/+0,16, KTC loại 0) nhưng âm ở sp90 (−0,09) · `function`

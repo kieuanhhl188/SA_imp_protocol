@@ -1,0 +1,99 @@
+======================================================================
+  SO THEO CAP — task 'repobench-p', 200 mau chung
+    All-KV: 58.15   <- LongBench/pred/longchat-v1.5-7b-32k_baseline_lim200_runfull200/result_detail.json
+    SA-70: 57.45   <- LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7_lim200_runfull200sa/result_detail.json
+======================================================================
+
+  Mau GIONG HET      : 180/200  (90%)
+  SA-70 tot hon : 10/200
+  SA-70 kem hon : 10/200
+
+  Hieu so trung binh : -0.69 diem
+  Do lech chuan      : 8.41
+  Sai so chuan (SE)  : 0.59
+  Khoang tin cay 95% : [-1.86, +0.48]
+
+  Sign test (2 phia) : p = 1.0000  tren 20 mau co thay doi
+
+  => Khoang tin cay CHUA 0: chenh lech KHONG co y nghia thong ke o n nay.
+     Muon ket luan thi phai tang so mau, khong phai doi nguong.
+
+  Ghi chu: 180/200 mau cho prediction y het nhau. Do la ly do phai so
+  theo cap — phuong sai cua hieu so nho hon han phuong sai cua tung diem.
+
+  8 mau lech nhieu nhat (SA-70 kem nhat truoc):
+      idx        A        B     hieu
+      169    100.0     19.0    -81.0
+      196     92.0     26.0    -66.0
+      199     60.0     37.0    -23.0
+       15     84.0     63.0    -21.0
+      179    100.0     83.0    -17.0
+       72     34.0     22.0    -12.0
+      130     81.0     72.0     -9.0
+      152     62.0     55.0     -7.0
+======================================================================
+  SO THEO CAP — task 'repobench-p', 200 mau chung
+    All-KV: 58.15   <- LongBench/pred/longchat-v1.5-7b-32k_baseline_lim200_runfull200/result_detail.json
+    Class-70: 56.36   <- LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7_lim200_runfull200class/result_detail.json
+======================================================================
+
+  Mau GIONG HET      : 132/200  (66%)
+  Class-70 tot hon : 27/200
+  Class-70 kem hon : 41/200
+
+  Hieu so trung binh : -1.78 diem
+  Do lech chuan      : 13.78
+  Sai so chuan (SE)  : 0.97
+  Khoang tin cay 95% : [-3.69, +0.13]
+
+  Sign test (2 phia) : p = 0.1143  tren 68 mau co thay doi
+
+  => Khoang tin cay CHUA 0: chenh lech KHONG co y nghia thong ke o n nay.
+     Muon ket luan thi phai tang so mau, khong phai doi nguong.
+
+  Ghi chu: 132/200 mau cho prediction y het nhau. Do la ly do phai so
+  theo cap — phuong sai cua hieu so nho hon han phuong sai cua tung diem.
+
+  8 mau lech nhieu nhat (Class-70 kem nhat truoc):
+      idx        A        B     hieu
+       31     72.0      0.0    -72.0
+       10     93.0     25.0    -68.0
+       95    100.0     41.0    -59.0
+      122     89.0     42.0    -47.0
+      118     64.0     18.0    -46.0
+       30     79.0     34.0    -45.0
+      183     99.0     70.0    -29.0
+       41     60.0     32.0    -28.0
+======================================================================
+  SO THEO CAP — task 'repobench-p', 200 mau chung
+    SA-70: 57.45   <- LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7_lim200_runfull200sa/result_detail.json
+    Class-70: 56.36   <- LongBench/pred/longchat-v1.5-7b-32k_PC5_PERC0.7_lim200_runfull200class/result_detail.json
+======================================================================
+
+  Mau GIONG HET      : 128/200  (64%)
+  Class-70 tot hon : 30/200
+  Class-70 kem hon : 42/200
+
+  Hieu so trung binh : -1.09 diem
+  Do lech chuan      : 15.62
+  Sai so chuan (SE)  : 1.10
+  Khoang tin cay 95% : [-3.25, +1.07]
+
+  Sign test (2 phia) : p = 0.1945  tren 72 mau co thay doi
+
+  => Khoang tin cay CHUA 0: chenh lech KHONG co y nghia thong ke o n nay.
+     Muon ket luan thi phai tang so mau, khong phai doi nguong.
+
+  Ghi chu: 128/200 mau cho prediction y het nhau. Do la ly do phai so
+  theo cap — phuong sai cua hieu so nho hon han phuong sai cua tung diem.
+
+  8 mau lech nhieu nhat (Class-70 kem nhat truoc):
+      idx        A        B     hieu
+       31     72.0      0.0    -72.0
+       10     93.0     25.0    -68.0
+       95    100.0     41.0    -59.0
+      122     89.0     42.0    -47.0
+      118     64.0     18.0    -46.0
+       30     79.0     34.0    -45.0
+       41     68.0     32.0    -36.0
+      183     99.0     70.0    -29.0

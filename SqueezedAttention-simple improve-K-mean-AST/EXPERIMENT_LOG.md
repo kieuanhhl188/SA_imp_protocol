@@ -991,6 +991,39 @@ inference latency. Riêng benchmark latency Phase 7 luôn chạy 1 GPU.)*
 
 ## 6. Thay đổi code
 
+### 2026-09-24 — Phase 6 (C1) end-task cho cấu hình duy nhất pass C2: RepoBench-P / `class` / sp70 — C1 KHÔNG ĐẠT
+
+Chạy end-task cho cấu hình pass cổng C2 ở Phase 5 (entry 12/9 (d): `hard_boundary(class) − sa`
+recall **+0,30 ở sp70, +0,16 ở sp80**, KTC loại 0). LongChat-v1.5-7B-32K, RepoBench-P, n=200,
+`PC5`, sparsity 70%, 3 cấu hình trên cùng 200 mẫu: `…_baseline_lim200_runfull200` (All-KV),
+`…_PC5_PERC0.7_lim200_runfull200sa`, `…_PC5_PERC0.7_lim200_runfull200class`.
+
+| Cấu hình | EM % | ES | ΔES vs SA-70% [KTC95] | T/B/H vs SA-70% | s/mẫu | VRAM max |
+|---|---:|---:|---|---:|---:|---:|
+| All-KV | 12,00 | 58,15 | +0,69 [−0,33; +1,99] | 10/10/180 | 3,81 | 47,14 |
+| SA-70% | 11,00 | 57,45 | — | — | 71,49 | 48,66 |
+| Class-70% | 10,50 | 56,36 | **−1,09 [−3,25; +1,12]**, p=0,32 | **30/42/128** | 70,61 | 48,66 |
+
+Bootstrap ghép cặp B=20.000, seed 0. Class − All-KV: −1,78 [−3,71; +0,13], p=0,067.
+
+**C1 không đạt:** không khác SA có ý nghĩa thống kê, ước lượng điểm còn ngược hướng. Recall
++0,30 ở Phase 5 không chuyển thành ES. Ranh giới `class` làm output lệch khỏi All-KV ở 34% mẫu
+(SA chỉ 10%). Thời gian ×18,5 và VRAM cao hơn là chi phí của bản mô phỏng (KV đầy đủ + centroid,
+`gen_time_s` gồm cả `torch.load` centroid), không phải của phương pháp.
+
+Chạy bằng [scripts/run_phase6_full200_repobench.sh](scripts/run_phase6_full200_repobench.sh)
+(bản gốc `/workspace/run_full_200.sh`), 23/9 16:08 → 24/9 00:22 UTC, log
+`/workspace/logs_full_run_20260923_160815/`. Nhánh class dùng
+`--path_to_clusters /workspace/p2-longchat-repobench/hard_boundary_class/`. File feasibility ở đó
+ghi `hard_boundary`/`level: class`/pc5/n=200, tức **cùng centroid đã pass C2** ở Phase 5. 3 lần
+khởi chạy trước đó (15:55, 15:59, 16:00) hỏng do sai đường dẫn và sai tên model, không sinh dữ liệu.
+
+Chưa làm: **sp80 chưa chạy end-task**; mới 1 seed (protocol cần ≥3).
+
+Thêm [scripts/phase6_bootstrap.py](scripts/phase6_bootstrap.py): 3 cấu hình, EM + ES + bootstrap +
+W/L/T + thời gian/VRAM (`compare_runs.py` chỉ nhận 2 lần chạy, KTC xấp xỉ chuẩn, không có EM).
+Bằng chứng: `phase6_evidence/repobench_class_24-9/`. Chi tiết: [docs/PHASE6_RESULTS.md](docs/PHASE6_RESULTS.md).
+
 ### 2026-09-13 (g) — Smoke test (chỉ 3 mẫu, KHÔNG chạy full): `--level class`/`statement` trên LCC — xác nhận thêm lý do đã không thử trước đây
 
 Sau khi có bộ 4 mức đầy đủ trên RepoBench-P (entry (e)/(f)), thử làm tương tự trên LCC để đối
