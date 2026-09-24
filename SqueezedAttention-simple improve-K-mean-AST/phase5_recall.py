@@ -215,6 +215,15 @@ def main():
     ap.add_argument("--l1_ratios", type=float, nargs="+", default=[1.0, 0.9, 0.7, 0.5],
                     help="ty le nhom L1 giu lai o buoc routing. 1.0 = giu het (== phang), "
                          "luon duoc them vao neu thieu de doi chieu.")
+    ap.add_argument("--struct_l1_on", default=None, metavar="BRANCH",
+                    help="StructHierarchy DOC LAP (de xuat 2): them nhanh ao `BRANCH+struct_l1` "
+                         "co L2 = centroid/label cua BRANCH NGUYEN BAN (thuong la `sa`, KHONG "
+                         "hard-boundary) va L1 = CAU TRUC THUAN: trung binh cua KEY GOC theo "
+                         "nhom class/file/function (--level_l1), khong lay trung binh centroid "
+                         "L2. L2 duoc phep bat qua ranh gioi L1 (khong long nhau, khong ap bat "
+                         "bien [E]). Can --hierarchical.")
+    ap.add_argument("--level_l1", default="class",
+                    help="level cau truc cho nhom L1 khi dung --struct_l1_on")
     args = ap.parse_args()
 
     from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM
@@ -227,6 +236,16 @@ def main():
             raise SystemExit(f"[ERROR] khong phai thu muc: {d}")
         branches[name] = d
     print(">>> nhanh:", ", ".join(f"{k} -> {v}" for k, v in branches.items()))
+    virt = None
+    if args.struct_l1_on:
+        if not args.hierarchical:
+            raise SystemExit("[ERROR] --struct_l1_on can --hierarchical")
+        if args.struct_l1_on not in branches:
+            raise SystemExit(f"[ERROR] --struct_l1_on {args.struct_l1_on}: khong co trong --cluster_dir")
+        virt = args.struct_l1_on + "+struct_l1"
+        print(f">>> nhanh ao {virt}: L2 = {args.struct_l1_on} NGUYEN BAN ({branches[args.struct_l1_on]}), "
+              f"L1 = cau truc thuan level={args.level_l1} (trung binh KEY goc)")
+    out_names = list(branches) + ([virt] if virt else [])
 
     DEV = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
     m2p = json.load(open("LongBench/config/model2path.json", encoding="utf-8"))
@@ -288,8 +307,15 @@ def main():
     else:
         ratios = [1.0]
     res = {b: {(sp, r): {"recall": [], "mass": []}
-               for sp in args.sparsity for r in ratios} for b in branches}
+               for sp in args.sparsity for r in ratios} for b in out_names}
     n_used = 0
+    struct_stats = {"idx": [], "k1": [], "n_ctx": [], "error_nodes": [], "l2_cross_frac": []}
+    if virt:
+        import types
+        from offline_clustering_struct import load_phase1 as _load_p1, build_unit_ids
+        from struct_clustering import compact_unit_ids
+        _, offsets_npz = _load_p1(args.phase1_dir, args.dataset, args.model)
+        _ns = types.SimpleNamespace(token_weights=False)
 
     skip_idx = set(args.skip_idx)
     if skip_idx:
@@ -336,6 +362,18 @@ def main():
         if not ok:
             continue
 
+        l1_lab = None
+        if virt:
+            uid, _, st1 = build_unit_ids(prompt, rec, offsets_npz[f"offsets_{i}"], sp_len,
+                                         args.observation_window, args.level_l1, _ns)
+            l1_lab, _ = compact_unit_ids(uid)
+            assert l1_lab.numel() == n_ctx, (i, l1_lab.numel(), n_ctx)
+            l1_lab = l1_lab.to(DEV)
+            K1s = int(l1_lab.max()) + 1
+            struct_stats["idx"].append(i); struct_stats["k1"].append(K1s)
+            struct_stats["n_ctx"].append(n_ctx); struct_stats["error_nodes"].append(st1["num_error_nodes"])
+            cross_acc = []
+
         for b, path in branches.items():
             f = glob.glob(os.path.join(path, f"centroids_tensor_dict_{i}_*.pt"))[0]
             K = int(re.search(r"_(\d+)\.pt$", f).group(1))
@@ -375,6 +413,36 @@ def main():
                 assert c.shape[0] == k.shape[0] == lb.shape[0] == q.shape[0], (
                     q.shape, k.shape, c.shape, lb.shape)
 
+                if virt and b == args.struct_l1_on:
+                    # ---- StructHierarchy DOC LAP: L2 = SA nguyen ban, L1 = cau truc thuan ----
+                    # (1) L2 phai la SA: nap LAI tu thu muc SA bang lan nap rieng, so bit-by-bit
+                    #     voi tensor nhanh `sa` dang dung. Neu L2 bi doi sang hard-boundary thi
+                    #     assert nay no.
+                    if l == layers[0]:
+                        cent_chk = torch.load(f, map_location="cpu")
+                        lab_chk = torch.load(os.path.join(path, f"centroids_labels_dict_{i}_{K}.pt"),
+                                             map_location="cpu")
+                    assert torch.equal(cent_chk[l].squeeze(0).float(), cent[l].squeeze(0).float().cpu()), \
+                        f"L2 centroid cua {virt} KHAC SA (mau {i}, lop {l})"
+                    assert torch.equal(lab_chk[l].squeeze(0)[:, :n_ctx].long(),
+                                       lab[l].squeeze(0)[:, :n_ctx].long().cpu()), \
+                        f"L2 label cua {virt} KHAC SA (mau {i}, lop {l})"
+                    # (2) L1 = trung binh cua KEY GOC theo nhom cau truc (KHONG tu centroid L2)
+                    S_, D_ = k.shape[1], k.shape[2]
+                    cnt = torch.bincount(l1_lab, minlength=K1s).float()
+                    c1v = torch.zeros(k.shape[0], K1s, D_, device=k.device)
+                    c1v.index_add_(1, l1_lab, k)
+                    c1v = c1v / cnt.clamp_min(1).view(1, K1s, 1)
+                    lb1v = l1_lab.unsqueeze(0).expand(k.shape[0], S_)
+                    # (3) do muc L2 vat qua ranh gioi L1 (khong long nhau -> khong ap bat bien [E])
+                    pair = torch.unique(lb[0] * K1s + l1_lab)
+                    ncl = torch.bincount(pair // K1s)
+                    cross_acc.append(float((ncl[ncl > 0] > 1).float().mean()))
+                    outv = recall_hierarchical(q, k, c, lb, c1v, lb1v, args.sparsity, ratios)
+                    for (sp, rr), (rec_, m_) in outv.items():
+                        res[virt][(sp, rr)]["recall"].append(rec_)
+                        res[virt][(sp, rr)]["mass"].append(m_)
+
                 if cent1 is not None:
                     c1 = cent1[l].squeeze(0).float()                    # [H_kv, K1, D]
                     lb1 = lab1[l].squeeze(0)[:, :n_ctx].long()          # [H_kv, S]
@@ -392,6 +460,8 @@ def main():
                     for sp, (rec, m) in out.items():
                         res[b][(sp, 1.0)]["recall"].append(rec)
                         res[b][(sp, 1.0)]["mass"].append(m)
+        if virt:
+            struct_stats["l2_cross_frac"].append(float(np.mean(cross_acc)))
         n_used += 1
         all_q.clear(); all_k.clear()
         if n_used % 20 == 0:
@@ -417,26 +487,43 @@ def main():
 
     if not args.hierarchical:
         summary = {b: {str(sp): _agg(res[b][(sp, 1.0)]) for sp in args.sparsity}
-                   for b in branches}
+                   for b in out_names}
         per_sample = {b: {str(sp): res[b][(sp, 1.0)]["recall"] for sp in args.sparsity}
-                      for b in branches}
+                      for b in out_names}
+        # them (khong doi cach tinh): mass theo mau, de loc tap con sau khi chay
+        per_sample_mass = {b: {str(sp): res[b][(sp, 1.0)]["mass"] for sp in args.sparsity}
+                           for b in out_names}
         print(hdr)
-        for b in branches:
+        for b in out_names:
             print(_row(b, lambda b, sp: summary[b][str(sp)]))
     else:
         summary = {b: {str(r): {str(sp): _agg(res[b][(sp, r)]) for sp in args.sparsity}
-                       for r in ratios} for b in branches}
+                       for r in ratios} for b in out_names}
         per_sample = {b: {str(r): {str(sp): res[b][(sp, r)]["recall"]
                                    for sp in args.sparsity}
-                          for r in ratios} for b in branches}
+                          for r in ratios} for b in out_names}
+        per_sample_mass = {b: {str(r): {str(sp): res[b][(sp, r)]["mass"]
+                                        for sp in args.sparsity}
+                               for r in ratios} for b in out_names}
         print(">>> lookup PHAN TANG — r = ty le nhom L1 giu lai (r=1.0 == phang)")
         print(">>> KIEM CHUNG: struct_hierarchy @ r=1.0 phai TRUNG hard_boundary @ r=1.0")
         for r in ratios:
             print(f"\n--- r = {r:g}  (giu {r*100:.0f}% nhom L1) ---")
             print(hdr)
-            for b in branches:
+            for b in out_names:
                 print(_row(b, lambda b, sp, _r=r: summary[b][str(_r)][str(sp)]))
     print("   (recall / attention-mass, cang cao cang tot)")
+
+    if virt:
+        # Kiem chung cuoi: o r=1.0 (giu HET nhom L1) nhanh ao PHAI trung nhanh SA phang tung mau.
+        mx = 0.0
+        for sp in args.sparsity:
+            for key in ("recall", "mass"):
+                a = np.asarray(res[virt][(sp, 1.0)][key]); b_ = np.asarray(res[args.struct_l1_on][(sp, 1.0)][key])
+                assert a.shape == b_.shape and a.size > 0, (key, sp, a.shape, b_.shape)
+                mx = max(mx, float(np.abs(a - b_).max()))
+        print(f">>> KIEM CHUNG {virt} @ r=1.0 == {args.struct_l1_on} phang: max|diff| = {mx:.2e}")
+        assert mx < 1e-6, f"{virt}@r=1.0 KHAC {args.struct_l1_on}: {mx}"
 
     json.dump({"model": args.model, "dataset": args.dataset, "n_samples": n_used,
                "skipped_idx": sorted(skip_idx),
@@ -444,7 +531,11 @@ def main():
                "hierarchical": args.hierarchical,
                "l1_ratios": ratios if args.hierarchical else None,
                "summary": summary,
-               "per_sample": per_sample},
+               "per_sample": per_sample,
+               "per_sample_mass": per_sample_mass,
+               "struct_l1": ({"branch": virt, "l2_source": args.struct_l1_on,
+                              "level_l1": args.level_l1, "k1_mode": "as-is (nhom cau truc tho)",
+                              **struct_stats} if virt else None)},
               open(args.out, "w", encoding="utf-8"), indent=2)
     print(f">>> Da ghi {args.out}")
     return 0

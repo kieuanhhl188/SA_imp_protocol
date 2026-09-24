@@ -1,0 +1,10 @@
+==============================================================================
+  DO LAI TY LE CENTROID RONG (thay so Qwen 22/8 cu trong PHASE2_RESULTS.md Bang 3)
+==============================================================================
+  sa                     200 mau  ·  tong  145,934,336 hang centroid (moi layer x head x K)  ·  RONG (norm=0): 0.000%
+  hard_boundary_class    200 mau  ·  tong  145,934,336 hang centroid (moi layer x head x K)  ·  RONG (norm=0): 0.000%
+==============================================================================
+  Tom tat:
+    sa                   0.000%
+    hard_boundary_class  0.000%
+==============================================================================
