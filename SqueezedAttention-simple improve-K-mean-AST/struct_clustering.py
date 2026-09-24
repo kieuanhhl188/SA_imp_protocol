@@ -415,9 +415,15 @@ def hard_boundary_kmeans(
     max_batch_elems: int = 64_000_000,
     device: Optional[torch.device] = None,
     token_weights: Optional[torch.Tensor] = None,
+    k_per_unit: Optional[torch.Tensor] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, object]]:
     """
     K-means chạy ĐỘC LẬP trong từng unit. Token không bao giờ nhảy sang cluster của unit khác.
+
+    k_per_unit: [U] hoặc None. **Mặc định None = tự chia bằng `allocate_centroids`** (mọi
+        đường cũ). Phase 4 (incremental) cần truyền thẳng: khi chỉ cluster lại một tập con
+        unit, `allocate_centroids` trên tập con đó KHÔNG cho ra cùng k_u như trên cả mẫu
+        (phần làm tròn khác), nên phải giữ nguyên k_u cũ thì mới ghép lại được.
 
     keys:      [H, S, D]  key vector của fixed context (đã bỏ observation window)
     unit_ids:  [S]        unit của từng token, giá trị trong [0, U)
@@ -456,7 +462,14 @@ def hard_boundary_kmeans(
     U = int(unit_ids.max()) + 1
     sizes = torch.bincount(unit_ids, minlength=U)
 
-    k_per_unit = allocate_centroids(sizes.cpu(), num_centroids_total, max_k_per_unit).to(device)
+    if k_per_unit is None:
+        k_per_unit = allocate_centroids(sizes.cpu(), num_centroids_total, max_k_per_unit)
+    else:
+        k_per_unit = k_per_unit.to(torch.long).cpu()
+        assert k_per_unit.shape == (U,), (k_per_unit.shape, U)
+        assert int(k_per_unit.sum()) == num_centroids_total, (int(k_per_unit.sum()), num_centroids_total)
+        assert bool((k_per_unit >= 1).all()) and bool((k_per_unit <= sizes.cpu()).all())
+    k_per_unit = k_per_unit.to(device)
     cluster_offset = torch.cumsum(k_per_unit, 0) - k_per_unit
 
     # sắp token theo unit -> mỗi unit là một lát liên tục
