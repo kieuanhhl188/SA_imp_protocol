@@ -22,6 +22,7 @@ import torch.multiprocessing as mp
 import pickle
 import textwrap
 import sys
+import time
 from squeezedattention.utils import build_chat, truncate_fn, apply_rope_scaling
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
@@ -58,6 +59,23 @@ def parse_args(args=None):
                         help="AP chat template cho ca lcc/repobench-p. LongBench co y BO "
                              "template o hai task nay; bat len la de KIEM CHUNG gia thuyet "
                              "'Instruct hong vi thieu template', khong phai cau hinh mac dinh")
+    parser.add_argument("--fixed_context", choices=["crossfile", "full"], default=None,
+                        help="phan prompt coi la shared prefix (duoc cluster). crossfile = "
+                             "<task>_prompt (hanh vi goc LongBench). full = <task>_prompt_full "
+                             "({context}{input}). Mac dinh: full cho task trong "
+                             "REQUIRE_FULL_CONTEXT (repobench-p - centroid Phase 2/5 sinh bang "
+                             "offline_clustering_struct.py --fixed_context full), crossfile cho "
+                             "task khac. Truyen crossfile cho repobench-p -> loi cau hinh.")
+    parser.add_argument("--phase1_dir", type=str, default=os.environ.get("SQA_PHASE1_DIR"),
+                        help="thu muc Phase 1.4 (<dir>/<model>/<task>_meta.jsonl). Neu co meta cung "
+                             "fixed_context/force_chat/max_length, TUNG mau duoc doi chieu "
+                             "shared_prefix_length truoc khi generate; lech -> dung ngay.")
+    parser.add_argument("--checkpoint_every", type=int, default=10,
+                        help="moi N mau: in tom tat (thoi gian, VRAM, diem tam) va ghi "
+                             "_logs/<task>.progress.rank<R>.json. Prediction thi van ghi + fsync "
+                             "sau TUNG mau, khong doi N mau.")
+    parser.add_argument("--mem_warn_frac", type=float, default=0.92,
+                        help="canh bao khi max_memory_allocated vuot ty le nay cua tong VRAM")
     parser.add_argument("--task", type=str, default=None)
     parser.add_argument("--seed", type=int, default=42,
                         help="random seed; protocol yêu cầu mean±std qua >=3 seed cho số accuracy chính")
@@ -80,12 +98,97 @@ def parse_args(args=None):
                              "lượt chạy đầy đủ. eval.py phải truyền cùng --limit để đọc được")
     return parser.parse_args(args)
 
+
+# Task ma centroid (Phase 1.4/2/5) sinh voi shared prefix = {context}{input}. Chay SA voi
+# prefix crossfile thi shared_prefix_length lech (~600 token o mau 0 RepoBench-P) va
+# num_clusters tinh ra khong khop ten file centroid - phat hien o pilot 23/9.
+REQUIRE_FULL_CONTEXT = {"repobench-p"}
+
+
+def resolve_fixed_context(dataset, requested):
+    if dataset in REQUIRE_FULL_CONTEXT:
+        if requested not in (None, "full"):
+            raise SystemExit(
+                f"[ERROR] cau hinh: {dataset} bat buoc --fixed_context full (nhan '{requested}').\n"
+                f"        Moi centroid/meta Phase 1.4 cua {dataset} coi shared prefix = cross-file "
+                f"context + code trong file truoc con tro ({{context}}{{input}}).")
+        return "full"
+    return requested or "crossfile"
+
+
+def load_expected_prefix_lengths(phase1_dir, model_name, dataset, mode, force_chat, max_length):
+    """dataidx -> shared_prefix_length tu meta Phase 1.4, chi khi meta sinh cung cau hinh.
+
+    Tra ve (dict hoac None, ly do). None = khong doi chieu duoc (khong phai loi).
+    """
+    if not phase1_dir:
+        return None, "khong co --phase1_dir / SQA_PHASE1_DIR"
+    path = os.path.join(phase1_dir, model_name, f"{dataset}_meta.jsonl")
+    if not os.path.exists(path):
+        return None, f"khong co {path}"
+    exp = {}
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            r = json.loads(line)
+            if (r.get("fixed_context_mode", "longbench") != mode
+                    or bool(r.get("force_chat", False)) != bool(force_chat)
+                    or r.get("max_length", max_length) != max_length):
+                return None, (f"{path} sinh voi fixed_context={r.get('fixed_context_mode')} "
+                              f"force_chat={r.get('force_chat')} max_length={r.get('max_length')}")
+            exp[r["dataidx"]] = r["shared_prefix_length"]
+    return exp, path
+
+
+def _append_jsonl(path, obj):
+    # flush + fsync sau TUNG dong: /workspace la MooseFS, 27/8 da mat file vi bi kill
+    # giua luc ghi. Chi phi ~ms, khong dang ke so voi 60-80 s/mau.
+    with open(path, "a", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False)
+        f.write('\n')
+        f.flush()
+        os.fsync(f.fileno())
+
+
+def _write_json_atomic(path, obj):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=1)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+
+def _repair_tail(path):
+    """Cat dong cuoi dang do (bi kill giua luc ghi). Neu khong cat, dong append tiep theo
+    se dinh vao dong hong -> MAT ca mau moi va eval.py chet vi json.loads."""
+    if not os.path.exists(path):
+        return 0
+    with open(path, "rb") as f:
+        data = f.read()
+    if not data or data.endswith(b"\n"):
+        return 0
+    keep = data.rfind(b"\n") + 1
+    with open(path, "r+b") as f:
+        f.truncate(keep)
+    return len(data) - keep
+
+
 def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_only_format, dataset, device, model_name, model2path, out_path, config_params):
     device = torch.device(f'cuda:{rank}')
     torch.cuda.set_device(rank)
     # mp.spawn tạo process mới -> phải seed lại trong con, seed ở parent không lan sang
     seed_everything(config_params['seed'] + rank)
     model, tokenizer = load_model_and_tokenizer(model2path[model_name], model_name, device, config_params)
+
+    from eval import dataset2metric  # diem tam o moi checkpoint; eval.py co guard __main__
+    metric = dataset2metric.get(dataset)
+    expected_sp = config_params.get('expected_sp_len')
+    log_dir = config_params['log_dir']
+    stats_path = os.path.join(log_dir, f"{dataset}.stats.jsonl")
+    progress_path = os.path.join(log_dir, f"{dataset}.progress.rank{rank}.json")
+    every = max(1, config_params['checkpoint_every'])
+    total_mem = torch.cuda.get_device_properties(device).total_memory
+    sess = {"gen_s": [], "peak_alloc": [], "score": [], "n_mem_warn": 0}
 
     # iterate over longbench dataset
     for json_obj in tqdm(data):
@@ -97,6 +200,17 @@ def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_
         prompt, truncated_shared_prefix_length = truncate_fn(
             prompt, prompt_noquery, tokenizer, max_length, dataset, device,
             model_name=model_name, force_chat=config_params.get('force_chat', False))
+        # Doi chieu TRUOC generate: lech = prefix khong gom dung {context}{input} nhu luc
+        # sinh centroid. De chay tiep thi mau sau cung lech, hoac (neu num_clusters tinh
+        # ra tinh co trung ten file) nap nham centroid ma khong co loi nao.
+        if expected_sp is not None:
+            want = expected_sp.get(different_prefix_index)
+            if want is None:
+                raise RuntimeError(f"dataidx {different_prefix_index} khong co trong meta Phase 1.4")
+            if want != truncated_shared_prefix_length:
+                raise RuntimeError(
+                    f"dataidx {different_prefix_index}: shared_prefix_length {truncated_shared_prefix_length} "
+                    f"!= {want} (meta Phase 1.4). Kiem --fixed_context / --force_chat / model2maxlen.")
         model.model.shared_prefix_length = truncated_shared_prefix_length
         model.model.different_prefix_index = different_prefix_index
 
@@ -104,6 +218,10 @@ def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_
         input = tokenizer(prompt, truncation=False, return_tensors="pt").to(device)
 
         context_length = input.input_ids.shape[-1]
+        # Dinh VRAM rieng tung mau. Thoi gian gom ca nap centroid (torch.load trong forward).
+        torch.cuda.reset_peak_memory_stats(device)
+        torch.cuda.synchronize(device)
+        t0 = time.perf_counter()
         if dataset == "samsum": # prevent illegal output on samsum (model endlessly repeat "\nDialogue"), might be a prompting issue
             output = model.generate(
                 **input,
@@ -124,14 +242,59 @@ def get_pred(rank, world_size, data, max_length, max_gen, prompt_format, prompt_
                 temperature=1.0,
                 use_cache=True
             )[0]
+        torch.cuda.synchronize(device)
+        gen_s = time.perf_counter() - t0
+        peak_alloc = torch.cuda.max_memory_allocated(device)
+        peak_reserved = torch.cuda.max_memory_reserved(device)
+        n_new = int(output.shape[-1] - context_length)
         pred = tokenizer.decode(output[context_length:], skip_special_tokens=True)
-        with open(out_path, "a", encoding="utf-8") as f:
-            # dataidx = different_prefix_index (0..N-1, trung voi ten file centroid).
-            # BAT BUOC cho paired test (Phase 5.5) va mean+-std qua nhieu seed: voi
-            # world_size > 1 cac process cung append vao mot file nen thu tu dong bi
-            # tron, khong the dung thu tu de ghep mau giua hai config.
-            json.dump({"dataidx": different_prefix_index, "pred": pred, "answers": json_obj["answers"], "all_classes": json_obj["all_classes"], "length": json_obj["length"]}, f, ensure_ascii=False)
-            f.write('\n')
+        # dataidx = different_prefix_index (0..N-1, trung voi ten file centroid).
+        # BAT BUOC cho paired test (Phase 5.5) va mean+-std qua nhieu seed: voi
+        # world_size > 1 cac process cung append vao mot file nen thu tu dong bi
+        # tron, khong the dung thu tu de ghep mau giua hai config.
+        # Ghi prediction TRUOC stats: bi kill giua hai lan ghi thi --resume van coi mau
+        # la xong (dung), chi thieu mot dong stats.
+        _append_jsonl(out_path, {"dataidx": different_prefix_index, "pred": pred, "answers": json_obj["answers"], "all_classes": json_obj["all_classes"], "length": json_obj["length"]})
+
+        frac = peak_alloc / total_mem
+        _append_jsonl(stats_path, {
+            "dataidx": different_prefix_index, "rank": rank,
+            "context_length": context_length, "shared_prefix_length": truncated_shared_prefix_length,
+            "new_tokens": n_new, "gen_time_s": round(gen_s, 3),
+            "peak_alloc_gib": round(peak_alloc / 2**30, 3),
+            "peak_reserved_gib": round(peak_reserved / 2**30, 3),
+            "peak_alloc_frac": round(frac, 4)})
+        if frac > config_params['mem_warn_frac']:
+            sess["n_mem_warn"] += 1
+            tqdm.write(f"[CANH BAO VRAM] dataidx {different_prefix_index}: max_memory_allocated "
+                       f"{peak_alloc / 2**30:.2f} GiB = {100 * frac:.1f}% tong "
+                       f"{total_mem / 2**30:.1f} GiB (nguong {100 * config_params['mem_warn_frac']:.0f}%), "
+                       f"context_length={context_length}")
+
+        sess["gen_s"].append(gen_s)
+        sess["peak_alloc"].append(peak_alloc)
+        if metric is not None:
+            sess["score"].append(max(metric(pred, gt, all_classes=json_obj["all_classes"])
+                                     for gt in json_obj["answers"]))
+        n_done = len(sess["gen_s"])
+        if n_done % every == 0 or n_done == len(data):
+            summary = {
+                "rank": rank, "n_done_this_session": n_done, "n_total_this_session": len(data),
+                "last_dataidx": different_prefix_index,
+                "mean_gen_time_s": round(sum(sess["gen_s"]) / n_done, 2),
+                "max_peak_alloc_gib": round(max(sess["peak_alloc"]) / 2**30, 3),
+                "n_mem_warn": sess["n_mem_warn"],
+                # thang 0-100 giong eval.py; CHI tinh mau cua phien nay, khong thay eval.py
+                "running_score": (round(100 * sum(sess["score"]) / len(sess["score"]), 2)
+                                  if sess["score"] else None),
+                "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+            _write_json_atomic(progress_path, summary)
+            tqdm.write("[checkpoint] " + json.dumps(summary, ensure_ascii=False))
+
+        # Tra lai cache cho mau sau (context dai ngan khac nhau -> phan manh). KHONG ha
+        # duoc dinh max_memory_allocated cua mot mau; chi giam phan reserved bi giu lai.
+        del output, input
+        torch.cuda.empty_cache()
 
     if dist.is_initialized():
         dist.destroy_process_group()
@@ -220,6 +383,23 @@ if __name__ == '__main__':
                     "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum", \
                     "lcc", "repobench-p"]
 
+    # Kiem cau hinh cho MOI task ngay luc khoi dong, truoc khi nap model 15 GB.
+    dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
+    fixed_context_of = {}
+    for dataset in datasets:
+        mode = resolve_fixed_context(dataset, args.fixed_context)
+        key_only = dataset + ('_prompt_full' if mode == 'full' else '_prompt')
+        if key_only not in dataset2prompt:
+            raise SystemExit(f'[ERROR] --fixed_context {mode}: khong co template {key_only}')
+        # shared prefix phai la tien to THAT cua prompt; voi full thi phai ket thuc bang
+        # {input} (code trong file truoc con tro), khong chi {context}.
+        if not dataset2prompt[dataset].startswith(dataset2prompt[key_only]):
+            raise SystemExit(f'[ERROR] template {key_only} khong phai tien to cua {dataset}')
+        if mode == 'full' and not dataset2prompt[key_only].endswith('{input}'):
+            raise SystemExit(f'[ERROR] template {key_only} khong ket thuc bang {{input}}')
+        fixed_context_of[dataset] = (mode, key_only)
+    print('[fixed_context] ' + ', '.join(f'{d}={m[0]}' for d, m in fixed_context_of.items()))
+
     # config params
     config_params = {}
     config_params['use_centroids'] = args.use_centroids
@@ -232,9 +412,10 @@ if __name__ == '__main__':
     config_params['seed'] = args.seed
     config_params['force_chat'] = args.force_chat
     config_params['rope_scaling'] = args.rope_scaling
+    config_params['checkpoint_every'] = args.checkpoint_every
+    config_params['mem_warn_frac'] = args.mem_warn_frac
 
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
-    dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
     dataset2maxlen = json.load(open("config/dataset2maxlen.json", "r"))
 
     # predict on each dataset
@@ -271,14 +452,28 @@ if __name__ == '__main__':
         if not os.path.exists(savepath):
             os.makedirs(savepath)
         out_path = savepath + f"/{dataset}.jsonl"
+        # Sidecar nam trong THU MUC CON: eval.py cham moi file *.jsonl o savepath va lay
+        # ten task = phan truoc dau cham -> "repobench-p.stats.jsonl" se bi cham nhu task.
+        log_dir = os.path.join(savepath, "_logs")
+        os.makedirs(log_dir, exist_ok=True)
+        config_params['log_dir'] = log_dir
+        sidecars = [os.path.join(log_dir, fn) for fn in os.listdir(log_dir)
+                    if fn.startswith(dataset + ".")]
+        if args.overwrite and args.resume:
+            raise SystemExit('[ERROR] --overwrite va --resume loai tru nhau.')
+        if args.overwrite:
+            for p_ in sidecars:
+                os.remove(p_)
         done_idx = set()
         if os.path.exists(out_path):
-            if args.overwrite and args.resume:
-                raise SystemExit('[ERROR] --overwrite va --resume loai tru nhau.')
             if args.overwrite:
                 print(f'[overwrite] xoa ket qua cu: {out_path}')
                 os.remove(out_path)
             elif args.resume:
+                for p_ in (out_path, os.path.join(log_dir, f"{dataset}.stats.jsonl")):
+                    cut = _repair_tail(p_)
+                    if cut:
+                        print(f'[resume] {p_}: cat {cut} byte dong cuoi dang do (bi kill giua luc ghi)')
                 with open(out_path, encoding='utf-8') as f:
                     for line in f:
                         line = line.strip()
@@ -295,7 +490,16 @@ if __name__ == '__main__':
                 print(f'           Dung --overwrite / --resume hoac xoa file truoc khi chay lai.')
 
         prompt_format = dataset2prompt[dataset]
-        prompt_only_format = dataset2prompt[dataset + '_prompt']
+        mode, key_only = fixed_context_of[dataset]
+        prompt_only_format = dataset2prompt[key_only]
+        expected_sp, src = load_expected_prefix_lengths(
+            args.phase1_dir, model_name, dataset, mode, args.force_chat, max_length)
+        config_params['expected_sp_len'] = expected_sp
+        if expected_sp is not None:
+            print(f'[prefix] doi chieu shared_prefix_length tung mau voi {src}')
+        elif args.use_centroids and dataset in REQUIRE_FULL_CONTEXT:
+            print(f'[CANH BAO] khong doi chieu duoc shared_prefix_length ({src}). Chi con '
+                  f'assert trong modeling_*.py bat lech, sau khi da nap model.')
         max_gen = dataset2maxlen[dataset]
         data_all = [data_sample for data_sample in data]
 
